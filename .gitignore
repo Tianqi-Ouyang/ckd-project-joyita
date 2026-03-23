@@ -1,0 +1,27 @@
+# Data files
+*.xlsx
+*.xls
+*.csv
+*.sas7bdat
+*.rds
+*.RData
+
+# Temp files
+~$*
+
+# Rendered output
+*.html
+*_files/
+
+# R/RStudio
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/

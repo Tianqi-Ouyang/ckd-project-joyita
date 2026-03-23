@@ -1,0 +1,1102 @@
+---
+title: "Treated Group – Descriptive Analysis"
+author: "Tianqi Ouyang"
+date: "2026-03-20"
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-float: true
+    toc-depth: 3
+execute:
+  echo: false
+  include: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, include = FALSE)
+```
+
+```{r}
+#| label: libraries
+rm(list = ls())
+library(readxl)
+library(dplyr)
+library(tidyverse)
+library(writexl)
+library(gtsummary)
+library(survival)
+library(ggplot2)
+library(survminer)
+library(ggsurvfit)
+library(tidycmprsk)
+library(table1)
+library(readr)
+```
+
+---
+
+::: {style="display:none;"}
+
+# 2 Functions
+
+Reused from `analysis_ici_ckd.qmd`.
+
+## 2.1 pre_lab_median
+
+```{r}
+#| label: fn-pre-lab-median
+pre_lab_median <- function(data, month, time, index_date, Group_Id) {
+  index_date <- enquo(index_date)
+  if (month) {
+    time_value <- time * 30
+  } else {
+    time_value <- time
+  }
+
+  median_name <- paste0("pre_median_", Group_Id, "_", time_value, "days")
+
+  result <- data %>%
+    filter(Group_Id == !!Group_Id, grepl("^\\d+\\.\\d+$", Result)) %>%
+    filter(!is.na(Result)) %>%
+    mutate(Result = as.numeric(Result)) %>%
+    filter(Seq_Date_Time >= (!!index_date) - time_value,
+           Seq_Date_Time <= !!index_date) %>%
+    group_by(EMPI) %>%
+    summarise(
+      !!median_name := median(Result, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    select(EMPI, !!median_name)
+
+  return(result)
+}
+```
+
+## 2.2 pre_lab_median_year
+
+```{r}
+#| label: fn-pre-lab-median-year
+pre_lab_median_year <- function(data, year, days, index_date, Group_Id) {
+  index_date <- enquo(index_date)
+
+  last_offset  <- year * 365
+  first_offset <- last_offset - days
+
+  median_name      <- paste0("pre_median_", Group_Id, "_", year, "year")
+  lab_num_name     <- paste0("lab_num_", year, "year")
+  closest_name     <- paste0("closest_", Group_Id, "_", year, "year")
+  closest_date_name <- paste0("closest_", Group_Id, "_", year, "year_date")
+
+  median <- data %>%
+    filter(Group_Id == !!Group_Id, grepl("^\\d+\\.\\d+$", Result)) %>%
+    filter(!is.na(Result)) %>%
+    mutate(Result = as.numeric(Result)) %>%
+    filter(Seq_Date_Time >= (!!index_date + first_offset),
+           Seq_Date_Time <= !!index_date + last_offset) %>%
+    group_by(EMPI) %>%
+    summarise(
+      !!median_name := median(Result, na.rm = TRUE),
+      !!lab_num_name := n(),
+      .groups = "drop"
+    )
+
+  closest <- data %>%
+    filter(Group_Id == !!Group_Id, grepl("^\\d+\\.\\d+$", Result)) %>%
+    filter(!is.na(Result)) %>%
+    mutate(Result = as.numeric(Result)) %>%
+    filter(Seq_Date_Time <= !!index_date + last_offset) %>%
+    arrange(EMPI, desc(Seq_Date_Time)) %>%
+    distinct(EMPI, .keep_all = TRUE) %>%
+    rename(!!closest_name := Result,
+           !!closest_date_name := Seq_Date_Time) %>%
+    select(EMPI, !!index_date, !!closest_name, !!closest_date_name)
+
+  result <- median %>%
+    merge(closest, by = "EMPI", all = TRUE) %>%
+    mutate(
+      !!median_name := ifelse(is.na(!!sym(median_name)),
+                              !!sym(closest_name),
+                              !!sym(median_name))
+    ) %>%
+    select(EMPI, !!median_name, !!lab_num_name)
+
+  return(result)
+}
+```
+
+## 2.3 left_join_all
+
+```{r}
+#| label: fn-left-join-all
+left_join_all <- function(master, df_list, by) {
+  for (df in df_list) {
+    master <- merge(master, df, by = by, all.x = TRUE)
+  }
+  return(master)
+}
+```
+
+## 2.4 get_ckd_stage
+
+```{r}
+#| label: fn-get-ckd-stage
+get_ckd_stage <- function(egfr) {
+  if (is.na(egfr)) {
+    return(NA)
+  } else if (egfr >= 90) {
+    return(1)
+  } else if (egfr >= 60) {
+    return(2)
+  } else if (egfr >= 30) {
+    return(3)
+  } else if (egfr >= 15) {
+    return(4)
+  } else {
+    return(5)
+  }
+}
+```
+
+## 2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)
+
+```{r}
+#| label: fn-ckd-epi-gfr
+ckd_epi_gfr <- function(creat, male, age) {
+  k <- ifelse(male == 1, 0.9, 0.7)
+  a <- ifelse(male == 1, -0.302, -0.241)
+  m <- ifelse(male == 1, 1, 1.012)
+  gfr <- 142 * min(c(creat / k, 1))^a * max(c(creat / k, 1))^-1.2 * 0.9938^age * m
+  return(gfr)
+}
+
+gfr_calc <- Vectorize(ckd_epi_gfr)
+```
+
+---
+
+# 3 Variable Dictionary
+
+| Source (`treated group.xlsx`) | In Code | Derivation |
+|---|---|---|
+| `empi` | `EMPI` | Renamed uppercase (RPDR) |
+| `ICI_Dose_Date` | `Index_date` | Renamed |
+| `Date_of_Birth` | `Date_of_Birth` | Used to derive `Age` |
+| `Gender_Legal_Sex` | `Gender_Legal_Sex` | Used to derive `male` |
+| `Race` | `Race` | As-is |
+| `Ethnic_Group` | `Ethnic_Group` | As-is |
+| `Cancer_Diagnosis` | `Cancer_Diagnosis` | As-is |
+| `Cancers_stage` | `Cancers_stage` | As-is |
+| `ICI_Name` | `ICI_Name` | As-is |
+| `Date_Of_Death` | `Date_Of_Death` | Used to derive `death`, `time_to_death` |
+| `last_cre_date` | `last_cre_date` | Last creatinine lab date; used as follow-up date |
+
+### Derived variables
+
+| Variable | Description |
+|---|---|
+| `Age` | `floor((Index_date − Date_of_Birth) / 365.25)` |
+| `male` | 1 if Male, else 0 |
+| `last_cre_days` | Days from `Index_date` to `last_cre_date` |
+| `death` | 1 if `Date_Of_Death` is not NA |
+| `time_to_death` | `Date_Of_Death − Index_date` (days), or `last_cre_days` if alive |
+| `death_Xyear` (1–10) | 1 if died within X×365 days |
+| `survival_Xyear` (1–10) | 1 if `last_cre_days ≥ 365×X` |
+| `pre_median_CRE_90days` | Median CRE ≤90 days pre-index (RPDR) |
+| `eGFR_CRE_baseline` | CKD-EPI 2021 from baseline CRE |
+| `ckd_stage_baseline` | CKD stages 1–5 |
+| `ckd_stage_baseline_3` | 3-level: stage 1 / stage 2 / stage 3 or more |
+| `pre_median_CRE_Xyear` (1–10) | Yearly median CRE (90-day window) |
+| `eGFR_CRE_Xyear` (1–10) | Yearly eGFR |
+| `ckd_stage_Xyear` (1–10) | Yearly CKD stage |
+| `lab_num_Xyear` (1–10) | Number of CRE labs in yearly window |
+
+> Follow-up uses `last_cre_date` → `last_cre_days` for censoring.
+
+---
+
+# 4 Data Loading
+
+## 4.1 Load treated group Excel
+
+```{r}
+#| label: load-treated
+treated <- read_excel("treated group.xlsx")
+```
+
+## 4.2 Rename & derive variables
+
+```{r}
+#| label: derive-vars
+# last_cre_date: date of last creatinine lab (from source Excel)
+# last_cre_days: derived days from Index_date to last_cre_date (used for censoring)
+treated <- treated %>%
+  rename(
+    EMPI       = empi,
+    Index_date = ICI_Dose_Date
+  ) %>%
+  mutate(
+    Index_date    = as.Date(Index_date),
+    Date_of_Birth = as.Date(Date_of_Birth),
+    Date_Of_Death = as.Date(Date_Of_Death),
+    last_cre_date = as.Date(last_cre_date),
+    Age           = as.numeric(floor(difftime(Index_date, Date_of_Birth, units = "days") / 365.25)),
+    male          = ifelse(Gender_Legal_Sex == "Male", 1, 0),
+    last_cre_days = as.numeric(difftime(last_cre_date, Index_date, units = "days")),
+    death         = ifelse(!is.na(Date_Of_Death), 1, 0),
+    death_days    = as.numeric(difftime(Date_Of_Death, Index_date, units = "days")),
+    time_to_death = death_days,
+    time_to_death_status = ifelse(!is.na(death_days), 2, 0)
+  ) %>%
+  filter(last_cre_days > 0)
+```
+
+## 4.3 Death flags (1–10 years)
+
+Uses `last_date` logic from Kavita master builder: `last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)`.
+
+```{r}
+#| label: death-flags
+treated <- treated %>%
+  mutate(
+    last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death),
+    last_days = as.numeric(last_date - Index_date)
+  )
+
+for (yr in 1:10) {
+  treated[[paste0("death_", yr, "year")]] <-
+    ifelse(treated$last_days < 365 * yr, 1, 0)
+}
+```
+
+## 4.4 Load RPDR files (Lab, Dia, Med)
+
+```{r}
+#| label: load-rpdr
+rpdr_path <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/"
+
+lab <- read.table(
+  paste0(rpdr_path, "mes98_093025104659807332_Lab.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, EPIC_PMRN, Seq_Date_Time, Result, Group_Id, Test_Description)
+lab$Seq_Date_Time <- as.Date(lab$Seq_Date_Time, "%m/%d/%Y")
+
+dia <- read.table(
+  paste0(rpdr_path, "mes98_093025104659807332_Dia.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, EPIC_PMRN, Code, Date, Diagnosis_Name)
+dia$Date <- as.Date(dia$Date, "%m/%d/%Y")
+
+med <- read.table(
+  paste0(rpdr_path, "mes98_093025104659807332_Med.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, Medication_Date, Medication)
+med$Medication_Date <- as.Date(med$Medication_Date, "%m/%d/%Y")
+```
+
+## 4.5 Create master_lab / master_dia / master_med
+
+```{r}
+#| label: create-master-lab
+master_list <- treated %>% select(EMPI, Index_date)
+master_lab  <- lab %>% merge(master_list, by = "EMPI")
+master_dia  <- dia %>% merge(master_list, by = "EMPI")
+master_med  <- med %>% merge(master_list, by = "EMPI")
+```
+
+## 4.6 RPDR-derived functions
+
+```{r}
+#| label: fn-rpdr-helpers
+med_list <- function(names, index_date, excluded_names = NULL, data) {
+  if (!is.null(excluded_names)) {
+    result <- data %>%
+      filter(Medication_Date <= {{index_date}}) %>%
+      filter(
+        grepl(paste(names, collapse = "|"), Medication, ignore.case = TRUE),
+        !grepl(paste(excluded_names, collapse = "|"), Medication, ignore.case = TRUE)
+      ) %>%
+      distinct(EMPI)
+  } else {
+    result <- data %>%
+      filter(Medication_Date <= {{index_date}}) %>%
+      filter(grepl(paste(names, collapse = "|"), Medication, ignore.case = TRUE)) %>%
+      distinct(EMPI)
+  }
+  return(result)
+}
+
+dia_list_icd <- function(data, index_date, icd_code, excluded_names = NULL,
+                         med_data = NULL, med_names = NULL) {
+  if (is.null(excluded_names)) {
+    dia_result <- data %>%
+      filter(Date <= {{index_date}}) %>%
+      filter(grepl(paste(icd_code, collapse = "|"), Code, ignore.case = TRUE)) %>%
+      distinct(EMPI)
+  } else {
+    dia_result <- data %>%
+      filter(Date <= {{index_date}}) %>%
+      filter(
+        grepl(paste(icd_code, collapse = "|"), Code, ignore.case = TRUE),
+        !grepl(paste(excluded_names, collapse = "|"), Diagnosis_Name, ignore.case = TRUE)
+      ) %>%
+      distinct(EMPI)
+  }
+  if (!is.null(med_data)) {
+    med_result <- med_data %>%
+      filter(Medication_Date <= {{index_date}}) %>%
+      filter(grepl(paste(med_names, collapse = "|"), Medication, ignore.case = TRUE)) %>%
+      distinct(EMPI)
+  } else {
+    med_result <- NULL
+  }
+  rbind(dia_result, med_result) %>% distinct(EMPI)
+}
+
+dia_list_name <- function(data, listed_names, index_date, excluded_names = NULL,
+                          med_data = NULL, med_names = NULL) {
+  if (is.null(excluded_names)) {
+    dia_result <- data %>%
+      filter(Date <= {{index_date}}) %>%
+      filter(grepl(paste(listed_names, collapse = "|"), Diagnosis_Name, ignore.case = TRUE)) %>%
+      distinct(EMPI)
+  } else {
+    excluded_pattern <- paste(gsub("([][()])", "\\\\\\1", excluded_names), collapse = "|")
+    dia_result <- data %>%
+      filter(Date <= {{index_date}}) %>%
+      filter(
+        grepl(paste(listed_names, collapse = "|"), Diagnosis_Name, ignore.case = TRUE),
+        !grepl(excluded_pattern, Diagnosis_Name, ignore.case = TRUE)
+      ) %>%
+      distinct(EMPI)
+  }
+  if (!is.null(med_data)) {
+    med_result <- med_data %>%
+      filter(Medication_Date <= {{index_date}}) %>%
+      filter(grepl(paste(med_names, collapse = "|"), Medication, ignore.case = TRUE)) %>%
+      distinct(EMPI)
+  } else {
+    med_result <- NULL
+  }
+  rbind(dia_result, med_result) %>% distinct(EMPI)
+}
+
+dia_list_icd_after_index <- function(data, index_date, icd_code, excluded_names = NULL) {
+  if (is.null(excluded_names)) {
+    result <- data %>%
+      filter(Date > {{index_date}}) %>%
+      filter(grepl(paste(icd_code, collapse = "|"), Code, ignore.case = TRUE))
+  } else {
+    result <- data %>%
+      filter(Date > {{index_date}}) %>%
+      filter(
+        grepl(paste(icd_code, collapse = "|"), Code, ignore.case = TRUE),
+        !grepl(paste(excluded_names, collapse = "|"), Diagnosis_Name, ignore.case = TRUE)
+      )
+  }
+  result %>%
+    arrange(EMPI, Date) %>%
+    distinct(EMPI, .keep_all = TRUE) %>%
+    select(EMPI, first_event_date = Date)
+}
+
+make_ckd_outcome_date <- function(data, id_var, date_var, condition_expr,
+                                   days_threshold = 90, outcome_name = "default") {
+  id_var      <- enquo(id_var)
+  date_var    <- enquo(date_var)
+  cond_q      <- enquo(condition_expr)
+  outcome_sym <- ensym(outcome_name)
+  outcome_date_name <- paste0(outcome_name, "_date")
+
+  working <- data %>%
+    arrange(!!id_var, !!date_var) %>%
+    group_by(!!id_var) %>%
+    mutate(
+      .cond   = if_else(!!cond_q, 1L, 0L),
+      .change = .cond != lag(.cond, default = first(.cond)),
+      .run    = cumsum(.change)
+    )
+
+  episodes <- working %>%
+    group_by(!!id_var, .run) %>%
+    summarise(
+      .code = first(.cond), .start = first(!!date_var),
+      .last = last(!!date_var), .groups = "drop"
+    ) %>%
+    group_by(!!id_var) %>%
+    mutate(.end = lead(.start),
+           .end = if_else(is.na(.end), .last, .end),
+           .days = as.integer(.end - .start)) %>%
+    ungroup()
+
+  episodes %>%
+    filter(!is.na(.days)) %>%
+    group_by(!!id_var) %>%
+    summarise(
+      has_event  = any(.code == 1L & .days >= days_threshold, na.rm = TRUE),
+      event_date = if (any(.code == 1L & .days >= days_threshold, na.rm = TRUE)) {
+        min(.start[.code == 1L & .days >= days_threshold], na.rm = TRUE)
+      } else { as.Date(NA) },
+      .groups = "drop"
+    ) %>%
+    mutate(!!outcome_sym := as.integer(has_event)) %>%
+    rename(!!outcome_date_name := event_date) %>%
+    select(-has_event)
+}
+```
+
+## 4.7 Derive comorbidities & medications from RPDR
+
+```{r}
+#| label: derive-comorbidities
+# Medication name lists
+ppi_names <- c("omeprazole", "Prilosec", "lansoprazole", "Prevacid",
+               "dexlansoprazole", "rabeprazole", "Aciphex",
+               "pantoprazole", "Protonix", "esomeprazole", "Nexium")
+ace_arb_names <- c("benazepril", "captopril", "enalapril", "fosinopril",
+                   "lisinopril", "ramipril", "losartan", "valsartan",
+                   "irbesartan", "olmesartan", "candesartan", "telmisartan",
+                   "azilsartan", "eprosartan")
+diuretics_names <- c("bumetanide", "furosemide", "torsemide",
+                     "hydrochlorothiazide", "chlorthalidone", "metolazone",
+                     "spironolactone", "triamterene", "amiloride", "eplerenone")
+steroids_names <- c("prednisone", "methylprednisolone", "prednisolone",
+                    "dexamethasone", "budesonide")
+no_steroid_names <- c("Inhaler", "Nebulization", "Ointment", "Ophthalmic")
+statins_names <- c("Atorvastatin", "Lipitor", "Fluvastatin", "Lovastatin",
+                   "Pitavastatin", "Pravastatin", "Rosuvastatin", "Simvastatin")
+
+# Diagnosis codes
+diabetes_codes <- c("250.00", "250.01", "250.02", "250.03", "E10.9", "E11.9",
+                    "E10.65", "E11.65", "E10.21", "E11.21", "E10.22", "E11.22",
+                    "E13.9")
+htn_codes <- c("401.1", "401.0", "401.9", "I10", "I15.1", "I15.9")
+no_htn_list <- c("Pulmonary Embolism", "Borderline hypertension",
+                 "Chronic venous hypertension")
+htn_med_list <- c("hydrochlorothiazide", "amlodipine", "lisinopril",
+                  "losartan", "valsartan", "diltiazem", "clonidine")
+cad_list <- c("Coronary artery disease", "Coronary atherosclerosis",
+              "Atherosclerotic heart disease", "Angina pectoris",
+              "Unstable angina")
+smoking_list <- c("smoking", "tobacco", "cigarette", "nicotine", "smoke")
+esrd_kt_codes <- c("585.6", "N18.6", "V45.1", "Z94.0", "Z99.2",
+                   "996.81", "T86.1", "T86.10", "T86.11", "T86.12")
+
+# Derive
+ppi      <- med_list(data = master_med, names = ppi_names, index_date = Index_date)
+ace_arb  <- med_list(data = master_med, names = ace_arb_names, index_date = Index_date)
+diu      <- med_list(data = master_med, names = diuretics_names, index_date = Index_date)
+steroids <- med_list(data = master_med, names = steroids_names,
+                     index_date = Index_date, excluded_names = no_steroid_names)
+statins  <- med_list(data = master_med, names = statins_names, index_date = Index_date)
+esrd_kt  <- dia_list_icd(master_dia, icd_code = esrd_kt_codes, index_date = Index_date)
+dm  <- dia_list_icd(master_dia, icd_code = diabetes_codes, index_date = Index_date)
+htn <- dia_list_icd(master_dia, icd_code = htn_codes, excluded_names = no_htn_list,
+                    med_data = master_med, med_names = htn_med_list,
+                    index_date = Index_date)
+cad <- dia_list_name(master_dia, listed_names = cad_list, index_date = Index_date)
+cirrhosis <- master_dia %>%
+  filter(Date <= Index_date) %>%
+  filter(grepl("cirrhosis", Diagnosis_Name, ignore.case = TRUE)) %>%
+  distinct(EMPI)
+smoking_dx <- master_dia %>%
+  filter(grepl(paste(smoking_list, collapse = "|"), Diagnosis_Name, ignore.case = TRUE)) %>%
+  distinct(EMPI)
+
+treated <- treated %>%
+  mutate(
+    diu       = ifelse(EMPI %in% diu$EMPI, 1, 0),
+    ace_arb   = ifelse(EMPI %in% ace_arb$EMPI, 1, 0),
+    esrd_kt   = ifelse(EMPI %in% esrd_kt$EMPI, 1, 0),
+    dm        = ifelse(EMPI %in% dm$EMPI, 1, 0),
+    htn       = ifelse(EMPI %in% htn$EMPI, 1, 0),
+    ppi       = ifelse(EMPI %in% ppi$EMPI, 1, 0),
+    steroids  = ifelse(EMPI %in% steroids$EMPI, 1, 0),
+    smoking   = ifelse(EMPI %in% smoking_dx$EMPI, 1, 0),
+    cad       = ifelse(EMPI %in% cad$EMPI, 1, 0),
+    cirrhosis = ifelse(EMPI %in% cirrhosis$EMPI, 1, 0),
+    statins   = ifelse(EMPI %in% statins$EMPI, 1, 0)
+  )
+```
+
+## 4.8 ICI_Class
+
+```{r}
+#| label: derive-ici-class
+treated <- treated %>%
+  mutate(
+    ICI_Class = case_when(
+      ICI_Name %in% c("pembrolizumab", "nivolumab", "cemiplimab",
+                       "Nivolumab", "Dostarlimab", "Cemiplimab") ~ "PD1",
+      ICI_Name %in% c("atezolizumab", "avelumab", "durvalumab") ~ "PDL1",
+      ICI_Name == "ipilimumab" ~ "CTLA4",
+      ICI_Name == "ipilimumab AND nivolumab" ~ "Combination",
+      TRUE ~ NA_character_
+    )
+  )
+```
+
+---
+
+# 5 Baseline Lab Values
+
+## 5.1 Baseline creatinine (median within 90 days pre-index)
+
+```{r}
+#| label: baseline-cre
+pre_lab_baseline <- pre_lab_median(
+  master_lab, month = FALSE, time = 90,
+  index_date = Index_date, Group_Id = "CRE"
+)
+
+treated <- treated %>%
+  merge(pre_lab_baseline, by = "EMPI", all.x = TRUE)
+```
+
+## 5.2 Baseline eGFR & CKD stage
+
+```{r}
+#| label: baseline-egfr
+treated$eGFR_CRE_baseline <- mapply(
+  gfr_calc,
+  treated$pre_median_CRE_90days,
+  treated$male,
+  treated$Age
+)
+
+treated <- treated %>%
+  mutate(
+    ckd_stage_baseline = case_when(
+      eGFR_CRE_baseline >= 90                           ~ 1,
+      eGFR_CRE_baseline >= 60 & eGFR_CRE_baseline < 90 ~ 2,
+      eGFR_CRE_baseline >= 30 & eGFR_CRE_baseline < 60 ~ 3,
+      eGFR_CRE_baseline >= 15 & eGFR_CRE_baseline < 30 ~ 4,
+      eGFR_CRE_baseline < 15                            ~ 5
+    ),
+    ckd_stage_baseline_3 = case_when(
+      ckd_stage_baseline == 1  ~ "stage 1",
+      ckd_stage_baseline == 2  ~ "stage 2",
+      ckd_stage_baseline >= 3  ~ "stage 3 or more"
+    )
+  )
+```
+
+## 5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)
+
+```{r}
+#| label: clean-ckd-outcomes
+outcome_labs <- master_lab %>%
+  select(EMPI, Seq_Date_Time, Result, Group_Id, Index_date) %>%
+  merge(treated %>% select(EMPI, pre_median_CRE_90days, eGFR_CRE_baseline,
+                            male, Age),
+        by = "EMPI") %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  filter(!is.na(Result)) %>%
+  mutate(Result = as.numeric(Result)) %>%
+  filter(Seq_Date_Time > Index_date) %>%
+  mutate(eGFR_CRE = mapply(gfr_calc, Result, male, Age)) %>%
+  select(EMPI, eGFR_CRE_baseline, eGFR_CRE, eGFR_CRE_date = Seq_Date_Time) %>%
+  mutate(pct_drop = round((eGFR_CRE_baseline - eGFR_CRE) / eGFR_CRE_baseline, 3)) %>%
+  arrange(EMPI, eGFR_CRE_date)
+
+ckd_incidence <- make_ckd_outcome_date(
+  outcome_labs, EMPI, eGFR_CRE_date,
+  pct_drop > 0.30 & eGFR_CRE < 60 & eGFR_CRE_baseline >= 60,
+  90, "ckd_incidence")
+
+eskd_defination_1 <- make_ckd_outcome_date(
+  outcome_labs, EMPI, eGFR_CRE_date,
+  eGFR_CRE < 10, 90, "eskd_defination_1")
+
+ckd_progression <- make_ckd_outcome_date(
+  outcome_labs, EMPI, eGFR_CRE_date,
+  eGFR_CRE < 60 & eGFR_CRE_baseline < 60, 90, "ckd_progression")
+
+treated <- treated %>%
+  merge(ckd_incidence, by = "EMPI", all.x = TRUE) %>%
+  merge(eskd_defination_1, by = "EMPI", all.x = TRUE) %>%
+  merge(ckd_progression, by = "EMPI", all.x = TRUE) %>%
+  mutate(
+    ckd_incidence     = replace_na(ckd_incidence, 0),
+    eskd_defination_1 = replace_na(eskd_defination_1, 0),
+    ckd_progression   = replace_na(ckd_progression, 0),
+    esrd_kt_after_ici = ifelse(EMPI %in% (dia_list_icd_after_index(
+      master_dia, icd_code = esrd_kt_codes, index_date = Index_date)$EMPI), 1, 0),
+    eskd_composite    = ifelse(esrd_kt_after_ici == 1 | eskd_defination_1 == 1, 1, 0),
+    ckd_composite     = ifelse(eskd_composite == 1 | ckd_incidence == 1 | ckd_progression == 1, 1, 0),
+    time_to_ckd_incidence   = as.numeric(ckd_incidence_date - Index_date),
+    time_to_ckd_progression = as.numeric(ckd_progression_date - Index_date),
+    time_to_eskd_composite  = as.numeric(pmin(eskd_defination_1_date, na.rm = TRUE) - Index_date),
+    time_to_ckd_composite   = pmin(time_to_ckd_incidence, time_to_ckd_progression,
+                                    time_to_eskd_composite, na.rm = TRUE)
+  )
+```
+
+---
+
+# 6 Yearly Lab Values & Survival Flags
+
+## 6.1 Survival flags (1–10 years)
+
+```{r}
+#| label: survival-flags
+for (yr in 1:10) {
+  treated[[paste0("survival_", yr, "year")]] <-
+    ifelse(treated$last_cre_days >= 365 * yr, 1, 0)
+}
+```
+
+## 6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)
+
+```{r}
+#| label: yearly-cre
+yearly_cre_list <- list()
+for (yr in 1:10) {
+  yearly_cre_list[[yr]] <- pre_lab_median_year(
+    master_lab, year = yr, days = 90,
+    index_date = Index_date, Group_Id = "CRE"
+  )
+}
+
+treated <- left_join_all(treated, yearly_cre_list, by = "EMPI")
+
+for (yr in 1:10) {
+  cre_col   <- paste0("pre_median_CRE_", yr, "year")
+  egfr_col  <- paste0("eGFR_CRE_", yr, "year")
+  stage_col <- paste0("ckd_stage_", yr, "year")
+
+  treated[[egfr_col]]  <- mapply(gfr_calc, treated[[cre_col]],
+                                  treated$male, treated$Age)
+  treated[[stage_col]] <- sapply(treated[[egfr_col]], get_ckd_stage)
+}
+```
+
+---
+
+## 6.3 AKI (from RPDR Lab)
+
+```{r}
+#| label: clean-aki
+aki_data <- master_lab %>%
+  merge(pre_lab_baseline, by = "EMPI", all.x = TRUE) %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  filter(!is.na(Result), !is.na(pre_median_CRE_90days)) %>%
+  mutate(Result = as.numeric(Result)) %>%
+  filter(Seq_Date_Time > Index_date,
+         Seq_Date_Time <= Index_date + 90) %>%
+  filter(Result > 1.5 * pre_median_CRE_90days) %>%
+  arrange(EMPI, Seq_Date_Time) %>%
+  distinct(EMPI, .keep_all = TRUE) %>%
+  select(EMPI, aki_date = Seq_Date_Time)
+
+treated <- treated %>%
+  merge(aki_data, by = "EMPI", all.x = TRUE) %>%
+  mutate(aki = ifelse(!is.na(aki_date), 1, 0))
+```
+
+## 6.4 Competing risk & analysis variables
+
+```{r}
+#| label: competing-risk-vars
+treated <- treated %>%
+  mutate(
+    year_10 = Age / 10,
+    eGFR_CRE_baseline_decrease_10 = (eGFR_CRE_baseline * -1) / 10,
+    # Competing risk status: 0=censored, 1=CKD composite, 2=death
+    status_ckd_cmp = case_when(
+      (ckd_composite == 1) & (time_to_death_status == 2) ~
+        ifelse(time_to_ckd_composite < time_to_death, 1, 2),
+      (ckd_composite == 1 & time_to_death_status == 0) ~ 1,
+      (ckd_composite == 0 & time_to_death_status == 2) ~ 2,
+      TRUE ~ 0
+    ),
+    time_to_ckd_cmp = case_when(
+      status_ckd_cmp == 1 ~ time_to_ckd_composite,
+      status_ckd_cmp == 2 ~ time_to_death,
+      status_ckd_cmp == 0 ~ last_cre_days
+    ),
+    status_ckd_cmp = factor(status_ckd_cmp, levels = c(0, 1, 2),
+                             labels = c("Censored", "CKD Composite", "Death")),
+    aki_before_ckd = ifelse(as.numeric(aki_date - Index_date) <= time_to_ckd_composite, 1, 0)
+  )
+
+# Yearly outcome flags
+for (yr in 1:10) {
+  treated[[paste0("ckd_incidence_", yr, "year")]] <-
+    ifelse(treated$time_to_ckd_incidence < 365 * yr, 1, 0)
+  treated[[paste0("ckd_progression_", yr, "year")]] <-
+    ifelse(treated$time_to_ckd_progression < 365 * yr, 1, 0)
+  treated[[paste0("eskd_composite_", yr, "year")]] <-
+    ifelse(treated$time_to_eskd_composite < 365 * yr, 1, 0)
+  treated[[paste0("ckd_composite_", yr, "year")]] <-
+    ifelse(treated$time_to_ckd_composite < 365 * yr, 1, 0)
+}
+
+treated <- treated %>%
+  mutate(across(
+    .cols = matches("(ckd_incidence|ckd_progression|eskd_composite|ckd_composite).*year$"),
+    .fns  = ~ factor(replace_na(., 0))
+  ))
+```
+
+---
+
+# 7 Exclusion & Final Dataset
+
+## 7.1 Exclude missing baseline CRE and eGFR < 10
+
+```{r}
+#| label: exclusion
+n_before <- nrow(treated)
+
+treated <- treated %>%
+  filter(!is.na(pre_median_CRE_90days)) %>%
+  filter(eGFR_CRE_baseline >= 10)
+
+n_after <- nrow(treated)
+cat("Excluded", n_before - n_after, "patients.",
+    n_after, "patients remain.\n")
+```
+
+## 7.2 Save treated_group.xlsx
+
+```{r}
+#| label: save-xlsx
+write_xlsx(treated, "treated_group.xlsx")
+cat("Saved treated_group.xlsx with", nrow(treated), "rows and",
+    ncol(treated), "columns.\n")
+```
+
+---
+
+:::
+
+# Descriptive Analysis {.unnumbered}
+
+## Table 1 – Demographics & Cancer {.unnumbered}
+
+```{r}
+#| label: table1-demographics
+#| include: true
+treated %>%
+  select(
+    Age, Gender_Legal_Sex, Race, Ethnic_Group,
+    ICI_Name, ICI_Class,
+    ## Comorbidities
+    dm, htn, cad, cirrhosis,
+    ## Medications
+    ace_arb, diu, ppi, steroids, smoking, statins,
+    ## Kidney
+    eGFR_CRE_baseline, ckd_stage_baseline,
+    ## AKI
+    aki
+  ) %>%
+  tbl_summary(
+    type = list(Age ~ "continuous", eGFR_CRE_baseline ~ "continuous"),
+    statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+    missing_text = "Missing"
+  ) %>%
+  bold_labels()
+```
+
+## Baseline Kidney Function {.unnumbered}
+
+### eGFR distribution
+
+```{r}
+#| label: baseline-egfr-dist
+#| include: true
+#| fig-cap: "Distribution of baseline eGFR (CKD-EPI 2021)"
+ggplot(treated, aes(x = eGFR_CRE_baseline)) +
+  geom_histogram(binwidth = 10, fill = "steelblue", color = "white") +
+  labs(x = "Baseline eGFR (mL/min/1.73m²)", y = "Count",
+       title = "Distribution of Baseline eGFR") +
+  theme_minimal()
+```
+
+### CKD stage distribution
+
+```{r}
+#| label: baseline-ckd-stage
+#| include: true
+treated %>%
+  select(ckd_stage_baseline, ckd_stage_baseline_3) %>%
+  tbl_summary(
+    label = list(
+      ckd_stage_baseline   ~ "CKD Stage (1-5)",
+      ckd_stage_baseline_3 ~ "CKD Stage (3-level)"
+    ),
+    missing = "ifany"
+  ) %>%
+  bold_labels()
+```
+
+## Yearly eGFR Trajectory {.unnumbered}
+
+```{r}
+#| label: egfr-trajectory
+#| include: true
+#| fig-cap: "Median eGFR by year post-ICI (with IQR)"
+egfr_cols <- paste0("eGFR_CRE_", 1:10, "year")
+
+egfr_summary <- tibble(
+  year = 1:10,
+  median_egfr = sapply(egfr_cols, function(col) median(treated[[col]], na.rm = TRUE)),
+  q25         = sapply(egfr_cols, function(col) quantile(treated[[col]], 0.25, na.rm = TRUE)),
+  q75         = sapply(egfr_cols, function(col) quantile(treated[[col]], 0.75, na.rm = TRUE)),
+  n           = sapply(egfr_cols, function(col) sum(!is.na(treated[[col]])))
+)
+
+ggplot(egfr_summary, aes(x = year, y = median_egfr)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.2, fill = "steelblue") +
+  geom_line(color = "steelblue", linewidth = 1) +
+  geom_point(color = "steelblue", size = 2) +
+  geom_text(aes(label = paste0("n=", n)), vjust = -1.5, size = 3) +
+  scale_x_continuous(breaks = 1:10) +
+  labs(x = "Year Post-ICI", y = "eGFR (mL/min/1.73m²)",
+       title = "Median eGFR Trajectory (with IQR)") +
+  theme_minimal()
+```
+
+## Yearly CKD Stage Distribution {.unnumbered}
+
+```{r}
+#| label: yearly-ckd-stage
+#| include: true
+#| fig-cap: "CKD stage distribution by year post-ICI"
+stage_data <- map_dfr(1:10, function(yr) {
+  col <- paste0("ckd_stage_", yr, "year")
+  tibble(
+    year      = yr,
+    ckd_stage = factor(treated[[col]])
+  ) %>%
+    filter(!is.na(ckd_stage))
+})
+
+ggplot(stage_data, aes(x = factor(year), fill = ckd_stage)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = "RdYlGn", direction = -1, name = "CKD Stage") +
+  labs(x = "Year Post-ICI", y = "Proportion",
+       title = "CKD Stage Distribution by Year") +
+  theme_minimal()
+```
+
+## Overall Survival (Kaplan-Meier) {.unnumbered}
+
+```{r}
+#| label: km-survival
+#| include: true
+#| fig-cap: "Kaplan-Meier curve – overall survival from ICI start"
+surv_obj <- Surv(time = treated$last_days, event = treated$death)
+km_fit   <- survfit(surv_obj ~ 1)
+
+ggsurvplot(
+  km_fit,
+  data        = treated,
+  risk.table  = TRUE,
+  xlab        = "Days from ICI Start",
+  ylab        = "Survival Probability",
+  title       = "Overall Survival – Treated Group",
+  palette     = "steelblue",
+  ggtheme     = theme_minimal()
+)
+```
+
+## Death by Year {.unnumbered}
+
+```{r}
+#| label: death-flags-table
+#| include: true
+death_counts <- tibble(
+  Year  = 1:10,
+  Deaths = sapply(1:10, function(yr) {
+    sum(treated[[paste0("death_", yr, "year")]] == 1, na.rm = TRUE)
+  }),
+  Total  = nrow(treated),
+  Pct    = round(Deaths / Total * 100, 1)
+)
+
+knitr::kable(death_counts, col.names = c("Year", "Cumulative Deaths", "Total N", "% Died"),
+             caption = "Cumulative deaths by year post-ICI")
+```
+
+## Survival by Year {.unnumbered}
+
+```{r}
+#| label: survival-flags-table
+#| include: true
+survival_counts <- tibble(
+  Year     = 1:10,
+  Survived = sapply(1:10, function(yr) {
+    sum(treated[[paste0("survival_", yr, "year")]] == 1, na.rm = TRUE)
+  }),
+  Total    = nrow(treated),
+  Pct      = round(Survived / Total * 100, 1)
+)
+
+knitr::kable(survival_counts,
+             col.names = c("Year", "Survived to Year", "Total N", "% Survived"),
+             caption = "Patients surviving to each yearly landmark")
+```
+
+## CKD Outcomes Summary {.unnumbered}
+
+```{r}
+#| label: outcome-summary
+#| include: true
+outcome_counts <- tibble(
+  Year = 1:10,
+  `CKD Incidence` = sapply(1:10, function(yr) {
+    col <- paste0("ckd_incidence_", yr, "year")
+    sum(treated[[col]] == 1, na.rm = TRUE)
+  }),
+  `CKD Progression` = sapply(1:10, function(yr) {
+    col <- paste0("ckd_progression_", yr, "year")
+    sum(treated[[col]] == 1, na.rm = TRUE)
+  }),
+  `ESKD Composite` = sapply(1:10, function(yr) {
+    col <- paste0("eskd_composite_", yr, "year")
+    sum(treated[[col]] == 1, na.rm = TRUE)
+  }),
+  `CKD Composite` = sapply(1:10, function(yr) {
+    col <- paste0("ckd_composite_", yr, "year")
+    sum(treated[[col]] == 1, na.rm = TRUE)
+  }),
+  `N Followed` = sapply(1:10, function(yr) {
+    sum(treated[[paste0("survival_", yr, "year")]] == 1, na.rm = TRUE)
+  })
+)
+
+knitr::kable(outcome_counts,
+             caption = "Cumulative CKD outcomes by year post-ICI")
+```
+
+## Cumulative Incidence – CKD Composite vs Death {.unnumbered}
+
+```{r}
+#| label: cif-plot
+#| include: true
+#| fig-cap: "Cumulative incidence of CKD composite and death (competing risks)"
+cuminc(Surv(time_to_ckd_cmp, status_ckd_cmp) ~ 1, data = treated) %>%
+  ggcuminc(outcome = c("CKD Composite", "Death")) +
+  add_confidence_interval() +
+  add_risktable() +
+  labs(x = "Years", y = "Cumulative Incidence") +
+  scale_ggsurvfit() +
+  scale_x_continuous(
+    breaks = seq(0, 365 * 10, by = 365),
+    labels = 0:10,
+    limits = c(0, 365 * 10)
+  )
+```
+
+## Univariate Fine-Gray Competing Risk Model {.unnumbered}
+
+```{r}
+#| label: fg-univariate
+#| include: true
+# Select candidate predictors, drop any with <2 unique non-NA values
+fg_vars <- c("year_10", "male", "Race", "dm", "htn", "cad", "cirrhosis",
+             "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
+             "eGFR_CRE_baseline_decrease_10", "ICI_Class")
+# Keep only variables with >=2 unique non-NA values
+fg_vars_keep <- fg_vars[sapply(fg_vars, function(v) {
+  length(unique(na.omit(treated[[v]]))) >= 2
+})]
+fg_data <- treated %>%
+  select(all_of(fg_vars_keep), time_to_ckd_cmp, status_ckd_cmp)
+
+fg_data %>%
+  tbl_uvregression(
+    method = tidycmprsk::crr,
+    method.args = list(failcode = "CKD Composite", cencode = "Censored"),
+    y = Surv(time_to_ckd_cmp, status_ckd_cmp),
+    pvalue_fun = ~style_pvalue(.x, digits = 3),
+    exponentiate = TRUE
+  ) %>%
+  bold_p(0.05) %>%
+  bold_labels() %>%
+  add_n()
+```
+
+## Multivariate Fine-Gray Model {.unnumbered}
+
+```{r}
+#| label: fg-multivariate
+#| include: true
+# Build formula dynamically — drop ICI_Class if <2 levels
+mv_vars <- c("year_10", "male", "dm", "htn", "cad", "ppi", "smoking",
+             "eGFR_CRE_baseline_decrease_10", "cirrhosis", "statins")
+if (is.factor(treated$ICI_Class) && nlevels(droplevels(treated$ICI_Class)) >= 2) {
+  mv_vars <- c(mv_vars, "ICI_Class")
+}
+mv_formula <- as.formula(paste("Surv(time_to_ckd_cmp, status_ckd_cmp) ~",
+                                paste(mv_vars, collapse = " + ")))
+
+tidycmprsk::crr(
+  mv_formula,
+  failcode = "CKD Composite", cencode = "Censored",
+  data = treated
+) %>%
+  tbl_regression(exp = TRUE) %>%
+  add_n() %>%
+  bold_p(0.05) %>%
+  bold_labels()
+```
+
+## Univariate Cause-Specific Hazard Model {.unnumbered}
+
+```{r}
+#| label: csh-univariate
+#| include: true
+treated <- treated %>%
+  mutate(status_ckd_csh = ifelse(status_ckd_cmp == "CKD Composite", 1, 0))
+
+treated %>%
+  select(all_of(fg_vars_keep), time_to_ckd_cmp, status_ckd_csh) %>%
+  tbl_uvregression(
+    method = survival::coxph,
+    y = Surv(time_to_ckd_cmp, status_ckd_csh),
+    exponentiate = TRUE
+  ) %>%
+  bold_p(0.05) %>%
+  bold_labels() %>%
+  add_n()
+```
+
+## CIF by Diabetes Status {.unnumbered}
+
+```{r}
+#| label: cif-dm
+#| include: true
+#| fig-cap: "Cumulative incidence of CKD composite by diabetes status"
+treated <- treated %>%
+  mutate(
+    time_to_ckd_cmp_year = time_to_ckd_cmp / 365,
+    dm_label = factor(dm, levels = c(0, 1), labels = c("No Diabetes", "Diabetes"))
+  )
+
+cuminc(Surv(time_to_ckd_cmp_year, status_ckd_cmp) ~ dm_label, data = treated) %>%
+  ggcuminc(outcome = "CKD Composite") +
+  add_confidence_interval() +
+  add_risktable(
+    times = seq(0, 10, by = 1),
+    risktable_stats = c("n.risk", "cum.event"),
+    stats_label = list(n.risk = "At Risk", cum.event = "Events")
+  ) +
+  scale_color_manual(values = c("Diabetes" = "#619CFF", "No Diabetes" = "#F8766D")) +
+  scale_fill_manual(values = c("Diabetes" = "#619CFF", "No Diabetes" = "#F8766D")) +
+  scale_x_continuous(breaks = seq(0, 10, by = 1), limits = c(0, 10)) +
+  labs(x = "Years since ICI", y = "Cumulative Incidence",
+       title = "CIF of CKD Composite by DM Status") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+```
