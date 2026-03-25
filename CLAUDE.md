@@ -33,4 +33,8 @@ quarto render treated_group.qmd --to html       # treated group descriptive
 - Outcome flags: `{outcome}_Xyear = 1` if `time_to_{outcome} < 365 * X`, NA→0, factor.
 - eGFR: CKD-EPI 2021 creatinine-only (race-free).
 - `pre_lab_median_year` falls back to closest lab if no labs in 90-day window.
+- CKD incidence: >25% eGFR drop AND eGFR <60, from baseline >=60, sustained >=90 days.
+- CKD progression: >30% eGFR drop from baseline <60, sustained >=90 days.
+- ESKD definition 1: eGFR <10, sustained >=90 days.
+- Competing risk: `time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days)`; priority: death(2) > CKD(1) > censored(0).
 - Exclusions: missing baseline CRE, prior ESRD/KT (main cohort only), eGFR < 10.

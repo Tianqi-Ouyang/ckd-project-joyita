@@ -608,7 +608,7 @@ outcome_labs <- master_lab %>%
 
 ckd_incidence <- make_ckd_outcome_date(
   outcome_labs, EMPI, eGFR_CRE_date,
-  pct_drop > 0.30 & eGFR_CRE < 60 & eGFR_CRE_baseline >= 60,
+  pct_drop > 0.25 & eGFR_CRE < 60 & eGFR_CRE_baseline >= 60,
   90, "ckd_incidence")
 
 eskd_defination_1 <- make_ckd_outcome_date(
@@ -617,7 +617,7 @@ eskd_defination_1 <- make_ckd_outcome_date(
 
 ckd_progression <- make_ckd_outcome_date(
   outcome_labs, EMPI, eGFR_CRE_date,
-  eGFR_CRE < 60 & eGFR_CRE_baseline < 60, 90, "ckd_progression")
+  pct_drop > 0.30 & eGFR_CRE_baseline < 60, 90, "ckd_progression")
 
 treated <- treated %>%
   merge(ckd_incidence, by = "EMPI", all.x = TRUE) %>%
@@ -709,18 +709,16 @@ treated <- treated %>%
   mutate(
     year_10 = Age / 10,
     eGFR_CRE_baseline_decrease_10 = (eGFR_CRE_baseline * -1) / 10,
-    # Competing risk status: 0=censored, 1=CKD composite, 2=death
+    # Competing risk: pmin of all event times, then priority-based status
+    time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days, na.rm = TRUE),
     status_ckd_cmp = case_when(
-      (ckd_composite == 1) & (time_to_death_status == 2) ~
-        ifelse(time_to_ckd_composite < time_to_death, 1, 2),
-      (ckd_composite == 1 & time_to_death_status == 0) ~ 1,
-      (ckd_composite == 0 & time_to_death_status == 2) ~ 2,
-      TRUE ~ 0
-    ),
-    time_to_ckd_cmp = case_when(
-      status_ckd_cmp == 1 ~ time_to_ckd_composite,
-      status_ckd_cmp == 2 ~ time_to_death,
-      status_ckd_cmp == 0 ~ last_cre_days
+      # Priority 1: Death (2)
+      !is.na(death_days) & time_to_ckd_cmp == death_days ~ 2,
+      # Priority 2: CKD Event (1)
+      !is.na(time_to_ckd_composite) & time_to_ckd_cmp == time_to_ckd_composite ~ 1,
+      # Priority 3: Censored / Last Creatinine (0)
+      !is.na(last_cre_days) & time_to_ckd_cmp == last_cre_days ~ 0,
+      TRUE ~ NA_real_
     ),
     status_ckd_cmp = factor(status_ckd_cmp, levels = c(0, 1, 2),
                              labels = c("Censored", "CKD Composite", "Death")),

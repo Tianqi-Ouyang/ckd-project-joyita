@@ -106,9 +106,9 @@ Naming rules:
 
 | In Code | Description |
 |---|---|
-| `ckd_incidence` | CKD incidence (binary, from master) |
+| `ckd_incidence` | CKD incidence: >25% eGFR drop AND eGFR <60, from baseline >=60, sustained >=90 days |
 | `ckd_incidence_date` | Date of CKD incidence |
-| `ckd_progression` | CKD progression (binary, from master) |
+| `ckd_progression` | CKD progression: >30% eGFR drop from baseline <60, sustained >=90 days |
 | `ckd_progression_date` | Date of CKD progression |
 | `esrd_kt_after_ici` | ESRD/KT after ICI (binary, from master) |
 | `esrd_kt_after_ici_date` | Date of ESRD/KT after ICI |
@@ -127,6 +127,8 @@ Naming rules:
 | `time_to_ckd_incidence` | Days from Index_date to CKD incidence |
 | `time_to_ckd_progression` | Days from Index_date to CKD progression |
 | `time_to_ckd_composite` | pmin of the above three |
+| `time_to_ckd_cmp` | pmin(time_to_ckd_composite, last_cre_days, death_days) |
+| `status_cmp` | Competing risk: 0=censored, 1=CKD composite, 2=death (priority: death > CKD > censored) |
 
 ## 1.11 Survival Flags (1–10 years)
 
@@ -947,10 +949,10 @@ outcome_labs <- master_lab %>%
   ) %>%
   arrange(EMPI, eGFR_CRE_date)
 
-# CKD incidence: >30% drop AND eGFR <60, from baseline >=60, sustained >=90 days
+# CKD incidence: >25% drop AND eGFR <60, from baseline >=60, sustained >=90 days
 ckd_incidence <- make_ckd_outcome_date(
   data = outcome_labs, id_var = EMPI, date_var = eGFR_CRE_date,
-  condition_expr = pct_drop > 0.30 & eGFR_CRE < 60 & eGFR_CRE_baseline >= 60,
+  condition_expr = pct_drop > 0.25 & eGFR_CRE < 60 & eGFR_CRE_baseline >= 60,
   days_threshold = 90, outcome_name = "ckd_incidence"
 )
 
@@ -961,10 +963,10 @@ eskd_defination_1 <- make_ckd_outcome_date(
   days_threshold = 90, outcome_name = "eskd_defination_1"
 )
 
-# CKD progression: eGFR <60 from baseline <60, sustained >=90 days
+# CKD progression: >30% drop from baseline <60, sustained >=90 days
 ckd_progression <- make_ckd_outcome_date(
   data = outcome_labs, id_var = EMPI, date_var = eGFR_CRE_date,
-  condition_expr = eGFR_CRE < 60 & eGFR_CRE_baseline < 60,
+  condition_expr = pct_drop > 0.30 & eGFR_CRE_baseline < 60,
   days_threshold = 90, outcome_name = "ckd_progression"
 )
 
@@ -1014,7 +1016,18 @@ final_master <- final_master %>%
     time_to_death_status = ifelse(!is.na(death_days), 2, 0),
     death         = ifelse(!is.na(Date_Of_Death), 1, 0),
     last_date     = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death),
-    last_days     = as.numeric(last_date - Index_date)
+    last_days     = as.numeric(last_date - Index_date),
+    # Competing risk: pmin of all event times, then priority-based status
+    time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days, na.rm = TRUE),
+    status_cmp = case_when(
+      # Priority 1: Death (2)
+      !is.na(death_days) & time_to_ckd_cmp == death_days ~ 2,
+      # Priority 2: CKD Event (1)
+      !is.na(time_to_ckd_composite) & time_to_ckd_cmp == time_to_ckd_composite ~ 1,
+      # Priority 3: Censored / Last Creatinine (0)
+      !is.na(last_cre_days) & time_to_ckd_cmp == last_cre_days ~ 0,
+      TRUE ~ NA_real_
+    )
   ) %>%
   filter(last_cre_days > 0)
 ```
