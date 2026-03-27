@@ -1,7 +1,7 @@
 ---
-title: "Treated Group – Descriptive Analysis"
+title: "Control Group – Descriptive Analysis"
 author: "Tianqi Ouyang"
-date: "2026-03-20"
+date: "2026-03-26"
 execute:
   echo: false
   include: false
@@ -175,19 +175,16 @@ gfr_calc <- Vectorize(ckd_epi_gfr)
 
 # 3 Variable Dictionary
 
-| Source (`treated group.xlsx`) | In Code | Derivation |
+| Source (RPDR Dem.txt) | In Code | Derivation |
 |---|---|---|
-| `EMPI` | `EMPI` | As-is (RPDR) |
-| `ICI_Dose_Date` | `Index_date` | Renamed |
+| `EMPI` | `EMPI` | Unique patients from Dem.txt |
+| First neoplasm Dx date (Dia.txt) | `Index_date` | First ICD10 C00–D49 diagnosis date |
 | `Date_of_Birth` | `Date_of_Birth` | Used to derive `Age` |
 | `Gender_Legal_Sex` | `Gender_Legal_Sex` | Used to derive `male` |
-| `Race` | `Race` | As-is |
+| `Race1` | `Race1` | As-is |
 | `Ethnic_Group` | `Ethnic_Group` | As-is |
-| `Cancer_Diagnosis` | `Cancer_Diagnosis` | As-is |
-| `Cancers_stage` | `Cancers_stage` | As-is |
-| `ICI_Name` | `ICI_Name` | As-is |
 | `Date_Of_Death` | `Date_Of_Death` | Used to derive `death`, `time_to_death` |
-| `last_cre_date` | `last_cre_date` | Last creatinine lab date; used as follow-up date |
+| Last CRE date (Lab.txt) | `last_cre_date` | Derived: last CRE lab date per patient |
 
 ### Derived variables
 
@@ -209,31 +206,109 @@ gfr_calc <- Vectorize(ckd_epi_gfr)
 | `ckd_stage_Xyear` (1–10) | Yearly CKD stage |
 | `lab_num_Xyear` (1–10) | Number of CRE labs in yearly window |
 
+### Inclusion criteria
+
+| Criterion | Description |
+|---|---|
+| Baseline CRE | ≥1 creatinine within 12 months prior to Index_date |
+| Follow-up | ≥18 months (548 days) of follow-up from Index_date |
+| Post-index CRE | ≥2 creatinine results after Index_date |
+
 > Follow-up uses `last_cre_date` → `last_cre_days` for censoring.
 
 ---
 
 # 4 Data Loading
 
-## 4.1 Load treated group Excel
+## 4.1 Load RPDR files (Dem, Lab, Dia, Med)
 
 ```{r}
-#| label: load-treated
-treated <- read_excel("treated group.xlsx")
+#| label: load-rpdr
+rpdr_path <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/RPDR Joyita/"
+
+# Demographics — cohort source
+dem <- read.table(
+  paste0(rpdr_path, "MES98_20251202_101837_Dem.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+)
+dem$Date_of_Birth <- as.Date(dem$Date_of_Birth, "%m/%d/%Y")
+dem$Date_Of_Death <- as.Date(dem$Date_Of_Death, "%m/%d/%Y")
+
+# Lab
+lab <- read.table(
+  paste0(rpdr_path, "MES98_20251202_101837_Lab.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, EPIC_PMRN, Seq_Date_Time, Result, Group_Id, Test_Description)
+lab$Seq_Date_Time <- as.Date(lab$Seq_Date_Time, "%m/%d/%Y")
+
+# Diagnoses
+dia <- read.table(
+  paste0(rpdr_path, "MES98_20251202_101837_Dia.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, EPIC_PMRN, Code, Date, Diagnosis_Name)
+dia$Date <- as.Date(dia$Date, "%m/%d/%Y")
+
+# Medications
+med <- read.table(
+  paste0(rpdr_path, "MES98_20251202_101837_Med.txt"),
+  sep = "|", fill = TRUE, quote = "", header = TRUE
+) %>%
+  select(EMPI, Medication_Date, Medication)
+med$Medication_Date <- as.Date(med$Medication_Date, "%m/%d/%Y")
 ```
 
-## 4.2 Rename & derive variables
+## 4.2 Define cohort from Dem.txt
+
+```{r}
+#| label: define-cohort
+control <- dem %>%
+  distinct(EMPI, .keep_all = TRUE) %>%
+  select(EMPI, Date_of_Birth, Date_Of_Death, Gender_Legal_Sex, Race1, Ethnic_Group)
+cat("Unique patients from Dem.txt:", nrow(control), "\n")
+```
+
+## 4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)
+
+```{r}
+#| label: derive-index-date
+# First diagnosis with ICD10 code C00–D49 (all neoplasms)
+neoplasm_index <- dia %>%
+  filter(grepl("^C|^D[0-4]", Code, ignore.case = TRUE)) %>%
+  arrange(EMPI, Date) %>%
+  distinct(EMPI, .keep_all = TRUE) %>%
+  select(EMPI, Index_date = Date)
+
+control <- control %>%
+  merge(neoplasm_index, by = "EMPI") %>%
+  filter(!is.na(Index_date))
+
+cat("Patients with neoplasm diagnosis (Index_date):", nrow(control), "\n")
+```
+
+## 4.4 Derive last_cre_date from RPDR Lab
+
+```{r}
+#| label: derive-last-cre
+last_cre <- lab %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  filter(!is.na(Result)) %>%
+  arrange(EMPI, desc(Seq_Date_Time)) %>%
+  distinct(EMPI, .keep_all = TRUE) %>%
+  select(EMPI, last_cre_date = Seq_Date_Time)
+
+control <- control %>%
+  merge(last_cre, by = "EMPI", all.x = TRUE)
+```
+
+## 4.5 Derive variables
 
 ```{r}
 #| label: derive-vars
-# last_cre_date: date of last creatinine lab (from source Excel)
-# last_cre_days: derived days from Index_date to last_cre_date (used for censoring)
-treated <- treated %>%
-  rename(
-    Index_date = ICI_Dose_Date
-  ) %>%
+control <- control %>%
   mutate(
-    group         = "treated",
+    group         = "control",
     Index_date    = as.Date(Index_date),
     Date_of_Birth = as.Date(Date_of_Birth),
     Date_Of_Death = as.Date(Date_Of_Death),
@@ -245,9 +320,9 @@ treated <- treated %>%
     death_days    = as.numeric(difftime(Date_Of_Death, Index_date, units = "days")),
     time_to_death = death_days,
     time_to_death_status = ifelse(!is.na(death_days), 2, 0),
-    Race = ifelse(Race == "White", "White",
-           ifelse(Race == "Black", "Black",
-           ifelse(Race == "Asian", "Asian", "Other/Unknown"))),
+    Race1 = ifelse(Race1 == "White", "White",
+            ifelse(Race1 == "Black", "Black",
+            ifelse(Race1 == "Asian", "Asian", "Other/Unknown"))),
     Ethnic_Group = case_when(
       Ethnic_Group == "HISPANIC" ~ "Hispanic",
       Ethnic_Group == "Non Hispanic" ~ "Non_hispanic",
@@ -257,70 +332,71 @@ treated <- treated %>%
   filter(last_cre_days > 0)
 ```
 
-## 4.3 Death flags (1–10 years)
+## 4.6 Inclusion criteria
+
+```{r}
+#| label: inclusion-criteria
+n_before <- nrow(control)
+
+# 1. At least 1 creatinine within 12 months (365 days) prior to Index_date
+cre_within_12mo <- lab %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result), !is.na(Result)) %>%
+  merge(control %>% select(EMPI, Index_date), by = "EMPI") %>%
+  filter(Seq_Date_Time >= Index_date - 365, Seq_Date_Time <= Index_date) %>%
+  distinct(EMPI)
+
+control <- control %>% filter(EMPI %in% cre_within_12mo$EMPI)
+cat("After baseline CRE within 12mo:", nrow(control), "of", n_before, "\n")
+
+# 2. At least 18 months (548 days) follow-up
+n_before_fu <- nrow(control)
+control <- control %>% filter(last_cre_days >= 548)
+cat("After 18mo follow-up:", nrow(control), "of", n_before_fu, "\n")
+
+# 3. At least 2 creatinine results after Index_date
+n_before_cre2 <- nrow(control)
+post_cre_count <- lab %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result), !is.na(Result)) %>%
+  merge(control %>% select(EMPI, Index_date), by = "EMPI") %>%
+  filter(Seq_Date_Time > Index_date) %>%
+  group_by(EMPI) %>%
+  summarise(n_post_cre = n(), .groups = "drop") %>%
+  filter(n_post_cre >= 2)
+
+control <- control %>% filter(EMPI %in% post_cre_count$EMPI)
+cat("After >=2 post-index CRE:", nrow(control), "of", n_before_cre2, "\n")
+cat("Final control cohort:", nrow(control), "\n")
+```
+
+## 4.7 Death flags (1–10 years)
 
 Uses `last_date` logic from Kavita master builder: `last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)`.
 
 ```{r}
 #| label: death-flags
-treated <- treated %>%
+control <- control %>%
   mutate(
     last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death),
     last_days = as.numeric(last_date - Index_date)
   )
 
 for (yr in 1:10) {
-  treated[[paste0("death_", yr, "year")]] <-
-    ifelse(!is.na(treated$death_days) & treated$death_days < 365 * yr, 1, 0)
+  control[[paste0("death_", yr, "year")]] <-
+    ifelse(!is.na(control$death_days) & control$death_days < 365 * yr, 1, 0)
 }
 ```
 
-## 4.4 Load RPDR files (Lab, Dia, Med)
+## 4.8 Create master_lab / master_dia / master_med
 
 ```{r}
-#| label: load-rpdr
-rpdr_path <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/"
-
-dem <- read.table(
-  paste0(rpdr_path, "mes98_093025104659807332_Dem.txt"),
-  sep = "|", fill = TRUE, quote = "", header = TRUE
-)
-dem$Date_of_Birth <- as.Date(dem$Date_of_Birth, "%m/%d/%Y")
-dem$Date_Of_Death <- as.Date(dem$Date_Of_Death, "%m/%d/%Y")
-
-lab <- read.table(
-  paste0(rpdr_path, "mes98_093025104659807332_Lab.txt"),
-  sep = "|", fill = TRUE, quote = "", header = TRUE
-) %>%
-  select(EMPI, EPIC_PMRN, Seq_Date_Time, Result, Group_Id, Test_Description)
-lab$Seq_Date_Time <- as.Date(lab$Seq_Date_Time, "%m/%d/%Y")
-
-dia <- read.table(
-  paste0(rpdr_path, "mes98_093025104659807332_Dia.txt"),
-  sep = "|", fill = TRUE, quote = "", header = TRUE
-) %>%
-  select(EMPI, EPIC_PMRN, Code, Date, Diagnosis_Name)
-dia$Date <- as.Date(dia$Date, "%m/%d/%Y")
-
-med <- read.table(
-  paste0(rpdr_path, "mes98_093025104659807332_Med.txt"),
-  sep = "|", fill = TRUE, quote = "", header = TRUE
-) %>%
-  select(EMPI, Medication_Date, Medication)
-med$Medication_Date <- as.Date(med$Medication_Date, "%m/%d/%Y")
-```
-
-## 4.5 Create master_lab / master_dia / master_med
-
-```{r}
-#| label: create-master-lab
-master_list <- treated %>% select(EMPI, Index_date)
+#| label: create-master
+master_list <- control %>% select(EMPI, Index_date)
 master_lab  <- lab %>% merge(master_list, by = "EMPI")
 master_dia  <- dia %>% merge(master_list, by = "EMPI")
 master_med  <- med %>% merge(master_list, by = "EMPI")
 ```
 
-## 4.6 RPDR-derived functions
+## 4.9 RPDR-derived functions
 
 ```{r}
 #| label: fn-rpdr-helpers
@@ -461,7 +537,7 @@ make_ckd_outcome_date <- function(data, id_var, date_var, condition_expr,
 }
 ```
 
-## 4.7 Derive comorbidities & medications from RPDR
+## 4.10 Derive comorbidities & medications from RPDR
 
 ```{r}
 #| label: derive-comorbidities
@@ -528,7 +604,7 @@ smoking_dx <- master_dia %>%
   filter(grepl(paste(smoking_list, collapse = "|"), Diagnosis_Name, ignore.case = TRUE)) %>%
   distinct(EMPI)
 
-treated <- treated %>%
+control <- control %>%
   mutate(
     diu       = ifelse(EMPI %in% diu$EMPI, 1, 0),
     ace_arb   = ifelse(EMPI %in% ace_arb$EMPI, 1, 0),
@@ -543,23 +619,6 @@ treated <- treated %>%
     statins   = ifelse(EMPI %in% statins$EMPI, 1, 0),
     dpp4i     = ifelse(EMPI %in% dpp4i$EMPI, 1, 0),
     sglt2i    = ifelse(EMPI %in% sglt2i$EMPI, 1, 0)
-  )
-```
-
-## 4.8 ICI_Class
-
-```{r}
-#| label: derive-ici-class
-treated <- treated %>%
-  mutate(
-    ICI_Class = case_when(
-      ICI_Name %in% c("pembrolizumab", "nivolumab", "cemiplimab",
-                       "Nivolumab", "Dostarlimab", "Cemiplimab") ~ "PD1",
-      ICI_Name %in% c("atezolizumab", "avelumab", "durvalumab") ~ "PDL1",
-      ICI_Name == "ipilimumab" ~ "CTLA4",
-      ICI_Name == "ipilimumab AND nivolumab" ~ "Combination",
-      TRUE ~ NA_character_
-    )
   )
 ```
 
@@ -588,7 +647,7 @@ pre_lab_a1c <- pre_lab_median(
   index_date = Index_date, Group_Id = "GHBA1C"
 )
 
-treated <- treated %>%
+control <- control %>%
   merge(pre_lab_baseline, by = "EMPI", all.x = TRUE) %>%
   merge(pre_lab_hgb, by = "EMPI", all.x = TRUE) %>%
   merge(pre_lab_alb, by = "EMPI", all.x = TRUE) %>%
@@ -599,14 +658,14 @@ treated <- treated %>%
 
 ```{r}
 #| label: baseline-egfr
-treated$eGFR_CRE_baseline <- mapply(
+control$eGFR_CRE_baseline <- mapply(
   gfr_calc,
-  treated$pre_median_CRE_90days,
-  treated$male,
-  treated$Age
+  control$pre_median_CRE_90days,
+  control$male,
+  control$Age
 )
 
-treated <- treated %>%
+control <- control %>%
   mutate(
     ckd_stage_baseline = case_when(
       eGFR_CRE_baseline >= 90                           ~ 1,
@@ -629,7 +688,7 @@ treated <- treated %>%
 #| label: clean-ckd-outcomes
 outcome_labs <- master_lab %>%
   select(EMPI, Seq_Date_Time, Result, Group_Id, Index_date) %>%
-  merge(treated %>% select(EMPI, pre_median_CRE_90days, eGFR_CRE_baseline,
+  merge(control %>% select(EMPI, pre_median_CRE_90days, eGFR_CRE_baseline,
                             male, Age),
         by = "EMPI") %>%
   filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
@@ -654,7 +713,7 @@ ckd_progression <- make_ckd_outcome_date(
   outcome_labs, EMPI, eGFR_CRE_date,
   pct_drop > 0.30 & eGFR_CRE_baseline < 60, 90, "ckd_progression")
 
-treated <- treated %>%
+control <- control %>%
   merge(ckd_incidence, by = "EMPI", all.x = TRUE) %>%
   merge(eskd_defination_1, by = "EMPI", all.x = TRUE) %>%
   merge(ckd_progression, by = "EMPI", all.x = TRUE) %>%
@@ -683,8 +742,8 @@ treated <- treated %>%
 ```{r}
 #| label: survival-flags
 for (yr in 1:10) {
-  treated[[paste0("survival_", yr, "year")]] <-
-    ifelse(treated$last_cre_days >= 365 * yr, 1, 0)
+  control[[paste0("survival_", yr, "year")]] <-
+    ifelse(control$last_cre_days >= 365 * yr, 1, 0)
 }
 ```
 
@@ -700,16 +759,16 @@ for (yr in 1:10) {
   )
 }
 
-treated <- left_join_all(treated, yearly_cre_list, by = "EMPI")
+control <- left_join_all(control, yearly_cre_list, by = "EMPI")
 
 for (yr in 1:10) {
   cre_col   <- paste0("pre_median_CRE_", yr, "year")
   egfr_col  <- paste0("eGFR_CRE_", yr, "year")
   stage_col <- paste0("ckd_stage_", yr, "year")
 
-  treated[[egfr_col]]  <- mapply(gfr_calc, treated[[cre_col]],
-                                  treated$male, treated$Age)
-  treated[[stage_col]] <- sapply(treated[[egfr_col]], get_ckd_stage)
+  control[[egfr_col]]  <- mapply(gfr_calc, control[[cre_col]],
+                                  control$male, control$Age)
+  control[[stage_col]] <- sapply(control[[egfr_col]], get_ckd_stage)
 }
 ```
 
@@ -731,7 +790,7 @@ aki_data <- master_lab %>%
   distinct(EMPI, .keep_all = TRUE) %>%
   select(EMPI, aki_date = Seq_Date_Time)
 
-treated <- treated %>%
+control <- control %>%
   merge(aki_data, by = "EMPI", all.x = TRUE) %>%
   mutate(aki = ifelse(!is.na(aki_date), 1, 0))
 ```
@@ -740,7 +799,7 @@ treated <- treated %>%
 
 ```{r}
 #| label: competing-risk-vars
-treated <- treated %>%
+control <- control %>%
   mutate(
     year_10 = Age / 10,
     eGFR_CRE_baseline_decrease_10 = (eGFR_CRE_baseline * -1) / 10,
@@ -762,17 +821,17 @@ treated <- treated %>%
 
 # Yearly outcome flags
 for (yr in 1:10) {
-  treated[[paste0("ckd_incidence_", yr, "year")]] <-
-    ifelse(treated$time_to_ckd_incidence < 365 * yr, 1, 0)
-  treated[[paste0("ckd_progression_", yr, "year")]] <-
-    ifelse(treated$time_to_ckd_progression < 365 * yr, 1, 0)
-  treated[[paste0("eskd_composite_", yr, "year")]] <-
-    ifelse(treated$time_to_eskd_composite < 365 * yr, 1, 0)
-  treated[[paste0("ckd_composite_", yr, "year")]] <-
-    ifelse(treated$time_to_ckd_composite < 365 * yr, 1, 0)
+  control[[paste0("ckd_incidence_", yr, "year")]] <-
+    ifelse(control$time_to_ckd_incidence < 365 * yr, 1, 0)
+  control[[paste0("ckd_progression_", yr, "year")]] <-
+    ifelse(control$time_to_ckd_progression < 365 * yr, 1, 0)
+  control[[paste0("eskd_composite_", yr, "year")]] <-
+    ifelse(control$time_to_eskd_composite < 365 * yr, 1, 0)
+  control[[paste0("ckd_composite_", yr, "year")]] <-
+    ifelse(control$time_to_ckd_composite < 365 * yr, 1, 0)
 }
 
-treated <- treated %>%
+control <- control %>%
   mutate(across(
     .cols = matches("(ckd_incidence|ckd_progression|eskd_composite|ckd_composite).*year$"),
     .fns  = ~ factor(replace_na(., 0))
@@ -787,24 +846,24 @@ treated <- treated %>%
 
 ```{r}
 #| label: exclusion
-n_before <- nrow(treated)
+n_before <- nrow(control)
 
-treated <- treated %>%
+control <- control %>%
   filter(!is.na(pre_median_CRE_90days)) %>%
   filter(eGFR_CRE_baseline >= 10)
 
-n_after <- nrow(treated)
+n_after <- nrow(control)
 cat("Excluded", n_before - n_after, "patients.",
     n_after, "patients remain.\n")
 ```
 
-## 7.2 Save treated_group.xlsx
+## 7.2 Save control_group.xlsx
 
 ```{r}
 #| label: save-xlsx
-write_xlsx(treated, "treated_group.xlsx")
-cat("Saved treated_group.xlsx with", nrow(treated), "rows and",
-    ncol(treated), "columns.\n")
+write_xlsx(control, "control_group.xlsx")
+cat("Saved control_group.xlsx with", nrow(control), "rows and",
+    ncol(control), "columns.\n")
 ```
 
 ---
@@ -813,30 +872,29 @@ cat("Saved treated_group.xlsx with", nrow(treated), "rows and",
 
 # Descriptive Analysis {.unnumbered}
 
-## ICI Year Distribution {.unnumbered}
+## Index Year Distribution {.unnumbered}
 
 ```{r}
-#| label: ici-year-histogram
+#| label: index-year-histogram
 #| include: true
-#| fig-cap: "Distribution of ICI start date by year"
-treated %>%
-  mutate(ici_year = as.numeric(format(Index_date, "%Y"))) %>%
-  ggplot(aes(x = ici_year)) +
+#| fig-cap: "Distribution of Index_date (first neoplasm diagnosis) by year"
+control %>%
+  mutate(index_year = as.numeric(format(Index_date, "%Y"))) %>%
+  ggplot(aes(x = index_year)) +
   geom_histogram(binwidth = 1, fill = "steelblue", color = "white") +
-  labs(x = "Year of ICI Start", y = "Count",
-       title = "Distribution of ICI Year – Treated Group") +
+  labs(x = "Year of Cancer Diagnosis", y = "Count",
+       title = "Distribution of Index Year – Control Group") +
   theme_minimal()
 ```
 
-## Table 1 – Demographics & Cancer {.unnumbered}
+## Table 1 – Demographics {.unnumbered}
 
 ```{r}
 #| label: table1-demographics
 #| include: true
-treated %>%
+control %>%
   select(
-    Age, Gender_Legal_Sex, Race, Ethnic_Group,
-    ICI_Name, ICI_Class,
+    Age, Gender_Legal_Sex, Race1, Ethnic_Group,
     ## Comorbidities
     dm, htn, cad, cirrhosis,
     ## Medications

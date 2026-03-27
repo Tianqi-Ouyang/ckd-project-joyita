@@ -1,0 +1,208 @@
+---
+title: "CKD after ICI – Project Summary"
+author: "Tianqi Ouyang"
+date: "2026-03-26"
+---
+
+# Project Overview
+
+Clinical research analysis of **long-term kidney outcomes after immune checkpoint inhibitor (ICI) therapy** — CKD incidence, progression, and ESKD over 10-year follow-up.
+
+This website contains three components:
+
+- [**Analysis**](analysis_ici_ckd.qmd) — Main cohort analysis (full pipeline + models)
+- [**Treated Group**](treated_group.qmd) — ICI-treated cohort data build + Table 1
+- [**Control Group**](control_group.qmd) — Non-ICI cancer control cohort data build + Table 1
+
+---
+
+# Study Design
+
+| | Treated Group | Control Group |
+|---|---|---|
+| **Cohort source** | `treated group.xlsx` (393 ICI-treated patients) | RPDR `Dem.txt` (unique EMPIs) |
+| **Index_date** | ICI start date (`ICI_Dose_Date`) | First neoplasm Dx (ICD10 C00-D49) |
+| **Demographics** | From Excel | From RPDR Dem.txt |
+| **Group label** | `group = "treated"` | `group = "control"` |
+| **RPDR path** | Carboplatin Paper RPDR | CKD after ICI RPDR |
+
+---
+
+# Inclusion / Exclusion Criteria
+
+## Treated Group
+
+| Step | Criterion |
+|---|---|
+| 1 | ICI-treated patients from source Excel |
+| 2 | `last_cre_days > 0` (follow-up after index) |
+| 3 | Non-missing baseline CRE (`pre_median_CRE_90days`) |
+| 4 | `eGFR_CRE_baseline >= 10` |
+
+## Control Group
+
+| Step | Criterion |
+|---|---|
+| 1 | Unique EMPIs from RPDR Dem.txt |
+| 2 | Has neoplasm Dx (ICD10 C00-D49) for Index_date |
+| 3 | `last_cre_days > 0` |
+| 4 | Baseline CRE within 12 months prior to Index_date |
+| 5 | Follow-up >= 18 months (548 days) |
+| 6 | >= 2 CRE results after Index_date |
+| 7 | Non-missing baseline CRE |
+| 8 | `eGFR_CRE_baseline >= 10` |
+
+---
+
+# Input Files
+
+## Treated Group
+
+| File | Description |
+|---|---|
+| `treated group.xlsx` | 393 ICI-treated patients (EMPI, ICI_Dose_Date, DOB, sex, race, ethnicity, cancer Dx/stage, ICI name, death date, last CRE date) |
+| RPDR Lab, Dia, Med | From Carboplatin Paper RPDR folder |
+
+## Control Group
+
+| File | Source | Description |
+|---|---|---|
+| `mes98_..._Dem.txt` | RPDR | Demographics: EMPI, DOB, death date, sex, race, ethnicity |
+| `mes98_..._Dia.txt` | RPDR | Diagnoses: ICD codes, dates, names |
+| `mes98_..._Lab.txt` | RPDR | Lab results: CRE values, dates |
+| `mes98_..._Med.txt` | RPDR | Medications: names, dates |
+
+RPDR path: `/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/`
+
+---
+
+# Variable Dictionary
+
+## Demographics
+
+| Variable | Treated Source | Control Source | Definition |
+|---|---|---|---|
+| `EMPI` | Excel | Dem.txt | Patient identifier |
+| `Index_date` | `ICI_Dose_Date` (Excel) | First C00-D49 Dx date (Dia.txt) | Time anchor |
+| `Age` | Derived | Derived | `floor((Index_date - DOB) / 365.25)` |
+| `male` | Derived | Derived | `1` if Male |
+| `Race` / `Race1` | Excel (`Race`) | Dem.txt (`Race1`) | Recoded: White / Black / Asian / Other/Unknown |
+| `Ethnic_Group` | Excel | Dem.txt | Recoded: Hispanic / Non_hispanic / Other |
+| `group` | `"treated"` | `"control"` | Group label |
+
+## ICI-specific (Treated only)
+
+| Variable | Definition |
+|---|---|
+| `ICI_Name` | ICI drug name |
+| `ICI_Class` | PD1 / PDL1 / CTLA4 / Combination |
+| `Cancer_Diagnosis` | Cancer type |
+| `Cancers_stage` | Cancer stage |
+
+## Follow-up & Death
+
+| Variable | Definition |
+|---|---|
+| `last_cre_date` | Last CRE lab date (Excel for treated, derived from Lab for control) |
+| `last_cre_days` | `last_cre_date - Index_date` (days) |
+| `death` | `1` if `Date_Of_Death` is not NA |
+| `death_days` | `Date_Of_Death - Index_date` (days) |
+| `time_to_death` | Same as `death_days` |
+| `last_date` | `Date_Of_Death` if dead, else `last_cre_date` |
+| `last_days` | `last_date - Index_date` (days) |
+| `death_Xyear` (1-10) | `1` if died within X years (`death_days < 365*X`) |
+| `survival_Xyear` (1-10) | `1` if `last_cre_days >= 365*X` |
+
+## Comorbidities (from RPDR Dia, pre-index)
+
+All derived via `dia_list_icd()` or `dia_list_name()` with `Date <= Index_date`.
+
+| Variable | Method | Search Terms |
+|---|---|---|
+| `dm` | ICD codes | 250.00-250.03, E10.9, E11.9, E10.65, E11.65, E10.21, E11.21, E10.22, E11.22, E13.9 |
+| `htn` | ICD + Med | ICD: 401.x, I10, I15.x; Meds: HCTZ, amlodipine, lisinopril, losartan, valsartan, diltiazem, clonidine |
+| `cad` | Dx name | Coronary artery disease, Coronary atherosclerosis, Atherosclerotic heart disease, Angina, Unstable angina |
+| `cirrhosis` | Dx name | `grepl("cirrhosis")` |
+| `smoking` | Dx name | smoking, tobacco, cigarette, nicotine, smoke |
+| `esrd_kt` | ICD codes | 585.6, N18.6, V45.1, Z94.0, Z99.2, 996.81, T86.1x |
+
+## Medications (from RPDR Med, pre-index)
+
+All derived via `med_list()` with `Medication_Date <= Index_date`.
+
+| Variable | Search Terms | Exclusions |
+|---|---|---|
+| `ppi` | omeprazole, lansoprazole, dexlansoprazole, rabeprazole, pantoprazole, esomeprazole + brands | None |
+| `ace_arb` | benazepril, captopril, enalapril, fosinopril, lisinopril, ramipril, losartan, valsartan, irbesartan, olmesartan, candesartan, telmisartan, azilsartan, eprosartan | None |
+| `diu` | bumetanide, furosemide, torsemide, HCTZ, chlorthalidone, metolazone, spironolactone, triamterene, amiloride, eplerenone | None |
+| `steroids` | prednisone, methylprednisolone, prednisolone, dexamethasone, budesonide | Inhaler, Nebulization, Ointment, Ophthalmic |
+| `statins` | Atorvastatin, Fluvastatin, Lovastatin, Pitavastatin, Pravastatin, Rosuvastatin, Simvastatin + brands | None |
+| `dpp4i` | Alogliptin, Vipidia, Nesina, Linagliptin, Tradjenta, Saxagliptin, Onglyza, Sitagliptin, Januvia, Vildagliptin, Galvus | None |
+| `sglt2i` | Canagliflozin, Dapagliflozin, Empagliflozin, Ertugliflozin, Invokana, Farxiga, Forxiga, Jardiance, Steglatro | None |
+
+## Baseline Lab (from RPDR Lab)
+
+| Variable | Function | Time Frame |
+|---|---|---|
+| `pre_median_CRE_90days` | `pre_lab_median(time=90)` | `[Index_date - 90d, Index_date]` |
+| `eGFR_CRE_baseline` | `gfr_calc()` CKD-EPI 2021 race-free | From baseline CRE |
+| `ckd_stage_baseline` | 1-5 from eGFR | >=90 / >=60 / >=30 / >=15 / <15 |
+| `ckd_stage_baseline_3` | 3-level | stage 1 / stage 2 / stage 3 or more |
+
+## CKD Outcomes (post-index, sustained >= 90 days)
+
+| Variable | Definition |
+|---|---|
+| `ckd_incidence` | >25% eGFR drop AND eGFR <60, from baseline >=60 |
+| `ckd_progression` | >30% eGFR drop, from baseline <60 |
+| `eskd_defination_1` | eGFR <10 |
+| `esrd_kt_after_ici` | ESRD/KT ICD codes after Index_date |
+| `eskd_composite` | `eskd_defination_1 OR esrd_kt_after_ici` |
+| `ckd_composite` | `eskd_composite OR ckd_incidence OR ckd_progression` |
+| `time_to_ckd_incidence` | Days from Index_date to event |
+| `time_to_ckd_progression` | Days from Index_date to event |
+| `time_to_eskd_composite` | Days from Index_date to event |
+| `time_to_ckd_composite` | `pmin(incidence, progression, eskd)` |
+
+## AKI
+
+| Variable | Definition | Time Frame |
+|---|---|---|
+| `aki` | CRE > 1.5x baseline | `(Index_date, Index_date + 90d]` |
+| `aki_date` | Date of first qualifying CRE | Same window |
+| `aki_before_ckd` | `1` if AKI before CKD composite | -- |
+
+## Yearly Lab (1-10 years post-index)
+
+Function: `pre_lab_median_year(year=X, days=90)` -- window: `[Index_date + X*365 - 90d, Index_date + X*365]`
+
+| Variable | Definition |
+|---|---|
+| `pre_median_CRE_Xyear` | Median CRE in 90-day window |
+| `eGFR_CRE_Xyear` | CKD-EPI 2021 from yearly CRE |
+| `ckd_stage_Xyear` | CKD stage 1-5 |
+| `lab_num_Xyear` | Number of CRE labs in window |
+
+## Competing Risk
+
+| Variable | Definition |
+|---|---|
+| `year_10` | `Age / 10` |
+| `eGFR_CRE_baseline_decrease_10` | `(eGFR_CRE_baseline * -1) / 10` |
+| `time_to_ckd_cmp` | `pmin(time_to_ckd_composite, last_cre_days, death_days)` |
+| `status_ckd_cmp` | Factor: Death(2) > CKD Composite(1) > Censored(0) |
+| `ckd_incidence_Xyear` | `1` if event within X years, NA->0, factor |
+| `ckd_progression_Xyear` | `1` if event within X years, NA->0, factor |
+| `eskd_composite_Xyear` | `1` if event within X years, NA->0, factor |
+| `ckd_composite_Xyear` | `1` if event within X years, NA->0, factor |
+
+---
+
+# Key Conventions
+
+- All time anchored on `Index_date`
+- eGFR: CKD-EPI 2021 creatinine-only (race-free)
+- Yearly windows: year X = days `(X*365 - 90)` to `(X*365)` post-index
+- CKD outcomes require sustained >= 90 days
+- Competing risk priority: Death(2) > CKD(1) > Censored(0)
+- `death_Xyear = 1` strictly means patient died within X years

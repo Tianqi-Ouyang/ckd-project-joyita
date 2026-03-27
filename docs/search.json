@@ -1,0 +1,870 @@
+[
+  {
+    "objectID": "analysis_ici_ckd.html",
+    "href": "analysis_ici_ckd.html",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Gold standard = master Excel column name (left column). In Code = what this variable is called in the working code. Naming rules:\n\nICI_Dose_Date → Index_date (future datasets provide this directly)\nEMPI kept uppercase (required by RPDR functions)\nNew derived variables: descriptive snake_case\nAll other master Excel variable names kept as-is\n\n\n\n\n\n\nMaster Excel\nIn Code\nNote\n\n\n\n\nEMPI\nEMPI\nUppercase for RPDR compatibility\n\n\nAge\nAge\n\n\n\nGender_Legal_Sex\nGender_Legal_Sex\n\n\n\nmale\nmale\n0/1\n\n\nRace\nRace\n\n\n\nEthnic_Group\nEthnic_Group\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMaster Excel\nIn Code\nNote\n\n\n\n\nICI_Dose_Date\nIndex_date\nRenamed; future datasets provide Index_date directly\n\n\nlast_cre_date\nlast_cre_date\nDate of last creatinine lab (used as follow-up date)\n\n\n—\nlast_cre_days\nDerived: numeric days from Index_date to last_cre_date\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\ndm\nDiabetes mellitus\n\n\nhtn\nHypertension\n\n\ncad\nCoronary artery disease\n\n\nesrd_kt\nESRD / kidney transplant (pre-ICI)\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\nace_arb\nACE inhibitor / ARB\n\n\ndiu\nDiuretics\n\n\nppi\nProton pump inhibitor\n\n\nsteroids\nSteroids\n\n\nsmoking\nSmoking status\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\nBevacizumab\n\n\n\nCisplatin\n\n\n\nCarboplatin\n\n\n\nPemetrexed\n\n\n\nGemcitabine\n\n\n\nCetuximab\n\n\n\nTrastuzumab\n\n\n\nVEGF_TKI\nVEGF tyrosine kinase inhibitor\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\npre_CRE_180days\nCreatinine within 180 days pre-ICI\n\n\npre_HGB_180days\nHemoglobin within 180 days pre-ICI\n\n\npre_ALB_180days\nAlbumin within 180 days pre-ICI\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn Code\nRPDR Group_Id\nDescription\n\n\n\n\npre_median_CRE_90days\nCRE\nMedian creatinine ≤ 90 days before Index_date\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\neGFR_CRE_baseline\nCKD-EPI 2021 creatinine eGFR from pre_median_CRE_90days\n\n\nckd_stage_baseline\nCKD stage 1–5 from baseline eGFR\n\n\nckd_stage_baseline_3\n3-level: “stage 1”, “stage 2”, “stage 3 or more”\n\n\nckd_stage\nFrom eGFR_cre (master column)\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\nckd_incidence\nCKD incidence: &gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60, sustained &gt;=90 days\n\n\nckd_incidence_date\nDate of CKD incidence\n\n\nckd_progression\nCKD progression: &gt;30% eGFR drop from baseline &lt;60, sustained &gt;=90 days\n\n\nckd_progression_date\nDate of CKD progression\n\n\nesrd_kt_after_ici\nESRD/KT after ICI (binary, from master)\n\n\nesrd_kt_after_ici_date\nDate of ESRD/KT after ICI\n\n\neskd_defination_1\nESKD definition 1 (binary, from master)\n\n\neskd_defination_1_date\nDate of ESKD definition 1\n\n\neskd_composite\nDerived: esrd_kt_after_ici OR eskd_defination_1\n\n\neskd_composite_date\npmin of the two ESKD dates\n\n\nckd_composite\nDerived: eskd_composite OR ckd_incidence OR ckd_progression\n\n\ntime_to_ckd_composite\npmin of all three time-to-event values\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\ntime_to_eskd_composite\nDays from Index_date to ESKD composite\n\n\ntime_to_ckd_incidence\nDays from Index_date to CKD incidence\n\n\ntime_to_ckd_progression\nDays from Index_date to CKD progression\n\n\ntime_to_ckd_composite\npmin of the above three\n\n\ntime_to_ckd_cmp\npmin(time_to_ckd_composite, last_cre_days, death_days)\n\n\nstatus_cmp\nCompeting risk: 0=censored, 1=CKD composite, 2=death (priority: death &gt; CKD &gt; censored)\n\n\n\n\n\n\n\n\n\nPattern\nDescription\n\n\n\n\nsurvival_Xyear\n1 if last_cre_days ≥ 365 × X\n\n\n\n\n\n\n\n\n\nPattern\nDescription\n\n\n\n\nckd_incidence_Xyear\n1 if time_to_ckd_incidence &lt; 365 × X\n\n\nckd_progression_Xyear\n1 if time_to_ckd_progression &lt; 365 × X\n\n\neskd_composite_Xyear\n1 if time_to_eskd_composite &lt; 365 × X\n\n\n\n\n\n\n\n\n\n\n\n\n\nPattern\nDescription\n\n\n\n\npre_median_CRE_Xyear\nMedian CRE in 90-day window around year X post-Index\n\n\neGFR_CRE_Xyear\nCKD-EPI eGFR from that median CRE\n\n\nckd_stage_Xyear\nCKD stage 1–5 from that eGFR\n\n\nlab_num_Xyear\nNumber of CRE labs in that yearly window\n\n\n\n\n\n\n\n\n\n\n\n\n\nIn Code\nDescription\n\n\n\n\ndeath_1year … death_10year\nBinary death flags at each year mark"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#identifiers-demographics",
+    "href": "analysis_ici_ckd.html#identifiers-demographics",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Master Excel\nIn Code\nNote\n\n\n\n\nEMPI\nEMPI\nUppercase for RPDR compatibility\n\n\nAge\nAge\n\n\n\nGender_Legal_Sex\nGender_Legal_Sex\n\n\n\nmale\nmale\n0/1\n\n\nRace\nRace\n\n\n\nEthnic_Group\nEthnic_Group"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#key-dates",
+    "href": "analysis_ici_ckd.html#key-dates",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Master Excel\nIn Code\nNote\n\n\n\n\nICI_Dose_Date\nIndex_date\nRenamed; future datasets provide Index_date directly\n\n\nlast_cre_date\nlast_cre_date\nDate of last creatinine lab (used as follow-up date)\n\n\n—\nlast_cre_days\nDerived: numeric days from Index_date to last_cre_date"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#comorbidities-from-master",
+    "href": "analysis_ici_ckd.html#comorbidities-from-master",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\ndm\nDiabetes mellitus\n\n\nhtn\nHypertension\n\n\ncad\nCoronary artery disease\n\n\nesrd_kt\nESRD / kidney transplant (pre-ICI)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#medications-from-master",
+    "href": "analysis_ici_ckd.html#medications-from-master",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\nace_arb\nACE inhibitor / ARB\n\n\ndiu\nDiuretics\n\n\nppi\nProton pump inhibitor\n\n\nsteroids\nSteroids\n\n\nsmoking\nSmoking status"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#cancer-drugs-from-master",
+    "href": "analysis_ici_ckd.html#cancer-drugs-from-master",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\nBevacizumab\n\n\n\nCisplatin\n\n\n\nCarboplatin\n\n\n\nPemetrexed\n\n\n\nGemcitabine\n\n\n\nCetuximab\n\n\n\nTrastuzumab\n\n\n\nVEGF_TKI\nVEGF tyrosine kinase inhibitor"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#pre-baseline-lab-values-from-master",
+    "href": "analysis_ici_ckd.html#pre-baseline-lab-values-from-master",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\npre_CRE_180days\nCreatinine within 180 days pre-ICI\n\n\npre_HGB_180days\nHemoglobin within 180 days pre-ICI\n\n\npre_ALB_180days\nAlbumin within 180 days pre-ICI"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#rpdr-derived-baseline-lab-within-90-days-pre-index_date",
+    "href": "analysis_ici_ckd.html#rpdr-derived-baseline-lab-within-90-days-pre-index_date",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nRPDR Group_Id\nDescription\n\n\n\n\npre_median_CRE_90days\nCRE\nMedian creatinine ≤ 90 days before Index_date"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#baseline-egfr-ckd-stage",
+    "href": "analysis_ici_ckd.html#baseline-egfr-ckd-stage",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\neGFR_CRE_baseline\nCKD-EPI 2021 creatinine eGFR from pre_median_CRE_90days\n\n\nckd_stage_baseline\nCKD stage 1–5 from baseline eGFR\n\n\nckd_stage_baseline_3\n3-level: “stage 1”, “stage 2”, “stage 3 or more”\n\n\nckd_stage\nFrom eGFR_cre (master column)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#outcome-variables-from-master-derived",
+    "href": "analysis_ici_ckd.html#outcome-variables-from-master-derived",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\nckd_incidence\nCKD incidence: &gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60, sustained &gt;=90 days\n\n\nckd_incidence_date\nDate of CKD incidence\n\n\nckd_progression\nCKD progression: &gt;30% eGFR drop from baseline &lt;60, sustained &gt;=90 days\n\n\nckd_progression_date\nDate of CKD progression\n\n\nesrd_kt_after_ici\nESRD/KT after ICI (binary, from master)\n\n\nesrd_kt_after_ici_date\nDate of ESRD/KT after ICI\n\n\neskd_defination_1\nESKD definition 1 (binary, from master)\n\n\neskd_defination_1_date\nDate of ESKD definition 1\n\n\neskd_composite\nDerived: esrd_kt_after_ici OR eskd_defination_1\n\n\neskd_composite_date\npmin of the two ESKD dates\n\n\nckd_composite\nDerived: eskd_composite OR ckd_incidence OR ckd_progression\n\n\ntime_to_ckd_composite\npmin of all three time-to-event values"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#time-to-event-variables",
+    "href": "analysis_ici_ckd.html#time-to-event-variables",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\ntime_to_eskd_composite\nDays from Index_date to ESKD composite\n\n\ntime_to_ckd_incidence\nDays from Index_date to CKD incidence\n\n\ntime_to_ckd_progression\nDays from Index_date to CKD progression\n\n\ntime_to_ckd_composite\npmin of the above three\n\n\ntime_to_ckd_cmp\npmin(time_to_ckd_composite, last_cre_days, death_days)\n\n\nstatus_cmp\nCompeting risk: 0=censored, 1=CKD composite, 2=death (priority: death &gt; CKD &gt; censored)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#survival-flags-110-years",
+    "href": "analysis_ici_ckd.html#survival-flags-110-years",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Pattern\nDescription\n\n\n\n\nsurvival_Xyear\n1 if last_cre_days ≥ 365 × X"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#yearly-outcome-flags-110-years",
+    "href": "analysis_ici_ckd.html#yearly-outcome-flags-110-years",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Pattern\nDescription\n\n\n\n\nckd_incidence_Xyear\n1 if time_to_ckd_incidence &lt; 365 × X\n\n\nckd_progression_Xyear\n1 if time_to_ckd_progression &lt; 365 × X\n\n\neskd_composite_Xyear\n1 if time_to_eskd_composite &lt; 365 × X"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#yearly-egfr-ckd-stage-from-rpdr-lab-post-index_date",
+    "href": "analysis_ici_ckd.html#yearly-egfr-ckd-stage-from-rpdr-lab-post-index_date",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "Pattern\nDescription\n\n\n\n\npre_median_CRE_Xyear\nMedian CRE in 90-day window around year X post-Index\n\n\neGFR_CRE_Xyear\nCKD-EPI eGFR from that median CRE\n\n\nckd_stage_Xyear\nCKD stage 1–5 from that eGFR\n\n\nlab_num_Xyear\nNumber of CRE labs in that yearly window"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#mortality-from-master",
+    "href": "analysis_ici_ckd.html#mortality-from-master",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "",
+    "text": "In Code\nDescription\n\n\n\n\ndeath_1year … death_10year\nBinary death flags at each year mark"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#pre_lab_median",
+    "href": "analysis_ici_ckd.html#pre_lab_median",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.1 pre_lab_median",
+    "text": "3.1 pre_lab_median\nGets the median lab value within a time window before index_date. Returns one row per patient with the median result.\n\npre_lab_median &lt;- function(data, month, time, index_date, Group_Id) {\n  index_date &lt;- enquo(index_date)\n  if (month) {\n    time_value &lt;- time * 30\n  } else {\n    time_value &lt;- time\n  }\n\n  median_name &lt;- paste0(\"pre_median_\", Group_Id, \"_\", time_value, \"days\")\n\n  result &lt;- data %&gt;%\n    filter(Group_Id == !!Group_Id, grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n    filter(!is.na(Result)) %&gt;%\n    mutate(Result = as.numeric(Result)) %&gt;%\n    filter(Seq_Date_Time &gt;= (!!index_date) - time_value,\n           Seq_Date_Time &lt;= !!index_date) %&gt;%\n    group_by(EMPI) %&gt;%\n    summarise(\n      !!median_name := median(Result, na.rm = TRUE),\n      .groups = \"drop\"\n    ) %&gt;%\n    select(EMPI, !!median_name)\n\n  return(result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#pre_lab_median_year",
+    "href": "analysis_ici_ckd.html#pre_lab_median_year",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.2 pre_lab_median_year",
+    "text": "3.2 pre_lab_median_year\nGets the median CRE in a 90-day window around each yearly mark post-index. Also finds the closest lab value up to that yearly mark as a fallback. Falls back to the closest value if no labs exist in the 90-day window.\n\npre_lab_median_year &lt;- function(data, year, days, index_date, Group_Id) {\n  index_date &lt;- enquo(index_date)\n\n  last_offset  &lt;- year * 365\n  first_offset &lt;- last_offset - days\n\n  median_name      &lt;- paste0(\"pre_median_\", Group_Id, \"_\", year, \"year\")\n  lab_num_name     &lt;- paste0(\"lab_num_\", year, \"year\")\n  closest_name     &lt;- paste0(\"closest_\", Group_Id, \"_\", year, \"year\")\n  closest_date_name &lt;- paste0(\"closest_\", Group_Id, \"_\", year, \"year_date\")\n\n  median &lt;- data %&gt;%\n    filter(Group_Id == !!Group_Id, grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n    filter(!is.na(Result)) %&gt;%\n    mutate(Result = as.numeric(Result)) %&gt;%\n    filter(Seq_Date_Time &gt;= (!!index_date + first_offset),\n           Seq_Date_Time &lt;= !!index_date + last_offset) %&gt;%\n    group_by(EMPI) %&gt;%\n    summarise(\n      !!median_name := median(Result, na.rm = TRUE),\n      !!lab_num_name := n(),\n      .groups = \"drop\"\n    )\n\n  closest &lt;- data %&gt;%\n    filter(Group_Id == !!Group_Id, grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n    filter(!is.na(Result)) %&gt;%\n    mutate(Result = as.numeric(Result)) %&gt;%\n    filter(Seq_Date_Time &lt;= !!index_date + last_offset) %&gt;%\n    arrange(EMPI, desc(Seq_Date_Time)) %&gt;%\n    distinct(EMPI, .keep_all = TRUE) %&gt;%\n    rename(!!closest_name := Result,\n           !!closest_date_name := Seq_Date_Time) %&gt;%\n    select(EMPI, !!index_date, !!closest_name, !!closest_date_name)\n\n  result &lt;- median %&gt;%\n    merge(closest, by = \"EMPI\", all = TRUE) %&gt;%\n    mutate(\n      !!median_name := ifelse(is.na(!!sym(median_name)),\n                              !!sym(closest_name),\n                              !!sym(median_name))\n    ) %&gt;%\n    select(EMPI, !!median_name, !!lab_num_name)\n\n  return(result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#left_join_all",
+    "href": "analysis_ici_ckd.html#left_join_all",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.3 left_join_all",
+    "text": "3.3 left_join_all\nSequentially left-joins a list of data frames onto a master data frame.\n\nleft_join_all &lt;- function(master, df_list, by) {\n  for (df in df_list) {\n    master &lt;- merge(master, df, by = by, all.x = TRUE)\n  }\n  return(master)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#get_ckd_stage",
+    "href": "analysis_ici_ckd.html#get_ckd_stage",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.4 get_ckd_stage",
+    "text": "3.4 get_ckd_stage\nClassifies CKD stages 1–5 based on eGFR values.\n\nget_ckd_stage &lt;- function(egfr) {\n  if (is.na(egfr)) {\n    return(NA)\n  } else if (egfr &gt;= 90) {\n    return(1)\n  } else if (egfr &gt;= 60) {\n    return(2)\n  } else if (egfr &gt;= 30) {\n    return(3)\n  } else if (egfr &gt;= 15) {\n    return(4)\n  } else {\n    return(5)\n  }\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "href": "analysis_ici_ckd.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
+    "text": "3.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)\nRace-free CKD-EPI 2021 creatinine-based eGFR.\n\nckd_epi_gfr &lt;- function(creat, male, age) {\n  k &lt;- ifelse(male == 1, 0.9, 0.7)\n  a &lt;- ifelse(male == 1, -0.302, -0.241)\n  m &lt;- ifelse(male == 1, 1, 1.012)\n  gfr &lt;- 142 * min(c(creat / k, 1))^a * max(c(creat / k, 1))^-1.2 * 0.9938^age * m\n  return(gfr)\n}\n\ngfr_calc &lt;- Vectorize(ckd_epi_gfr)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#create_outcome_table",
+    "href": "analysis_ici_ckd.html#create_outcome_table",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.6 create_outcome_table",
+    "text": "3.6 create_outcome_table\nGenerates a gtsummary Table 1 for a given year suffix, filtering to patients who survived to that landmark.\n\ncreate_outcome_table &lt;- function(data, time_suffix) {\n\n  year_num &lt;- as.numeric(gsub(\"[^0-9]\", \"\", time_suffix))\n  stage_history_cols &lt;- paste0(\"ckd_stage_\", 1:year_num, \"year\")\n\n  survival_col     &lt;- paste0(\"survival_\", time_suffix)\n  ckd_inc_col      &lt;- paste0(\"ckd_incidence_\", time_suffix)\n  ckd_prog_col     &lt;- paste0(\"ckd_progression_\", time_suffix)\n  eskd_comp_col    &lt;- paste0(\"eskd_composite_\", time_suffix)\n  ckd_comp_col     &lt;- paste0(\"ckd_composite_\", time_suffix)\n\n  data %&gt;%\n    filter(.data[[survival_col]] == 1) %&gt;%\n    select(\n      ## Demographics\n      Age, male, Race, Ethnic_Group,\n      ## Outcomes (dynamic)\n      all_of(ckd_inc_col), all_of(ckd_prog_col),\n      all_of(eskd_comp_col), all_of(ckd_comp_col),\n      ## Longitudinal CKD Stages (cumulative up to year X)\n      all_of(stage_history_cols),\n      ckd_stage_baseline,\n      aki,\n      ## Comorbidities\n      dm, htn, cad, cirrhosis,\n      ## Medications\n      ace_arb, diu, ppi, steroids, smoking, statins,\n      ICI_Class, nephrotoxic_chemo,\n      ## Labs / Kidney function\n      pre_CRE_180days, pre_HGB_180days, pre_ALB_180days,\n      eGFR_CRE_baseline\n    ) %&gt;%\n    tbl_summary(missing_text = \"Missing\")\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#pre_lab-closest-value-cystatin-c-style",
+    "href": "analysis_ici_ckd.html#pre_lab-closest-value-cystatin-c-style",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.7 pre_lab (closest value — Cystatin C style)",
+    "text": "3.7 pre_lab (closest value — Cystatin C style)\nFinds the closest lab value on or before index_date within the time window. Returns one row per patient (most recent qualifying lab result).\n\nUses Seq_Date_Time for filtering and sorting (bug-fixed version from Cystatin C pipeline).\n\n\npre_lab &lt;- function(data, month, time, index_date, Group_Id) {\n  index_date &lt;- enquo(index_date)\n  if (month) {\n    time_value &lt;- time * 30\n  } else {\n    time_value &lt;- time\n  }\n\n  lab_name      &lt;- paste0(\"pre_\", Group_Id, \"_\", time_value, \"days\")\n  lab_date_name &lt;- paste0(\"pre_\", Group_Id, \"_\", time_value, \"days_date\")\n\n  result &lt;- data %&gt;%\n    filter(Group_Id == !!Group_Id, grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n    filter(!is.na(Result)) %&gt;%\n    mutate(Result = as.numeric(Result)) %&gt;%\n    filter(Seq_Date_Time &gt;= (!!index_date) - time_value,\n           Seq_Date_Time &lt;= !!index_date) %&gt;%\n    arrange(EMPI, desc(Seq_Date_Time)) %&gt;%\n    distinct(EMPI, .keep_all = TRUE) %&gt;%\n    rename(!!lab_name := Result,\n           !!lab_date_name := Seq_Date_Time) %&gt;%\n    select(EMPI, !!lab_name, !!lab_date_name)\n\n  return(result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#dia_list_name-rpdr-diagnosis-lookup",
+    "href": "analysis_ici_ckd.html#dia_list_name-rpdr-diagnosis-lookup",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.8 dia_list_name (RPDR diagnosis lookup)",
+    "text": "3.8 dia_list_name (RPDR diagnosis lookup)\nIdentifies patients with a given diagnosis (and optionally medication) on or before index_date. Supports excluding specific diagnosis name strings.\n\ndia_list_name &lt;- function(data, listed_names, index_date, excluded_names = NULL, med_data = NULL, med_names = NULL) {\n  if (!is.null(excluded_names)) {\n    excluded_pattern &lt;- paste(\n      gsub(\"([][()])\", \"\\\\\\\\\\\\1\", excluded_names),\n      collapse = \"|\"\n    )\n  }\n\n  if (is.null(excluded_names)) {\n    dia_result &lt;- data %&gt;%\n      filter(Date &lt;= {{index_date}}) %&gt;%\n      filter(grepl(paste(listed_names, collapse = \"|\"), Diagnosis_Name, ignore.case = TRUE)) %&gt;%\n      distinct(EMPI)\n  } else {\n    dia_result &lt;- data %&gt;%\n      filter(Date &lt;= {{index_date}}) %&gt;%\n      filter(\n        grepl(paste(listed_names, collapse = \"|\"), Diagnosis_Name, ignore.case = TRUE),\n        !grepl(excluded_pattern, Diagnosis_Name, ignore.case = TRUE)\n      ) %&gt;%\n      distinct(EMPI)\n  }\n\n  if (!is.null(med_data)) {\n    med_result &lt;- med_data %&gt;%\n      filter(Medication_Date &lt;= {{index_date}}) %&gt;%\n      filter(grepl(paste(med_names, collapse = \"|\"), Medication, ignore.case = TRUE)) %&gt;%\n      distinct(EMPI)\n  } else {\n    med_result &lt;- NULL\n  }\n\n  final_result &lt;- rbind(dia_result, med_result) %&gt;%\n    distinct(EMPI)\n\n  return(final_result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#cmp_variable-competing-risk",
+    "href": "analysis_ici_ckd.html#cmp_variable-competing-risk",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.9 cmp_variable (competing risk)",
+    "text": "3.9 cmp_variable (competing risk)\nBuilds competing-risk time and status for a single outcome. Status coding: 0 = censored, 1 = event occurred, 2 = death (competing event).\n\ncmp_variable &lt;- function(data, event_time, event_status, name) {\n  event_time   &lt;- enquo(event_time)\n  event_status &lt;- enquo(event_status)\n\n  cmp_time_name   &lt;- paste0(\"cmp_time_\", name)\n  cmp_status_name &lt;- paste0(\"cmp_status_\", name)\n\n  data %&gt;%\n    mutate(\n      !!cmp_time_name   := ifelse(time_to_death &lt;= !!event_time, time_to_death, !!event_time),\n      !!cmp_status_name := ifelse(time_to_death &lt;= !!event_time, time_to_death_status, !!event_status)\n    )\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#make_ckd_outcome_date-sustained-egfr-based-outcomes",
+    "href": "analysis_ici_ckd.html#make_ckd_outcome_date-sustained-egfr-based-outcomes",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.10 make_ckd_outcome_date (sustained eGFR-based outcomes)",
+    "text": "3.10 make_ckd_outcome_date (sustained eGFR-based outcomes)\nIdentifies sustained (≥ days_threshold) episodes where a condition is met. Returns one row per patient with binary flag + first qualifying date.\n\nmake_ckd_outcome_date &lt;- function(data, id_var, date_var, condition_expr,\n                                   days_threshold = 90, outcome_name = \"default\") {\n  id_var      &lt;- enquo(id_var)\n  date_var    &lt;- enquo(date_var)\n  cond_q      &lt;- enquo(condition_expr)\n  outcome_sym &lt;- ensym(outcome_name)\n  outcome_date_name &lt;- paste0(outcome_name, \"_date\")\n\n  working &lt;- data %&gt;%\n    arrange(!!id_var, !!date_var) %&gt;%\n    group_by(!!id_var) %&gt;%\n    mutate(\n      .cond   = if_else(!!cond_q, 1L, 0L),\n      .change = .cond != lag(.cond, default = first(.cond)),\n      .run    = cumsum(.change)\n    )\n\n  episodes &lt;- working %&gt;%\n    group_by(!!id_var, .run) %&gt;%\n    summarise(\n      .code = first(.cond),\n      .start = first(!!date_var),\n      .last  = last(!!date_var),\n      .groups = \"drop\"\n    ) %&gt;%\n    group_by(!!id_var) %&gt;%\n    mutate(\n      .end  = lead(.start),\n      .end  = if_else(is.na(.end), .last, .end),\n      .days = as.integer(.end - .start)\n    ) %&gt;%\n    ungroup()\n\n  episodes %&gt;%\n    filter(!is.na(.days)) %&gt;%\n    group_by(!!id_var) %&gt;%\n    summarise(\n      has_event  = any(.code == 1L & .days &gt;= days_threshold, na.rm = TRUE),\n      event_date = if (any(.code == 1L & .days &gt;= days_threshold, na.rm = TRUE)) {\n        min(.start[.code == 1L & .days &gt;= days_threshold], na.rm = TRUE)\n      } else {\n        as.Date(NA)\n      },\n      .groups = \"drop\"\n    ) %&gt;%\n    mutate(!!outcome_sym := as.integer(has_event)) %&gt;%\n    rename(!!outcome_date_name := event_date) %&gt;%\n    select(-has_event)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#med_list-rpdr-medication-lookup",
+    "href": "analysis_ici_ckd.html#med_list-rpdr-medication-lookup",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.12 med_list (RPDR medication lookup)",
+    "text": "3.12 med_list (RPDR medication lookup)\n\nmed_list &lt;- function(names, index_date, excluded_names = NULL, data) {\n  if (!is.null(excluded_names)) {\n    result &lt;- data %&gt;%\n      filter(Medication_Date &lt;= {{index_date}}) %&gt;%\n      filter(\n        grepl(paste(names, collapse = \"|\"), Medication, ignore.case = TRUE),\n        !grepl(paste(excluded_names, collapse = \"|\"), Medication, ignore.case = TRUE)\n      ) %&gt;%\n      distinct(EMPI)\n  } else {\n    result &lt;- data %&gt;%\n      filter(Medication_Date &lt;= {{index_date}}) %&gt;%\n      filter(grepl(paste(names, collapse = \"|\"), Medication, ignore.case = TRUE)) %&gt;%\n      distinct(EMPI)\n  }\n  return(result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#dia_list_icd-rpdr-diagnosis-lookup-by-icd-code",
+    "href": "analysis_ici_ckd.html#dia_list_icd-rpdr-diagnosis-lookup-by-icd-code",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.13 dia_list_icd (RPDR diagnosis lookup by ICD code)",
+    "text": "3.13 dia_list_icd (RPDR diagnosis lookup by ICD code)\n\ndia_list_icd &lt;- function(data, index_date, icd_code, excluded_names = NULL,\n                         med_data = NULL, med_names = NULL) {\n  if (is.null(excluded_names)) {\n    dia_result &lt;- data %&gt;%\n      filter(Date &lt;= {{index_date}}) %&gt;%\n      filter(grepl(paste(icd_code, collapse = \"|\"), Code, ignore.case = TRUE)) %&gt;%\n      distinct(EMPI)\n  } else {\n    dia_result &lt;- data %&gt;%\n      filter(Date &lt;= {{index_date}}) %&gt;%\n      filter(\n        grepl(paste(icd_code, collapse = \"|\"), Code, ignore.case = TRUE),\n        !grepl(paste(excluded_names, collapse = \"|\"), Diagnosis_Name, ignore.case = TRUE)\n      ) %&gt;%\n      distinct(EMPI)\n  }\n\n  if (!is.null(med_data)) {\n    med_result &lt;- med_data %&gt;%\n      filter(Medication_Date &lt;= {{index_date}}) %&gt;%\n      filter(grepl(paste(med_names, collapse = \"|\"), Medication, ignore.case = TRUE)) %&gt;%\n      distinct(EMPI)\n  } else {\n    med_result &lt;- NULL\n  }\n\n  final_result &lt;- rbind(dia_result, med_result) %&gt;% distinct(EMPI)\n  return(final_result)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#dia_list_icd_after_index-post-index-diagnosis-with-first-event-date",
+    "href": "analysis_ici_ckd.html#dia_list_icd_after_index-post-index-diagnosis-with-first-event-date",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3.14 dia_list_icd_after_index (post-index diagnosis with first event date)",
+    "text": "3.14 dia_list_icd_after_index (post-index diagnosis with first event date)\n\ndia_list_icd_after_index &lt;- function(data, index_date, icd_code,\n                                     excluded_names = NULL) {\n  if (is.null(excluded_names)) {\n    result &lt;- data %&gt;%\n      filter(Date &gt; {{index_date}}) %&gt;%\n      filter(grepl(paste(icd_code, collapse = \"|\"), Code, ignore.case = TRUE))\n  } else {\n    result &lt;- data %&gt;%\n      filter(Date &gt; {{index_date}}) %&gt;%\n      filter(\n        grepl(paste(icd_code, collapse = \"|\"), Code, ignore.case = TRUE),\n        !grepl(paste(excluded_names, collapse = \"|\"), Diagnosis_Name, ignore.case = TRUE)\n      )\n  }\n\n  result %&gt;%\n    arrange(EMPI, Date) %&gt;%\n    distinct(EMPI, .keep_all = TRUE) %&gt;%\n    select(EMPI, first_event_date = Date)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#load-master-file",
+    "href": "analysis_ici_ckd.html#load-master-file",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "4.1 Load master file",
+    "text": "4.1 Load master file\n\nFuture datasets will provide EMPI and Index_date columns directly. Update the path and column rename below accordingly.\n\n\n# ── Update this path to your master Excel file ──\n# Drop pre-computed columns — we derive them from RPDR Dia/Med/Lab\n# Drop pre-computed columns — we derive them from RPDR\ndrop_cols &lt;- c(\"eGFR_cre\", \"ckd_stage\", \"last_date\", \"last_days\",\n               \"dm\", \"htn\", \"cad\", \"ace_arb\", \"diu\", \"ppi\", \"steroids\",\n               \"smoking\", \"esrd_kt\", \"esrd_kt_after_ici\", \"esrd_kt_after_ici_date\",\n               \"ckd_incidence\", \"ckd_incidence_date\", \"ckd_progression\", \"ckd_progression_date\",\n               \"eskd_defination_1\", \"eskd_defination_1_date\",\n               \"ckd_composite\", \"time_to_ckd_incidence\", \"time_to_ckd_progression\",\n               \"time_to_ckd_composite\",\n               paste0(\"ckd_incidence_\", 1:10, \"year\"),\n               paste0(\"ckd_progression_\", 1:10, \"year\"),\n               paste0(\"ckd_composite_\", 1:10, \"year\"),\n               paste0(\"death_\", 1:10, \"year\"))\nfinal_master &lt;- read_excel(\n  \"/Users/to909/Desktop/Meg/Kavita ICI CKD/final_master_1217.xlsx\"\n) %&gt;%\n  select(-any_of(drop_cols))\n\n# ── Rename ICI_Dose_Date → Index_date for future compatibility ──\n# If your dataset already has Index_date, remove this rename.\nfinal_master &lt;- final_master %&gt;%\n  rename(Index_date = ICI_Dose_Date)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#load-rpdr-files-lab-dia-med",
+    "href": "analysis_ici_ckd.html#load-rpdr-files-lab-dia-med",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "4.2 Load RPDR files (Lab, Dia, Med)",
+    "text": "4.2 Load RPDR files (Lab, Dia, Med)\n\nrpdr_path &lt;- \"/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/\"\n\n# Lab\nlab &lt;- read.table(\n  paste0(rpdr_path, \"mes98_093025104659807332_Lab.txt\"),\n  sep = \"|\", fill = TRUE, quote = \"\", header = TRUE\n) %&gt;%\n  select(EMPI, EPIC_PMRN, Seq_Date_Time, Result, Group_Id, Test_Description)\nlab$Seq_Date_Time &lt;- as.Date(lab$Seq_Date_Time, \"%m/%d/%Y\")\n\n# Diagnoses\ndia &lt;- read.table(\n  paste0(rpdr_path, \"mes98_093025104659807332_Dia.txt\"),\n  sep = \"|\", fill = TRUE, quote = \"\", header = TRUE\n) %&gt;%\n  select(EMPI, EPIC_PMRN, Code, Date, Diagnosis_Name)\ndia$Date &lt;- as.Date(dia$Date, \"%m/%d/%Y\")\n\n# Medications\nmed &lt;- read.table(\n  paste0(rpdr_path, \"mes98_093025104659807332_Med.txt\"),\n  sep = \"|\", fill = TRUE, quote = \"\", header = TRUE\n) %&gt;%\n  select(EMPI, Medication_Date, Medication)\nmed$Medication_Date &lt;- as.Date(med$Medication_Date, \"%m/%d/%Y\")"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#coerce-dates-create-master_lab-master_dia-master_med",
+    "href": "analysis_ici_ckd.html#coerce-dates-create-master_lab-master_dia-master_med",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "4.3 Coerce dates & create master_lab / master_dia / master_med",
+    "text": "4.3 Coerce dates & create master_lab / master_dia / master_med\n\nfinal_master$Index_date    &lt;- as.Date(final_master$Index_date)\nfinal_master$last_cre_date &lt;- as.Date(final_master$last_cre_date)\n\nmaster_list &lt;- final_master %&gt;% select(EMPI, Index_date)\nmaster_lab  &lt;- lab %&gt;% merge(master_list, by = \"EMPI\")\nmaster_dia  &lt;- dia %&gt;% merge(master_list, by = \"EMPI\")\nmaster_med  &lt;- med %&gt;% merge(master_list, by = \"EMPI\")"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#medication-name-lists",
+    "href": "analysis_ici_ckd.html#medication-name-lists",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "5.1 Medication name lists",
+    "text": "5.1 Medication name lists\n\nppi_names &lt;- c(\"omeprazole\", \"Prilosec\", \"Yosprala\", \"lansoprazole\", \"Prevacid\",\n               \"dexlansoprazole\", \"Dexilent\", \"rabeprazole\", \"Aciphex\",\n               \"pantoprazole\", \"Protonix\", \"esomeprazole\", \"Nexium\", \"Vimovo\",\n               \"Zegerid\", \"dexilant\")\n\nace_arb_names &lt;- c(\"benazepril\", \"lotensin\", \"captopril\", \"capoten\", \"enalapril\",\n                   \"vasotech\", \"epaned\", \"lexxel\", \"fosinopril\", \"monopril\",\n                   \"lisinopril\", \"prinvil\", \"zestril\", \"qbrelis\", \"moexipril\",\n                   \"univasc\", \"perindopril\", \"aceon\", \"quinapril\", \"accupril\",\n                   \"ramipril\", \"altace\", \"trandolapril\", \"mavik\", \"azilsartan\",\n                   \"edarbi\", \"candesartan\", \"atacand\", \"eprosartan\", \"teveten\",\n                   \"irbesartan\", \"avapro\", \"telmisartan\", \"micardis\", \"valsartan\",\n                   \"diovan\", \"losartan\", \"cozaar\", \"olmesartan\", \"benicar\",\n                   \"lotrel\", \"hyzaar\")\n\ndiuretics_names &lt;- c(\"bumetanide\", \"bumex\", \"ethacrynic acid\", \"edecrin\",\n                     \"furosemide\", \"Lasix\", \"torsemide\", \"demadex\",\n                     \"hydrochlorothiazide\", \"hctz\", \"chlorathiazide\",\n                     \"chlorthalidone\", \"diuril\", \"indapamide\", \"metolazone\",\n                     \"aldactone\", \"amiloride\", \"dyazide\", \"eplerenone\",\n                     \"maxzide\", \"spironolactone\", \"triamterene\")\n\nsteroids_names &lt;- c(\"prednisone\", \"methylpred\", \"Deltasone\", \"Orasone\",\n                    \"budesonide\", \"Entocort\", \"methylprednisolone\",\n                    \"prednisolone\", \"Millipred\", \"dexamethasone\", \"Ozurdex\",\n                    \"Maxidex\", \"DexPak\")\nno_steroid_names &lt;- c(\"Inhaler\", \"Nebulization\", \"Ointment\", \"Ophthalmic\",\n                      \"Symbicort\")\n\nstatins_names &lt;- c(\"Atorvastatin\", \"Lipitor\", \"Fluvastatin\", \"Lescol\",\n                   \"Lovastatin\", \"Mevacor\", \"Pitavastatin\", \"Livalo\",\n                   \"Pravastatin\", \"Pravachol\", \"Rosuvastatin\", \"Crestor\",\n                   \"Simvastatin\", \"Zocor\")\ndpp4i_names &lt;- c(\"Alogliptin\", \"Vipidia\", \"Nesina\",\n                 \"Linagliptin\", \"Tradjenta\",\n                 \"Saxagliptin\", \"Onglyza\",\n                 \"Sitagliptin\", \"Januvia\",\n                 \"Vildagliptin\", \"Galvus\")\nsglt2i_names &lt;- c(\"Canagliflozin\", \"Dapagliflozin\", \"Empagliflozin\", \"Ertugliflozin\",\n                  \"Invokana\", \"Farxiga\", \"Forxiga\", \"Jardiance\", \"Steglatro\")"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#diagnosis-code-lists",
+    "href": "analysis_ici_ckd.html#diagnosis-code-lists",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "5.2 Diagnosis code lists",
+    "text": "5.2 Diagnosis code lists\n\nesrd_kt_codes &lt;- c(\n  \"585.6\", \"N18.6\", \"V45.1\", \"Z94.0\", \"Z99.2\",\n  \"996.81\", \"T86.1\", \"T86.10\", \"T86.11\", \"T86.12\", \"T86.13\", \"T86.19\",\n  \"N18.0\", \"V56.1\", \"Z49.0\", \"Z49.1\", \"Z49.2\"\n)\n\ndiabetes_codes &lt;- c(\n  \"250.00\", \"250.01\", \"250.02\", \"250.03\", \"250.10\", \"250.11\", \"250.12\",\n  \"250.13\", \"250.40\", \"250.41\", \"250.42\", \"250.43\",\n  \"E10.9\", \"E11.9\", \"E10.65\", \"E11.65\", \"E10.21\", \"E11.21\",\n  \"E10.22\", \"E11.22\", \"E10.29\", \"E11.29\", \"E10.40\", \"E11.40\",\n  \"E10.49\", \"E11.49\", \"E13.9\"\n)\n\nhtn_codes &lt;- c(\"401.1\", \"401.0\", \"401.9\", \"I10\", \"I15.1\", \"I15.9\",\n               \"I15.8\", \"I15.0\", \"I15.2\", \"405.01\", \"405.09\", \"405.91\",\n               \"405.99\")\n\nno_htn_list &lt;- c(\"Pulmonary Embolism\", \"Borderline hypertension\",\n                 \"Labile hypertension\", \"Chronic venous hypertension\")\n\nhtn_med_list &lt;- c(\"chlorthalidone\", \"chlorothiazide\", \"hydrochlorothiazide\",\n                  \"indapamide\", \"metolazone\", \"spironolactone\", \"triamterene\",\n                  \"amlodipine\", \"diltiazem\", \"felodipine\", \"nifedipine\",\n                  \"verapamil\", \"benazepril\", \"captopril\", \"enalapril\",\n                  \"fosinopril\", \"lisinopril\", \"ramipril\", \"losartan\",\n                  \"valsartan\", \"irbesartan\", \"olmesartan\", \"candesartan\",\n                  \"clonidine\", \"hydralazine\", \"minoxidil\")\n\ncad_list &lt;- c(\"Coronary artery disease\", \"Coronary atherosclerosis\",\n              \"Atherosclerotic heart disease\", \"Angina pectoris\",\n              \"Chronic ischemic heart disease\", \"Unstable angina\",\n              \"Ischemic heart disease\", \"Ischemic cardiomyopathy\",\n              \"Coronary occlusion without myocardial infarction\")\n\nsmoking_list &lt;- c(\"smoking\", \"tobacco\", \"cigarette\", \"cigarettes\",\n                  \"nicotine\", \"smoke\")"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#derive-comorbidities-medications-from-rpdr",
+    "href": "analysis_ici_ckd.html#derive-comorbidities-medications-from-rpdr",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "5.3 Derive comorbidities & medications from RPDR",
+    "text": "5.3 Derive comorbidities & medications from RPDR\n\n# Medications\nppi      &lt;- med_list(data = master_med, names = ppi_names, index_date = Index_date)\nace_arb  &lt;- med_list(data = master_med, names = ace_arb_names, index_date = Index_date)\ndiu      &lt;- med_list(data = master_med, names = diuretics_names, index_date = Index_date)\nsteroids &lt;- med_list(data = master_med, names = steroids_names,\n                     index_date = Index_date, excluded_names = no_steroid_names)\nstatins  &lt;- med_list(data = master_med, names = statins_names, index_date = Index_date)\ndpp4i    &lt;- med_list(data = master_med, names = dpp4i_names, index_date = Index_date)\nsglt2i   &lt;- med_list(data = master_med, names = sglt2i_names, index_date = Index_date)\n\n# Diagnoses\nesrd_kt &lt;- dia_list_icd(master_dia, icd_code = esrd_kt_codes, index_date = Index_date)\nesrd_kt_after_ici &lt;- dia_list_icd_after_index(master_dia, icd_code = esrd_kt_codes,\n                                               index_date = Index_date) %&gt;%\n  rename(esrd_kt_after_ici_date = first_event_date)\ndm  &lt;- dia_list_icd(master_dia, icd_code = diabetes_codes, index_date = Index_date)\nhtn &lt;- dia_list_icd(master_dia, icd_code = htn_codes, excluded_names = no_htn_list,\n                    med_data = master_med, med_names = htn_med_list,\n                    index_date = Index_date)\ncad &lt;- dia_list_name(master_dia, listed_names = cad_list, index_date = Index_date)\ncirrhosis &lt;- master_dia %&gt;%\n  filter(Date &lt;= Index_date) %&gt;%\n  filter(grepl(\"cirrhosis\", Diagnosis_Name, ignore.case = TRUE)) %&gt;%\n  distinct(EMPI)\nsmoking &lt;- master_dia %&gt;%\n  filter(grepl(paste(smoking_list, collapse = \"|\"), Diagnosis_Name, ignore.case = TRUE)) %&gt;%\n  distinct(EMPI)\n\n# Join all comorbidities/medications to final_master\nfinal_master &lt;- final_master %&gt;%\n  mutate(\n    diu      = ifelse(EMPI %in% diu$EMPI, 1, 0),\n    ace_arb  = ifelse(EMPI %in% ace_arb$EMPI, 1, 0),\n    esrd_kt  = ifelse(EMPI %in% esrd_kt$EMPI, 1, 0),\n    esrd_kt_after_ici = ifelse(EMPI %in% esrd_kt_after_ici$EMPI, 1, 0),\n    dm       = ifelse(EMPI %in% dm$EMPI, 1, 0),\n    htn      = ifelse(EMPI %in% htn$EMPI, 1, 0),\n    ppi      = ifelse(EMPI %in% ppi$EMPI, 1, 0),\n    steroids = ifelse(EMPI %in% steroids$EMPI, 1, 0),\n    smoking  = ifelse(EMPI %in% smoking$EMPI, 1, 0),\n    cad      = ifelse(EMPI %in% cad$EMPI, 1, 0),\n    cirrhosis = ifelse(EMPI %in% cirrhosis$EMPI, 1, 0),\n    statins  = ifelse(EMPI %in% statins$EMPI, 1, 0),\n    dpp4i    = ifelse(EMPI %in% dpp4i$EMPI, 1, 0),\n    sglt2i   = ifelse(EMPI %in% sglt2i$EMPI, 1, 0)\n  )\n\n# Merge esrd_kt_after_ici date\nfinal_master &lt;- final_master %&gt;%\n  merge(esrd_kt_after_ici, by = \"EMPI\", all.x = TRUE)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#ici_class-nephrotoxic_chemo",
+    "href": "analysis_ici_ckd.html#ici_class-nephrotoxic_chemo",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "5.4 ICI_Class & nephrotoxic_chemo",
+    "text": "5.4 ICI_Class & nephrotoxic_chemo\n\nfinal_master &lt;- final_master %&gt;%\n  mutate(\n    ICI_Class = case_when(\n      ICI_Name %in% c(\"pembrolizumab\", \"nivolumab\", \"cemiplimab\",\n                       \"Nivolumab\", \"Dostarlimab\", \"Cemiplimab\") ~ \"PD1\",\n      ICI_Name %in% c(\"atezolizumab\", \"avelumab\", \"durvalumab\") ~ \"PDL1\",\n      ICI_Name == \"ipilimumab\" ~ \"CTLA4\",\n      ICI_Name == \"ipilimumab AND nivolumab\" ~ \"Combination\",\n      TRUE ~ NA_character_\n    ),\n    nephrotoxic_chemo = if_else(\n      if_any(\n        any_of(c(\"Bevacizumab\", \"Cisplatin\", \"Carboplatin\", \"Pemetrexed\",\n                  \"Gemcitabine\", \"Cetuximab\", \"Trastuzumab\")),\n        ~ . == 1\n      ),\n      1L, 0L\n    )\n  )"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#baseline-creatinine-from-rpdr-median-within-90-days-pre-index",
+    "href": "analysis_ici_ckd.html#baseline-creatinine-from-rpdr-median-within-90-days-pre-index",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.1 Baseline creatinine from RPDR (median within 90 days pre-index)",
+    "text": "6.1 Baseline creatinine from RPDR (median within 90 days pre-index)\n\npre_lab_baseline &lt;- pre_lab_median(\n  master_lab, month = FALSE, time = 90,\n  index_date = Index_date, Group_Id = \"CRE\"\n)\npre_lab_hgb &lt;- pre_lab_median(\n  master_lab, month = FALSE, time = 90,\n  index_date = Index_date, Group_Id = \"HGB\"\n)\npre_lab_alb &lt;- pre_lab_median(\n  master_lab, month = FALSE, time = 90,\n  index_date = Index_date, Group_Id = \"ALB\"\n)\npre_lab_a1c &lt;- pre_lab_median(\n  master_lab, month = FALSE, time = 90,\n  index_date = Index_date, Group_Id = \"GHBA1C\"\n)\n\nfinal_master &lt;- final_master %&gt;%\n  merge(pre_lab_baseline, by = \"EMPI\", all.x = TRUE) %&gt;%\n  merge(pre_lab_hgb, by = \"EMPI\", all.x = TRUE) %&gt;%\n  merge(pre_lab_alb, by = \"EMPI\", all.x = TRUE) %&gt;%\n  merge(pre_lab_a1c, by = \"EMPI\", all.x = TRUE)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#baseline-egfr-ckd-stage-1",
+    "href": "analysis_ici_ckd.html#baseline-egfr-ckd-stage-1",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.2 Baseline eGFR & CKD stage",
+    "text": "6.2 Baseline eGFR & CKD stage\n\nfinal_master$eGFR_CRE_baseline &lt;- mapply(\n  gfr_calc,\n  final_master$pre_median_CRE_90days,\n  final_master$male,\n  final_master$Age\n)\n\nfinal_master &lt;- final_master %&gt;%\n  mutate(\n    ckd_stage_baseline = case_when(\n      eGFR_CRE_baseline &gt;= 90                           ~ 1,\n      eGFR_CRE_baseline &gt;= 60 & eGFR_CRE_baseline &lt; 90 ~ 2,\n      eGFR_CRE_baseline &gt;= 30 & eGFR_CRE_baseline &lt; 60 ~ 3,\n      eGFR_CRE_baseline &gt;= 15 & eGFR_CRE_baseline &lt; 30 ~ 4,\n      eGFR_CRE_baseline &lt; 15                            ~ 5\n    ),\n    ckd_stage_baseline_3 = case_when(\n      ckd_stage_baseline == 1  ~ \"stage 1\",\n      ckd_stage_baseline == 2  ~ \"stage 2\",\n      ckd_stage_baseline &gt;= 3  ~ \"stage 3 or more\"\n    )\n  )"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "href": "analysis_ici_ckd.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
+    "text": "6.3 CKD outcomes from RPDR Lab (sustained eGFR-based)\n\n# Build post-baseline eGFR series for each patient\noutcome_labs &lt;- master_lab %&gt;%\n  select(EMPI, Seq_Date_Time, Result, Group_Id, Index_date) %&gt;%\n  merge(final_master %&gt;% select(EMPI, pre_median_CRE_90days, eGFR_CRE_baseline,\n                                 male, Age),\n        by = \"EMPI\") %&gt;%\n  filter(Group_Id == \"CRE\", grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n  filter(!is.na(Result)) %&gt;%\n  mutate(Result = as.numeric(Result)) %&gt;%\n  filter(Seq_Date_Time &gt; Index_date) %&gt;%\n  mutate(eGFR_CRE = mapply(gfr_calc, Result, male, Age)) %&gt;%\n  select(EMPI, eGFR_CRE_baseline, eGFR_CRE, eGFR_CRE_date = Seq_Date_Time) %&gt;%\n  mutate(\n    pct_drop = round((eGFR_CRE_baseline - eGFR_CRE) / eGFR_CRE_baseline, 3)\n  ) %&gt;%\n  arrange(EMPI, eGFR_CRE_date)\n\n# CKD incidence: &gt;25% drop AND eGFR &lt;60, from baseline &gt;=60, sustained &gt;=90 days\nckd_incidence &lt;- make_ckd_outcome_date(\n  data = outcome_labs, id_var = EMPI, date_var = eGFR_CRE_date,\n  condition_expr = pct_drop &gt; 0.25 & eGFR_CRE &lt; 60 & eGFR_CRE_baseline &gt;= 60,\n  days_threshold = 90, outcome_name = \"ckd_incidence\"\n)\n\n# ESKD definition 1: eGFR &lt;10 sustained &gt;=90 days\neskd_defination_1 &lt;- make_ckd_outcome_date(\n  data = outcome_labs, id_var = EMPI, date_var = eGFR_CRE_date,\n  condition_expr = eGFR_CRE &lt; 10,\n  days_threshold = 90, outcome_name = \"eskd_defination_1\"\n)\n\n# CKD progression: &gt;30% drop from baseline &lt;60, sustained &gt;=90 days\nckd_progression &lt;- make_ckd_outcome_date(\n  data = outcome_labs, id_var = EMPI, date_var = eGFR_CRE_date,\n  condition_expr = pct_drop &gt; 0.30 & eGFR_CRE_baseline &lt; 60,\n  days_threshold = 90, outcome_name = \"ckd_progression\"\n)\n\n# Merge outcomes\nfinal_master &lt;- final_master %&gt;%\n  merge(ckd_incidence, by = \"EMPI\", all.x = TRUE) %&gt;%\n  merge(eskd_defination_1, by = \"EMPI\", all.x = TRUE) %&gt;%\n  merge(ckd_progression, by = \"EMPI\", all.x = TRUE) %&gt;%\n  mutate(\n    ckd_incidence      = replace_na(ckd_incidence, 0),\n    eskd_defination_1  = replace_na(eskd_defination_1, 0),\n    ckd_progression    = replace_na(ckd_progression, 0),\n    esrd_kt_after_ici  = replace_na(esrd_kt_after_ici, 0),\n    eskd_composite     = ifelse(esrd_kt_after_ici == 1 | eskd_defination_1 == 1, 1, 0),\n    eskd_composite_date = pmin(esrd_kt_after_ici_date, eskd_defination_1_date, na.rm = TRUE)\n  )\n\n# Coerce outcome dates\nfinal_master &lt;- final_master %&gt;%\n  mutate(across(\n    any_of(c(\"esrd_kt_after_ici_date\", \"eskd_defination_1_date\",\n             \"ckd_incidence_date\", \"ckd_progression_date\",\n             \"eskd_composite_date\", \"Index_date\", \"last_cre_date\")),\n    as.Date\n  ))"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#time-to-event-composites-survival-flags-last_cre_days",
+    "href": "analysis_ici_ckd.html#time-to-event-composites-survival-flags-last_cre_days",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.4 Time-to-event, composites, survival flags, last_cre_days",
+    "text": "6.4 Time-to-event, composites, survival flags, last_cre_days\n\nfinal_master &lt;- final_master %&gt;%\n  mutate(\n    time_to_eskd_composite  = as.numeric(eskd_composite_date  - Index_date),\n    time_to_ckd_incidence   = as.numeric(ckd_incidence_date   - Index_date),\n    time_to_ckd_progression = as.numeric(ckd_progression_date - Index_date),\n    ckd_composite = ifelse(\n      eskd_composite == 1 | ckd_incidence == 1 | ckd_progression == 1, 1, 0\n    ),\n    time_to_ckd_composite = pmin(\n      time_to_eskd_composite, time_to_ckd_incidence,\n      time_to_ckd_progression, na.rm = TRUE\n    ),\n    last_cre_days = as.numeric(last_cre_date - Index_date),\n    death_days    = as.numeric(Date_Of_Death - Index_date),\n    time_to_death = death_days,\n    time_to_death_status = ifelse(!is.na(death_days), 2, 0),\n    death         = ifelse(!is.na(Date_Of_Death), 1, 0),\n    last_date     = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death),\n    last_days     = as.numeric(last_date - Index_date),\n    Race = ifelse(Race == \"White\", \"White\",\n           ifelse(Race == \"Black\", \"Black\",\n           ifelse(Race == \"Asian\", \"Asian\", \"Other/Unknown\"))),\n    Ethnic_Group = case_when(\n      Ethnic_Group == \"HISPANIC\" ~ \"Hispanic\",\n      Ethnic_Group == \"Non Hispanic\" ~ \"Non_hispanic\",\n      TRUE ~ \"Other\"\n    ),\n    # Competing risk: pmin of all event times, then priority-based status\n    time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days, na.rm = TRUE),\n    status_cmp = case_when(\n      # Priority 1: Death (2)\n      !is.na(death_days) & time_to_ckd_cmp == death_days ~ 2,\n      # Priority 2: CKD Event (1)\n      !is.na(time_to_ckd_composite) & time_to_ckd_cmp == time_to_ckd_composite ~ 1,\n      # Priority 3: Censored / Last Creatinine (0)\n      !is.na(last_cre_days) & time_to_ckd_cmp == last_cre_days ~ 0,\n      TRUE ~ NA_real_\n    )\n  ) %&gt;%\n  filter(last_cre_days &gt; 0)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#death-survival-flags-110-years",
+    "href": "analysis_ici_ckd.html#death-survival-flags-110-years",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.5 Death & survival flags (1–10 years)",
+    "text": "6.5 Death & survival flags (1–10 years)\n\nfor (yr in 1:10) {\n  # death_Xyear: strict death only within X years\n  final_master[[paste0(\"death_\", yr, \"year\")]] &lt;-\n    ifelse(!is.na(final_master$death_days) & final_master$death_days &lt; 365 * yr, 1, 0)\n  # survival_Xyear: last_cre_days &gt;= 365*X (lab follow-up)\n  col_name &lt;- paste0(\"survival_\", yr, \"year\")\n  final_master[[col_name]] &lt;- ifelse(final_master$last_cre_days &gt;= 365 * yr, 1, 0)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#yearly-outcome-flags-110-years-1",
+    "href": "analysis_ici_ckd.html#yearly-outcome-flags-110-years-1",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.6 Yearly outcome flags (1–10 years)",
+    "text": "6.6 Yearly outcome flags (1–10 years)\n\nfor (yr in 1:10) {\n  final_master[[paste0(\"ckd_incidence_\", yr, \"year\")]] &lt;-\n    ifelse(final_master$time_to_ckd_incidence &lt; 365 * yr, 1, 0)\n\n  final_master[[paste0(\"ckd_progression_\", yr, \"year\")]] &lt;-\n    ifelse(final_master$time_to_ckd_progression &lt; 365 * yr, 1, 0)\n\n  final_master[[paste0(\"eskd_composite_\", yr, \"year\")]] &lt;-\n    ifelse(final_master$time_to_eskd_composite &lt; 365 * yr, 1, 0)\n\n  final_master[[paste0(\"ckd_composite_\", yr, \"year\")]] &lt;-\n    ifelse(final_master$time_to_ckd_composite &lt; 365 * yr, 1, 0)\n}\n\n# Replace NA with 0, then convert to factor\nfinal_master &lt;- final_master %&gt;%\n  mutate(across(\n    .cols = matches(\"(ckd_incidence|ckd_progression|eskd_composite|ckd_composite).*year$\"),\n    .fns  = ~ factor(replace_na(., 0))\n  ))"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#yearly-cre-medians-egfr-ckd-stage-110-years-post-index-from-rpdr",
+    "href": "analysis_ici_ckd.html#yearly-cre-medians-egfr-ckd-stage-110-years-post-index-from-rpdr",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.7 Yearly CRE medians, eGFR, CKD stage (1–10 years post-index, from RPDR)",
+    "text": "6.7 Yearly CRE medians, eGFR, CKD stage (1–10 years post-index, from RPDR)\n\n# Compute yearly median CRE (90-day window around each year mark)\nyearly_cre_list &lt;- list()\nfor (yr in 1:10) {\n  yearly_cre_list[[yr]] &lt;- pre_lab_median_year(\n    master_lab, year = yr, days = 90,\n    index_date = Index_date, Group_Id = \"CRE\"\n  )\n}\n\nfinal_master &lt;- left_join_all(final_master, yearly_cre_list, by = \"EMPI\")\n\n# Compute eGFR and CKD stage for each year\nfor (yr in 1:10) {\n  cre_col   &lt;- paste0(\"pre_median_CRE_\", yr, \"year\")\n  egfr_col  &lt;- paste0(\"eGFR_CRE_\", yr, \"year\")\n  stage_col &lt;- paste0(\"ckd_stage_\", yr, \"year\")\n\n  final_master[[egfr_col]]  &lt;- mapply(gfr_calc, final_master[[cre_col]],\n                                       final_master$male, final_master$Age)\n  final_master[[stage_col]] &lt;- sapply(final_master[[egfr_col]], get_ckd_stage)\n}"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#aki-from-rpdr-lab",
+    "href": "analysis_ici_ckd.html#aki-from-rpdr-lab",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.8 AKI (from RPDR Lab)",
+    "text": "6.8 AKI (from RPDR Lab)\n\n# AKI: post-baseline CRE &gt; 1.5 × pre-baseline CRE within 90 days (KDIGO grade 2)\naki_data &lt;- master_lab %&gt;%\n  merge(pre_lab_baseline, by = \"EMPI\", all.x = TRUE) %&gt;%\n  filter(Group_Id == \"CRE\", grepl(\"^\\\\d+\\\\.\\\\d+$\", Result)) %&gt;%\n  filter(!is.na(Result), !is.na(pre_median_CRE_90days)) %&gt;%\n  mutate(Result = as.numeric(Result)) %&gt;%\n  filter(Seq_Date_Time &gt; Index_date,\n         Seq_Date_Time &lt;= Index_date + 90) %&gt;%\n  filter(Result &gt; 1.5 * pre_median_CRE_90days) %&gt;%\n  arrange(EMPI, Seq_Date_Time) %&gt;%\n  distinct(EMPI, .keep_all = TRUE) %&gt;%\n  select(EMPI, aki_date = Seq_Date_Time)\n\nfinal_master &lt;- final_master %&gt;%\n  merge(aki_data, by = \"EMPI\", all.x = TRUE) %&gt;%\n  mutate(\n    aki = ifelse(!is.na(aki_date), 1, 0),\n    aki_days = as.numeric(aki_date - Index_date),\n    aki_before_ckd = ifelse(aki_days &lt;= time_to_ckd_composite, 1, 0)\n  )"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#cohort-exclusion-filters",
+    "href": "analysis_ici_ckd.html#cohort-exclusion-filters",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.9 Cohort exclusion filters",
+    "text": "6.9 Cohort exclusion filters\n\n# Exclude: missing baseline CRE, prior ESRD/KT, baseline eGFR &lt; 10\nfinal_master &lt;- final_master %&gt;%\n  filter(!is.na(pre_median_CRE_90days), esrd_kt == 0) %&gt;%\n  filter(eGFR_CRE_baseline &gt;= 10)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#recalculate-baseline-egfr-post-exclusion-confirmation",
+    "href": "analysis_ici_ckd.html#recalculate-baseline-egfr-post-exclusion-confirmation",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.10 Recalculate baseline eGFR (post-exclusion confirmation)",
+    "text": "6.10 Recalculate baseline eGFR (post-exclusion confirmation)\n\nfinal_master$eGFR_CRE_baseline &lt;- mapply(\n  gfr_calc,\n  final_master$pre_median_CRE_90days,\n  final_master$male,\n  final_master$Age\n)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#define-categorical-and-numeric-variables-for-table-1",
+    "href": "analysis_ici_ckd.html#define-categorical-and-numeric-variables-for-table-1",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6.11 Define categorical and numeric variables for Table 1",
+    "text": "6.11 Define categorical and numeric variables for Table 1\n\nall_var &lt;- c(\n  \"Age\", \"Gender_Legal_Sex\", \"male\", \"Race\", \"Ethnic_Group\",\n  ## Outcomes\n  \"ckd_incidence\", \"ckd_progression\", \"eskd_composite\", \"ckd_composite\",\n  ## CKD stages\n  paste0(\"ckd_stage_\", 1:10, \"year\"),\n  ## Composites by year\n  paste0(\"ckd_composite_\", 1:5, \"year\"),\n  ## Comorbidities\n  \"dm\", \"htn\", \"cad\", \"cirrhosis\", \"esrd_kt\",\n  ## Medications\n  \"ace_arb\", \"diu\", \"ppi\", \"steroids\", \"smoking\", \"statins\",\n  ## ICI / chemo\n  \"ICI_Class\", \"nephrotoxic_chemo\",\n  ## Labs\n  \"pre_CRE_180days\", \"pre_HGB_180days\", \"pre_ALB_180days\",\n  \"eGFR_CRE_baseline\", \"ckd_stage_baseline\",\n  ## AKI\n  \"aki\"\n)\n\nnum_var &lt;- c(\"Age\", \"pre_CRE_180days\", \"pre_HGB_180days\", \"pre_ALB_180days\",\n             \"eGFR_CRE_baseline\")\ncat_var &lt;- setdiff(all_var, num_var)\n\n# Only convert variables that exist in the data\ncat_var_exist &lt;- intersect(cat_var, names(final_master))\nfinal_master &lt;- final_master %&gt;% mutate(across(all_of(cat_var_exist), factor))\n\nfinal_master$ICI_Class &lt;- relevel(final_master$ICI_Class, ref = \"PD1\")"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes",
+    "href": "analysis_ici_ckd.html#year-outcomes",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "1-Year Outcomes",
+    "text": "1-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 9,3531\n\n\n\n\n\n\nAge\n\n\n69 (60, 76)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n4,461 (48%)\n\n\n\n\n    1\n\n\n4,892 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n286 (3.1%)\n\n\n\n\n    Black\n\n\n264 (2.8%)\n\n\n\n\n    Other/Unknown\n\n\n392 (4.2%)\n\n\n\n\n    White\n\n\n8,411 (90%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n9,353 (100%)\n\n\n\n\nckd_incidence_1year\n\n\n\n\n\n\n\n    0\n\n\n9,005 (96%)\n\n\n\n\n    1\n\n\n348 (3.7%)\n\n\n\n\nckd_progression_1year\n\n\n\n\n\n\n\n    0\n\n\n9,305 (99%)\n\n\n\n\n    1\n\n\n48 (0.5%)\n\n\n\n\neskd_composite_1year\n\n\n\n\n\n\n\n    0\n\n\n9,325 (100%)\n\n\n\n\n    1\n\n\n28 (0.3%)\n\n\n\n\nckd_composite_1year\n\n\n\n\n\n\n\n    0\n\n\n8,937 (96%)\n\n\n\n\n    1\n\n\n416 (4.4%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n3,481 (37%)\n\n\n\n\n    2\n\n\n4,133 (44%)\n\n\n\n\n    3\n\n\n1,627 (17%)\n\n\n\n\n    4\n\n\n102 (1.1%)\n\n\n\n\n    5\n\n\n10 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n3,968 (42%)\n\n\n\n\n    2\n\n\n4,031 (43%)\n\n\n\n\n    3\n\n\n1,278 (14%)\n\n\n\n\n    4\n\n\n74 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n8,830 (94%)\n\n\n\n\n    1\n\n\n523 (5.6%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n8,070 (86%)\n\n\n\n\n    1\n\n\n1,283 (14%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n3,846 (41%)\n\n\n\n\n    1\n\n\n5,507 (59%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n7,457 (80%)\n\n\n\n\n    1\n\n\n1,896 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n9,191 (98%)\n\n\n\n\n    1\n\n\n162 (1.7%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n6,138 (66%)\n\n\n\n\n    1\n\n\n3,215 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n6,248 (67%)\n\n\n\n\n    1\n\n\n3,105 (33%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n5,195 (56%)\n\n\n\n\n    1\n\n\n4,158 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n2,495 (27%)\n\n\n\n\n    1\n\n\n6,858 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n4,577 (49%)\n\n\n\n\n    1\n\n\n4,776 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n5,766 (62%)\n\n\n\n\n    1\n\n\n3,587 (38%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n6,215 (68%)\n\n\n\n\n    Combination\n\n\n1,097 (12%)\n\n\n\n\n    CTLA4\n\n\n420 (4.6%)\n\n\n\n\n    PDL1\n\n\n1,347 (15%)\n\n\n\n\n    Missing\n\n\n274\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n4,875 (52%)\n\n\n\n\n    1\n\n\n4,478 (48%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.70 (11.40, 13.90)\n\n\n\n\n    Missing\n\n\n8\n\n\n\n\npre_ALB_180days\n\n\n4.10 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n27\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-1",
+    "href": "analysis_ici_ckd.html#year-outcomes-1",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "2-Year Outcomes",
+    "text": "2-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 5,9871\n\n\n\n\n\n\nAge\n\n\n69 (60, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n2,803 (47%)\n\n\n\n\n    1\n\n\n3,184 (53%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n162 (2.7%)\n\n\n\n\n    Black\n\n\n148 (2.5%)\n\n\n\n\n    Other/Unknown\n\n\n237 (4.0%)\n\n\n\n\n    White\n\n\n5,440 (91%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n5,987 (100%)\n\n\n\n\nckd_incidence_2year\n\n\n\n\n\n\n\n    0\n\n\n5,544 (93%)\n\n\n\n\n    1\n\n\n443 (7.4%)\n\n\n\n\nckd_progression_2year\n\n\n\n\n\n\n\n    0\n\n\n5,921 (99%)\n\n\n\n\n    1\n\n\n66 (1.1%)\n\n\n\n\neskd_composite_2year\n\n\n\n\n\n\n\n    0\n\n\n5,962 (100%)\n\n\n\n\n    1\n\n\n25 (0.4%)\n\n\n\n\nckd_composite_2year\n\n\n\n\n\n\n\n    0\n\n\n5,464 (91%)\n\n\n\n\n    1\n\n\n523 (8.7%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n2,042 (34%)\n\n\n\n\n    2\n\n\n2,829 (47%)\n\n\n\n\n    3\n\n\n1,058 (18%)\n\n\n\n\n    4\n\n\n55 (0.9%)\n\n\n\n\n    5\n\n\n3 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n1,927 (32%)\n\n\n\n\n    2\n\n\n2,860 (48%)\n\n\n\n\n    3\n\n\n1,127 (19%)\n\n\n\n\n    4\n\n\n66 (1.1%)\n\n\n\n\n    5\n\n\n7 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n2,442 (41%)\n\n\n\n\n    2\n\n\n2,691 (45%)\n\n\n\n\n    3\n\n\n808 (13%)\n\n\n\n\n    4\n\n\n44 (0.7%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n5,685 (95%)\n\n\n\n\n    1\n\n\n302 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n5,212 (87%)\n\n\n\n\n    1\n\n\n775 (13%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n2,505 (42%)\n\n\n\n\n    1\n\n\n3,482 (58%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n4,815 (80%)\n\n\n\n\n    1\n\n\n1,172 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n5,906 (99%)\n\n\n\n\n    1\n\n\n81 (1.4%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n3,996 (67%)\n\n\n\n\n    1\n\n\n1,991 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n4,072 (68%)\n\n\n\n\n    1\n\n\n1,915 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n3,363 (56%)\n\n\n\n\n    1\n\n\n2,624 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n1,632 (27%)\n\n\n\n\n    1\n\n\n4,355 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n2,936 (49%)\n\n\n\n\n    1\n\n\n3,051 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n3,768 (63%)\n\n\n\n\n    1\n\n\n2,219 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n3,908 (67%)\n\n\n\n\n    Combination\n\n\n760 (13%)\n\n\n\n\n    CTLA4\n\n\n319 (5.5%)\n\n\n\n\n    PDL1\n\n\n809 (14%)\n\n\n\n\n    Missing\n\n\n191\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n3,402 (57%)\n\n\n\n\n    1\n\n\n2,585 (43%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.90 (11.60, 14.00)\n\n\n\n\n    Missing\n\n\n6\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n18\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-2",
+    "href": "analysis_ici_ckd.html#year-outcomes-2",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "3-Year Outcomes",
+    "text": "3-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3,7551\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n1,719 (46%)\n\n\n\n\n    1\n\n\n2,036 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n85 (2.3%)\n\n\n\n\n    Black\n\n\n78 (2.1%)\n\n\n\n\n    Other/Unknown\n\n\n145 (3.9%)\n\n\n\n\n    White\n\n\n3,447 (92%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n3,755 (100%)\n\n\n\n\nckd_incidence_3year\n\n\n\n\n\n\n\n    0\n\n\n3,385 (90%)\n\n\n\n\n    1\n\n\n370 (9.9%)\n\n\n\n\nckd_progression_3year\n\n\n\n\n\n\n\n    0\n\n\n3,691 (98%)\n\n\n\n\n    1\n\n\n64 (1.7%)\n\n\n\n\neskd_composite_3year\n\n\n\n\n\n\n\n    0\n\n\n3,738 (100%)\n\n\n\n\n    1\n\n\n17 (0.5%)\n\n\n\n\nckd_composite_3year\n\n\n\n\n\n\n\n    0\n\n\n3,312 (88%)\n\n\n\n\n    1\n\n\n443 (12%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n1,244 (33%)\n\n\n\n\n    2\n\n\n1,826 (49%)\n\n\n\n\n    3\n\n\n653 (17%)\n\n\n\n\n    4\n\n\n30 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n1,144 (30%)\n\n\n\n\n    2\n\n\n1,883 (50%)\n\n\n\n\n    3\n\n\n697 (19%)\n\n\n\n\n    4\n\n\n30 (0.8%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n1,133 (30%)\n\n\n\n\n    2\n\n\n1,867 (50%)\n\n\n\n\n    3\n\n\n703 (19%)\n\n\n\n\n    4\n\n\n45 (1.2%)\n\n\n\n\n    5\n\n\n7 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n1,510 (40%)\n\n\n\n\n    2\n\n\n1,717 (46%)\n\n\n\n\n    3\n\n\n507 (14%)\n\n\n\n\n    4\n\n\n20 (0.5%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n3,590 (96%)\n\n\n\n\n    1\n\n\n165 (4.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n3,302 (88%)\n\n\n\n\n    1\n\n\n453 (12%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n1,598 (43%)\n\n\n\n\n    1\n\n\n2,157 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n3,033 (81%)\n\n\n\n\n    1\n\n\n722 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n3,711 (99%)\n\n\n\n\n    1\n\n\n44 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n2,518 (67%)\n\n\n\n\n    1\n\n\n1,237 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n2,558 (68%)\n\n\n\n\n    1\n\n\n1,197 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n2,110 (56%)\n\n\n\n\n    1\n\n\n1,645 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n1,026 (27%)\n\n\n\n\n    1\n\n\n2,729 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n1,808 (48%)\n\n\n\n\n    1\n\n\n1,947 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n2,377 (63%)\n\n\n\n\n    1\n\n\n1,378 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n2,436 (67%)\n\n\n\n\n    Combination\n\n\n498 (14%)\n\n\n\n\n    CTLA4\n\n\n221 (6.1%)\n\n\n\n\n    PDL1\n\n\n485 (13%)\n\n\n\n\n    Missing\n\n\n115\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n2,297 (61%)\n\n\n\n\n    1\n\n\n1,458 (39%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.00 (11.70, 14.10)\n\n\n\n\n    Missing\n\n\n5\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n13\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-3",
+    "href": "analysis_ici_ckd.html#year-outcomes-3",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "4-Year Outcomes",
+    "text": "4-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2,5151\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n1,146 (46%)\n\n\n\n\n    1\n\n\n1,369 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n52 (2.1%)\n\n\n\n\n    Black\n\n\n43 (1.7%)\n\n\n\n\n    Other/Unknown\n\n\n90 (3.6%)\n\n\n\n\n    White\n\n\n2,330 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n2,515 (100%)\n\n\n\n\nckd_incidence_4year\n\n\n\n\n\n\n\n    0\n\n\n2,220 (88%)\n\n\n\n\n    1\n\n\n295 (12%)\n\n\n\n\nckd_progression_4year\n\n\n\n\n\n\n\n    0\n\n\n2,466 (98%)\n\n\n\n\n    1\n\n\n49 (1.9%)\n\n\n\n\neskd_composite_4year\n\n\n\n\n\n\n\n    0\n\n\n2,502 (99%)\n\n\n\n\n    1\n\n\n13 (0.5%)\n\n\n\n\nckd_composite_4year\n\n\n\n\n\n\n\n    0\n\n\n2,163 (86%)\n\n\n\n\n    1\n\n\n352 (14%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n806 (32%)\n\n\n\n\n    2\n\n\n1,266 (50%)\n\n\n\n\n    3\n\n\n420 (17%)\n\n\n\n\n    4\n\n\n21 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n750 (30%)\n\n\n\n\n    2\n\n\n1,298 (52%)\n\n\n\n\n    3\n\n\n446 (18%)\n\n\n\n\n    4\n\n\n20 (0.8%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n727 (29%)\n\n\n\n\n    2\n\n\n1,295 (51%)\n\n\n\n\n    3\n\n\n469 (19%)\n\n\n\n\n    4\n\n\n21 (0.8%)\n\n\n\n\n    5\n\n\n3 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n748 (30%)\n\n\n\n\n    2\n\n\n1,263 (50%)\n\n\n\n\n    3\n\n\n473 (19%)\n\n\n\n\n    4\n\n\n29 (1.2%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n1,006 (40%)\n\n\n\n\n    2\n\n\n1,167 (46%)\n\n\n\n\n    3\n\n\n330 (13%)\n\n\n\n\n    4\n\n\n11 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n2,407 (96%)\n\n\n\n\n    1\n\n\n108 (4.3%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n2,229 (89%)\n\n\n\n\n    1\n\n\n286 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n1,084 (43%)\n\n\n\n\n    1\n\n\n1,431 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n2,021 (80%)\n\n\n\n\n    1\n\n\n494 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n2,486 (99%)\n\n\n\n\n    1\n\n\n29 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n1,668 (66%)\n\n\n\n\n    1\n\n\n847 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n1,734 (69%)\n\n\n\n\n    1\n\n\n781 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n1,416 (56%)\n\n\n\n\n    1\n\n\n1,099 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n707 (28%)\n\n\n\n\n    1\n\n\n1,808 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n1,210 (48%)\n\n\n\n\n    1\n\n\n1,305 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n1,583 (63%)\n\n\n\n\n    1\n\n\n932 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n1,626 (67%)\n\n\n\n\n    Combination\n\n\n330 (14%)\n\n\n\n\n    CTLA4\n\n\n158 (6.5%)\n\n\n\n\n    PDL1\n\n\n323 (13%)\n\n\n\n\n    Missing\n\n\n78\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n1,622 (64%)\n\n\n\n\n    1\n\n\n893 (36%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.10 (11.80, 14.20)\n\n\n\n\n    Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n7\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-4",
+    "href": "analysis_ici_ckd.html#year-outcomes-4",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "5-Year Outcomes",
+    "text": "5-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,7201\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n782 (45%)\n\n\n\n\n    1\n\n\n938 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n37 (2.2%)\n\n\n\n\n    Black\n\n\n25 (1.5%)\n\n\n\n\n    Other/Unknown\n\n\n58 (3.4%)\n\n\n\n\n    White\n\n\n1,600 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n1,720 (100%)\n\n\n\n\nckd_incidence_5year\n\n\n\n\n\n\n\n    0\n\n\n1,491 (87%)\n\n\n\n\n    1\n\n\n229 (13%)\n\n\n\n\nckd_progression_5year\n\n\n\n\n\n\n\n    0\n\n\n1,675 (97%)\n\n\n\n\n    1\n\n\n45 (2.6%)\n\n\n\n\neskd_composite_5year\n\n\n\n\n\n\n\n    0\n\n\n1,707 (99%)\n\n\n\n\n    1\n\n\n13 (0.8%)\n\n\n\n\nckd_composite_5year\n\n\n\n\n\n\n\n    0\n\n\n1,437 (84%)\n\n\n\n\n    1\n\n\n283 (16%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n553 (32%)\n\n\n\n\n    2\n\n\n878 (51%)\n\n\n\n\n    3\n\n\n277 (16%)\n\n\n\n\n    4\n\n\n11 (0.6%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n502 (29%)\n\n\n\n\n    2\n\n\n913 (53%)\n\n\n\n\n    3\n\n\n293 (17%)\n\n\n\n\n    4\n\n\n11 (0.6%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n478 (28%)\n\n\n\n\n    2\n\n\n914 (53%)\n\n\n\n\n    3\n\n\n318 (18%)\n\n\n\n\n    4\n\n\n7 (0.4%)\n\n\n\n\n    5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n498 (29%)\n\n\n\n\n    2\n\n\n895 (52%)\n\n\n\n\n    3\n\n\n310 (18%)\n\n\n\n\n    4\n\n\n15 (0.9%)\n\n\n\n\n    5\n\n\n2 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n512 (30%)\n\n\n\n\n    2\n\n\n861 (50%)\n\n\n\n\n    3\n\n\n322 (19%)\n\n\n\n\n    4\n\n\n22 (1.3%)\n\n\n\n\n    5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n696 (40%)\n\n\n\n\n    2\n\n\n801 (47%)\n\n\n\n\n    3\n\n\n214 (12%)\n\n\n\n\n    4\n\n\n9 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n1,639 (95%)\n\n\n\n\n    1\n\n\n81 (4.7%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n1,540 (90%)\n\n\n\n\n    1\n\n\n180 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n754 (44%)\n\n\n\n\n    1\n\n\n966 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n1,393 (81%)\n\n\n\n\n    1\n\n\n327 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n1,704 (99%)\n\n\n\n\n    1\n\n\n16 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n1,159 (67%)\n\n\n\n\n    1\n\n\n561 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n1,191 (69%)\n\n\n\n\n    1\n\n\n529 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n975 (57%)\n\n\n\n\n    1\n\n\n745 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n494 (29%)\n\n\n\n\n    1\n\n\n1,226 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n839 (49%)\n\n\n\n\n    1\n\n\n881 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n1,099 (64%)\n\n\n\n\n    1\n\n\n621 (36%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n1,131 (68%)\n\n\n\n\n    Combination\n\n\n206 (12%)\n\n\n\n\n    CTLA4\n\n\n119 (7.2%)\n\n\n\n\n    PDL1\n\n\n206 (12%)\n\n\n\n\n    Missing\n\n\n58\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n1,142 (66%)\n\n\n\n\n    1\n\n\n578 (34%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\n    Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n6\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-5",
+    "href": "analysis_ici_ckd.html#year-outcomes-5",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "6-Year Outcomes",
+    "text": "6-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,1111\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n516 (46%)\n\n\n\n\n    1\n\n\n595 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n18 (1.6%)\n\n\n\n\n    Black\n\n\n23 (2.1%)\n\n\n\n\n    Other/Unknown\n\n\n38 (3.4%)\n\n\n\n\n    White\n\n\n1,032 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n1,111 (100%)\n\n\n\n\nckd_incidence_6year\n\n\n\n\n\n\n\n    0\n\n\n953 (86%)\n\n\n\n\n    1\n\n\n158 (14%)\n\n\n\n\nckd_progression_6year\n\n\n\n\n\n\n\n    0\n\n\n1,077 (97%)\n\n\n\n\n    1\n\n\n34 (3.1%)\n\n\n\n\neskd_composite_6year\n\n\n\n\n\n\n\n    0\n\n\n1,101 (99%)\n\n\n\n\n    1\n\n\n10 (0.9%)\n\n\n\n\nckd_composite_6year\n\n\n\n\n\n\n\n    0\n\n\n913 (82%)\n\n\n\n\n    1\n\n\n198 (18%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n371 (33%)\n\n\n\n\n    2\n\n\n571 (51%)\n\n\n\n\n    3\n\n\n164 (15%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n326 (29%)\n\n\n\n\n    2\n\n\n606 (55%)\n\n\n\n\n    3\n\n\n175 (16%)\n\n\n\n\n    4\n\n\n3 (0.3%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n309 (28%)\n\n\n\n\n    2\n\n\n598 (54%)\n\n\n\n\n    3\n\n\n199 (18%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n326 (29%)\n\n\n\n\n    2\n\n\n583 (52%)\n\n\n\n\n    3\n\n\n193 (17%)\n\n\n\n\n    4\n\n\n8 (0.7%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n335 (30%)\n\n\n\n\n    2\n\n\n567 (51%)\n\n\n\n\n    3\n\n\n193 (17%)\n\n\n\n\n    4\n\n\n14 (1.3%)\n\n\n\n\n    5\n\n\n2 (0.2%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n325 (29%)\n\n\n\n\n    2\n\n\n555 (50%)\n\n\n\n\n    3\n\n\n211 (19%)\n\n\n\n\n    4\n\n\n17 (1.5%)\n\n\n\n\n    5\n\n\n3 (0.3%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n455 (41%)\n\n\n\n\n    2\n\n\n515 (46%)\n\n\n\n\n    3\n\n\n137 (12%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n1,056 (95%)\n\n\n\n\n    1\n\n\n55 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n995 (90%)\n\n\n\n\n    1\n\n\n116 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n494 (44%)\n\n\n\n\n    1\n\n\n617 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n912 (82%)\n\n\n\n\n    1\n\n\n199 (18%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n1,101 (99%)\n\n\n\n\n    1\n\n\n10 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n769 (69%)\n\n\n\n\n    1\n\n\n342 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n773 (70%)\n\n\n\n\n    1\n\n\n338 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n610 (55%)\n\n\n\n\n    1\n\n\n501 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n316 (28%)\n\n\n\n\n    1\n\n\n795 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n544 (49%)\n\n\n\n\n    1\n\n\n567 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n727 (65%)\n\n\n\n\n    1\n\n\n384 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n722 (67%)\n\n\n\n\n    Combination\n\n\n120 (11%)\n\n\n\n\n    CTLA4\n\n\n104 (9.6%)\n\n\n\n\n    PDL1\n\n\n134 (12%)\n\n\n\n\n    Missing\n\n\n31\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n764 (69%)\n\n\n\n\n    1\n\n\n347 (31%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.30 (12.10, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-6",
+    "href": "analysis_ici_ckd.html#year-outcomes-6",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "7-Year Outcomes",
+    "text": "7-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 6771\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n306 (45%)\n\n\n\n\n    1\n\n\n371 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n9 (1.3%)\n\n\n\n\n    Black\n\n\n15 (2.2%)\n\n\n\n\n    Other/Unknown\n\n\n24 (3.5%)\n\n\n\n\n    White\n\n\n629 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n677 (100%)\n\n\n\n\nckd_incidence_7year\n\n\n\n\n\n\n\n    0\n\n\n567 (84%)\n\n\n\n\n    1\n\n\n110 (16%)\n\n\n\n\nckd_progression_7year\n\n\n\n\n\n\n\n    0\n\n\n657 (97%)\n\n\n\n\n    1\n\n\n20 (3.0%)\n\n\n\n\neskd_composite_7year\n\n\n\n\n\n\n\n    0\n\n\n668 (99%)\n\n\n\n\n    1\n\n\n9 (1.3%)\n\n\n\n\nckd_composite_7year\n\n\n\n\n\n\n\n    0\n\n\n544 (80%)\n\n\n\n\n    1\n\n\n133 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n231 (34%)\n\n\n\n\n    2\n\n\n350 (52%)\n\n\n\n\n    3\n\n\n92 (14%)\n\n\n\n\n    4\n\n\n3 (0.4%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n215 (32%)\n\n\n\n\n    2\n\n\n352 (52%)\n\n\n\n\n    3\n\n\n107 (16%)\n\n\n\n\n    4\n\n\n2 (0.3%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n196 (29%)\n\n\n\n\n    2\n\n\n358 (53%)\n\n\n\n\n    3\n\n\n120 (18%)\n\n\n\n\n    4\n\n\n2 (0.3%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n197 (29%)\n\n\n\n\n    2\n\n\n355 (52%)\n\n\n\n\n    3\n\n\n119 (18%)\n\n\n\n\n    4\n\n\n5 (0.7%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n207 (31%)\n\n\n\n\n    2\n\n\n340 (50%)\n\n\n\n\n    3\n\n\n121 (18%)\n\n\n\n\n    4\n\n\n7 (1.0%)\n\n\n\n\n    5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n199 (29%)\n\n\n\n\n    2\n\n\n345 (51%)\n\n\n\n\n    3\n\n\n119 (18%)\n\n\n\n\n    4\n\n\n12 (1.8%)\n\n\n\n\n    5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n191 (28%)\n\n\n\n\n    2\n\n\n344 (51%)\n\n\n\n\n    3\n\n\n126 (19%)\n\n\n\n\n    4\n\n\n12 (1.8%)\n\n\n\n\n    5\n\n\n4 (0.6%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n283 (42%)\n\n\n\n\n    2\n\n\n309 (46%)\n\n\n\n\n    3\n\n\n81 (12%)\n\n\n\n\n    4\n\n\n4 (0.6%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n643 (95%)\n\n\n\n\n    1\n\n\n34 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n600 (89%)\n\n\n\n\n    1\n\n\n77 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n302 (45%)\n\n\n\n\n    1\n\n\n375 (55%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n570 (84%)\n\n\n\n\n    1\n\n\n107 (16%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n671 (99%)\n\n\n\n\n    1\n\n\n6 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n465 (69%)\n\n\n\n\n    1\n\n\n212 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n465 (69%)\n\n\n\n\n    1\n\n\n212 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n377 (56%)\n\n\n\n\n    1\n\n\n300 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n199 (29%)\n\n\n\n\n    1\n\n\n478 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n334 (49%)\n\n\n\n\n    1\n\n\n343 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n438 (65%)\n\n\n\n\n    1\n\n\n239 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n427 (65%)\n\n\n\n\n    Combination\n\n\n81 (12%)\n\n\n\n\n    CTLA4\n\n\n84 (13%)\n\n\n\n\n    PDL1\n\n\n70 (11%)\n\n\n\n\n    Missing\n\n\n15\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n503 (74%)\n\n\n\n\n    1\n\n\n174 (26%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.10)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-7",
+    "href": "analysis_ici_ckd.html#year-outcomes-7",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "8-Year Outcomes",
+    "text": "8-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3911\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n162 (41%)\n\n\n\n\n    1\n\n\n229 (59%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n5 (1.3%)\n\n\n\n\n    Black\n\n\n7 (1.8%)\n\n\n\n\n    Other/Unknown\n\n\n8 (2.0%)\n\n\n\n\n    White\n\n\n371 (95%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n391 (100%)\n\n\n\n\nckd_incidence_8year\n\n\n\n\n\n\n\n    0\n\n\n322 (82%)\n\n\n\n\n    1\n\n\n69 (18%)\n\n\n\n\nckd_progression_8year\n\n\n\n\n\n\n\n    0\n\n\n382 (98%)\n\n\n\n\n    1\n\n\n9 (2.3%)\n\n\n\n\neskd_composite_8year\n\n\n\n\n\n\n\n    0\n\n\n387 (99%)\n\n\n\n\n    1\n\n\n4 (1.0%)\n\n\n\n\nckd_composite_8year\n\n\n\n\n\n\n\n    0\n\n\n311 (80%)\n\n\n\n\n    1\n\n\n80 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n129 (33%)\n\n\n\n\n    2\n\n\n214 (55%)\n\n\n\n\n    3\n\n\n48 (12%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n122 (31%)\n\n\n\n\n    2\n\n\n207 (53%)\n\n\n\n\n    3\n\n\n61 (16%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n116 (30%)\n\n\n\n\n    2\n\n\n208 (53%)\n\n\n\n\n    3\n\n\n67 (17%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n110 (28%)\n\n\n\n\n    2\n\n\n211 (54%)\n\n\n\n\n    3\n\n\n69 (18%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n112 (29%)\n\n\n\n\n    2\n\n\n200 (51%)\n\n\n\n\n    3\n\n\n77 (20%)\n\n\n\n\n    4\n\n\n2 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n111 (28%)\n\n\n\n\n    2\n\n\n204 (52%)\n\n\n\n\n    3\n\n\n70 (18%)\n\n\n\n\n    4\n\n\n6 (1.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n114 (29%)\n\n\n\n\n    2\n\n\n197 (50%)\n\n\n\n\n    3\n\n\n75 (19%)\n\n\n\n\n    4\n\n\n5 (1.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n114 (29%)\n\n\n\n\n    2\n\n\n199 (51%)\n\n\n\n\n    3\n\n\n71 (18%)\n\n\n\n\n    4\n\n\n7 (1.8%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n159 (41%)\n\n\n\n\n    2\n\n\n187 (48%)\n\n\n\n\n    3\n\n\n44 (11%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n370 (95%)\n\n\n\n\n    1\n\n\n21 (5.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n351 (90%)\n\n\n\n\n    1\n\n\n40 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n183 (47%)\n\n\n\n\n    1\n\n\n208 (53%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n334 (85%)\n\n\n\n\n    1\n\n\n57 (15%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n388 (99%)\n\n\n\n\n    1\n\n\n3 (0.8%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n274 (70%)\n\n\n\n\n    1\n\n\n117 (30%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n275 (70%)\n\n\n\n\n    1\n\n\n116 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n216 (55%)\n\n\n\n\n    1\n\n\n175 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n138 (35%)\n\n\n\n\n    1\n\n\n253 (65%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n207 (53%)\n\n\n\n\n    1\n\n\n184 (47%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n257 (66%)\n\n\n\n\n    1\n\n\n134 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n216 (56%)\n\n\n\n\n    Combination\n\n\n60 (16%)\n\n\n\n\n    CTLA4\n\n\n70 (18%)\n\n\n\n\n    PDL1\n\n\n41 (11%)\n\n\n\n\n    Missing\n\n\n4\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n311 (80%)\n\n\n\n\n    1\n\n\n80 (20%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.74, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (4.00, 4.50)\n\n\n\n\n    Missing\n\n\n2\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-8",
+    "href": "analysis_ici_ckd.html#year-outcomes-8",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "9-Year Outcomes",
+    "text": "9-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2081\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n91 (44%)\n\n\n\n\n    1\n\n\n117 (56%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n2 (1.0%)\n\n\n\n\n    Black\n\n\n2 (1.0%)\n\n\n\n\n    Other/Unknown\n\n\n3 (1.4%)\n\n\n\n\n    White\n\n\n201 (97%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n208 (100%)\n\n\n\n\nckd_incidence_9year\n\n\n\n\n\n\n\n    0\n\n\n171 (82%)\n\n\n\n\n    1\n\n\n37 (18%)\n\n\n\n\nckd_progression_9year\n\n\n\n\n\n\n\n    0\n\n\n204 (98%)\n\n\n\n\n    1\n\n\n4 (1.9%)\n\n\n\n\neskd_composite_9year\n\n\n\n\n\n\n\n    0\n\n\n207 (100%)\n\n\n\n\n    1\n\n\n1 (0.5%)\n\n\n\n\nckd_composite_9year\n\n\n\n\n\n\n\n    0\n\n\n167 (80%)\n\n\n\n\n    1\n\n\n41 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n122 (59%)\n\n\n\n\n    3\n\n\n20 (9.6%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n115 (55%)\n\n\n\n\n    3\n\n\n26 (13%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n62 (30%)\n\n\n\n\n    2\n\n\n115 (55%)\n\n\n\n\n    3\n\n\n31 (15%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n63 (30%)\n\n\n\n\n    2\n\n\n113 (54%)\n\n\n\n\n    3\n\n\n32 (15%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n62 (30%)\n\n\n\n\n    2\n\n\n106 (51%)\n\n\n\n\n    3\n\n\n40 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n61 (29%)\n\n\n\n\n    2\n\n\n108 (52%)\n\n\n\n\n    3\n\n\n39 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n71 (34%)\n\n\n\n\n    2\n\n\n96 (46%)\n\n\n\n\n    3\n\n\n41 (20%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n68 (33%)\n\n\n\n\n    2\n\n\n101 (49%)\n\n\n\n\n    3\n\n\n38 (18%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n100 (48%)\n\n\n\n\n    3\n\n\n41 (20%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n80 (38%)\n\n\n\n\n    2\n\n\n105 (50%)\n\n\n\n\n    3\n\n\n22 (11%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n196 (94%)\n\n\n\n\n    1\n\n\n12 (5.8%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n190 (91%)\n\n\n\n\n    1\n\n\n18 (8.7%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n100 (48%)\n\n\n\n\n    1\n\n\n108 (52%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n188 (90%)\n\n\n\n\n    1\n\n\n20 (9.6%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n207 (100%)\n\n\n\n\n    1\n\n\n1 (0.5%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n149 (72%)\n\n\n\n\n    1\n\n\n59 (28%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n144 (69%)\n\n\n\n\n    1\n\n\n64 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n118 (57%)\n\n\n\n\n    1\n\n\n90 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n89 (43%)\n\n\n\n\n    1\n\n\n119 (57%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n113 (54%)\n\n\n\n\n    1\n\n\n95 (46%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n136 (65%)\n\n\n\n\n    1\n\n\n72 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n96 (47%)\n\n\n\n\n    Combination\n\n\n36 (18%)\n\n\n\n\n    CTLA4\n\n\n57 (28%)\n\n\n\n\n    PDL1\n\n\n16 (7.8%)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n169 (81%)\n\n\n\n\n    1\n\n\n39 (19%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.76, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.40 (12.00, 14.30)\n\n\n\n\npre_ALB_180days\n\n\n4.30 (4.10, 4.50)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#year-outcomes-9",
+    "href": "analysis_ici_ckd.html#year-outcomes-9",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "10-Year Outcomes",
+    "text": "10-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 731\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n35 (48%)\n\n\n\n\n    1\n\n\n38 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n0 (0%)\n\n\n\n\n    Black\n\n\n0 (0%)\n\n\n\n\n    Other/Unknown\n\n\n0 (0%)\n\n\n\n\n    White\n\n\n73 (100%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n73 (100%)\n\n\n\n\nckd_incidence_10year\n\n\n\n\n\n\n\n    0\n\n\n61 (84%)\n\n\n\n\n    1\n\n\n12 (16%)\n\n\n\n\nckd_progression_10year\n\n\n\n\n\n\n\n    0\n\n\n70 (96%)\n\n\n\n\n    1\n\n\n3 (4.1%)\n\n\n\n\neskd_composite_10year\n\n\n\n\n\n\n\n    0\n\n\n72 (99%)\n\n\n\n\n    1\n\n\n1 (1.4%)\n\n\n\n\nckd_composite_10year\n\n\n\n\n\n\n\n    0\n\n\n58 (79%)\n\n\n\n\n    1\n\n\n15 (21%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n23 (32%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n10 (14%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n42 (58%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n22 (30%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n13 (18%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n21 (29%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n14 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n20 (27%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n39 (53%)\n\n\n\n\n    3\n\n\n16 (22%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n1 (1.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n37 (51%)\n\n\n\n\n    3\n\n\n16 (22%)\n\n\n\n\n    4\n\n\n1 (1.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_10year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n3 (4.1%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n24 (33%)\n\n\n\n\n    2\n\n\n37 (51%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n69 (95%)\n\n\n\n\n    1\n\n\n4 (5.5%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n67 (92%)\n\n\n\n\n    1\n\n\n6 (8.2%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n39 (53%)\n\n\n\n\n    1\n\n\n34 (47%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n65 (89%)\n\n\n\n\n    1\n\n\n8 (11%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n73 (100%)\n\n\n\n\n    1\n\n\n0 (0%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n52 (71%)\n\n\n\n\n    1\n\n\n21 (29%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n48 (66%)\n\n\n\n\n    1\n\n\n25 (34%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n38 (52%)\n\n\n\n\n    1\n\n\n35 (48%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n40 (55%)\n\n\n\n\n    1\n\n\n33 (45%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n33 (45%)\n\n\n\n\n    1\n\n\n40 (55%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n48 (66%)\n\n\n\n\n    1\n\n\n25 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n25 (34%)\n\n\n\n\n    Combination\n\n\n6 (8.2%)\n\n\n\n\n    CTLA4\n\n\n40 (55%)\n\n\n\n\n    PDL1\n\n\n2 (2.7%)\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n63 (86%)\n\n\n\n\n    1\n\n\n10 (14%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.78, 1.02)\n\n\n\n\npre_HGB_180days\n\n\n13.70 (12.60, 14.50)\n\n\n\n\npre_ALB_180days\n\n\n4.40 (4.20, 4.70)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 93)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#required-input-columns-from-master-excel",
+    "href": "analysis_ici_ckd.html#required-input-columns-from-master-excel",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "9.1 Required Input Columns (from master Excel)",
+    "text": "9.1 Required Input Columns (from master Excel)\nYour future dataset must contain these columns:\n\n\n\n\n\n\n\n\nColumn\nType\nDescription\n\n\n\n\nEMPI\ncharacter\nMRN / Enterprise Master Patient Index\n\n\nIndex_date\nDate\nICI treatment start date (the anchor for all time windows)\n\n\nlast_cre_date\nDate\nDate of last creatinine lab (follow-up date)\n\n\nAge\nnumeric\nAge at Index_date\n\n\nGender_Legal_Sex\ncharacter\n\n\n\nmale\nnumeric (0/1)\n\n\n\nRace\ncharacter\n\n\n\nEthnic_Group\ncharacter\n\n\n\ndm\nnumeric (0/1)\nDiabetes mellitus\n\n\nhtn\nnumeric (0/1)\nHypertension\n\n\ncad\nnumeric (0/1)\nCoronary artery disease\n\n\nesrd_kt\nnumeric (0/1)\nPre-ICI ESRD / kidney transplant\n\n\nace_arb\nnumeric (0/1)\nACE inhibitor / ARB use\n\n\ndiu\nnumeric (0/1)\nDiuretic use\n\n\nppi\nnumeric (0/1)\nPPI use\n\n\nsteroids\nnumeric (0/1)\nSteroid use\n\n\nsmoking\nnumeric (0/1)\nSmoking status\n\n\nBevacizumab\nnumeric (0/1)\nDrug indicator\n\n\nCisplatin\nnumeric (0/1)\nDrug indicator\n\n\nCarboplatin\nnumeric (0/1)\nDrug indicator\n\n\nPemetrexed\nnumeric (0/1)\nDrug indicator\n\n\nGemcitabine\nnumeric (0/1)\nDrug indicator\n\n\nCetuximab\nnumeric (0/1)\nDrug indicator\n\n\nTrastuzumab\nnumeric (0/1)\nDrug indicator\n\n\nVEGF_TKI\nnumeric (0/1)\nDrug indicator\n\n\npre_CRE_180days\nnumeric\nPre-baseline creatinine (180 days, from master)\n\n\npre_HGB_180days\nnumeric\nPre-baseline hemoglobin (180 days, from master)\n\n\npre_ALB_180days\nnumeric\nPre-baseline albumin (180 days, from master)\n\n\neGFR_cre\nnumeric\neGFR from master (pre-computed)\n\n\nckd_stage\nnumeric\nCKD stage from master (pre-computed)\n\n\nckd_incidence\nnumeric (0/1)\nCKD incidence outcome\n\n\nckd_incidence_date\nDate\nDate of CKD incidence\n\n\nckd_progression\nnumeric (0/1)\nCKD progression outcome\n\n\nckd_progression_date\nDate\nDate of CKD progression\n\n\nesrd_kt_after_ici\nnumeric (0/1)\nESRD/KT after ICI\n\n\nesrd_kt_after_ici_date\nDate\nDate of ESRD/KT after ICI\n\n\neskd_defination_1\nnumeric (0/1)\nESKD definition 1\n\n\neskd_defination_1_date\nDate\nDate of ESKD definition 1\n\n\ndeath_1year … death_10year\nnumeric (0/1)\nMortality flags by year"
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#required-rpdr-file",
+    "href": "analysis_ici_ckd.html#required-rpdr-file",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "9.2 Required RPDR File",
+    "text": "9.2 Required RPDR File\n\n\n\n\n\n\n\n\nFile\nColumns Used\nPurpose\n\n\n\n\nLab (pipe-delimited .txt)\nEMPI, Seq_Date_Time, Result, Group_Id\nPre-baseline CRE (90d), yearly post-index CRE (1–10 yr)\n\n\n\nThe pipeline uses Group_Id = \"CRE\" from the RPDR Lab file."
+  },
+  {
+    "objectID": "analysis_ici_ckd.html#all-derived-variables-created-by-this-pipeline",
+    "href": "analysis_ici_ckd.html#all-derived-variables-created-by-this-pipeline",
+    "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
+    "section": "9.3 All Derived Variables (created by this pipeline)",
+    "text": "9.3 All Derived Variables (created by this pipeline)\n\n\n\n\n\n\n\n\nVariable\nSource\nSection\n\n\n\n\npre_median_CRE_90days\nRPDR Lab (median CRE ≤ 90d pre-index)\n5.1\n\n\neGFR_CRE_baseline\nCKD-EPI from pre_median_CRE_90days\n5.2\n\n\nckd_stage_baseline\nFrom eGFR_CRE_baseline (1–5)\n5.2\n\n\nckd_stage_baseline_3\n3-level staging\n5.2\n\n\neskd_composite\nesrd_kt_after_ici OR eskd_defination_1\n5.3\n\n\neskd_composite_date\npmin of the two ESKD dates\n5.3\n\n\ntime_to_eskd_composite\nDays from Index_date\n5.4\n\n\ntime_to_ckd_incidence\nDays from Index_date\n5.4\n\n\ntime_to_ckd_progression\nDays from Index_date\n5.4\n\n\nckd_composite\nAny of the three outcomes\n5.4\n\n\ntime_to_ckd_composite\npmin of the three time-to-event\n5.4\n\n\nlast_cre_days\nDays from Index_date to last_cre_date\n5.4\n\n\nsurvival_1year … survival_10year\n1 if last_cre_days ≥ 365 × X\n5.5\n\n\nckd_incidence_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\nckd_progression_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\neskd_composite_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\npre_median_CRE_1year … _10year\nRPDR Lab (yearly median CRE)\n5.7\n\n\neGFR_CRE_1year … _10year\nCKD-EPI from yearly median CRE\n5.7\n\n\nckd_stage_1year … _10year\nCKD stage from yearly eGFR\n5.7\n\n\nlab_num_1year … _10year\nCount of CRE labs in yearly window\n5.7"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CKD after ICI – Project Summary",
+    "section": "",
+    "text": "Clinical research analysis of long-term kidney outcomes after immune checkpoint inhibitor (ICI) therapy — CKD incidence, progression, and ESKD over 10-year follow-up.\nThis website contains three components:\n\nAnalysis — Main cohort analysis (full pipeline + models)\nTreated Group — ICI-treated cohort data build + Table 1\nControl Group — Non-ICI cancer control cohort data build + Table 1"
+  },
+  {
+    "objectID": "index.html#treated-group",
+    "href": "index.html#treated-group",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Treated Group",
+    "text": "Treated Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nICI-treated patients from source Excel\n\n\n2\nlast_cre_days &gt; 0 (follow-up after index)\n\n\n3\nNon-missing baseline CRE (pre_median_CRE_90days)\n\n\n4\neGFR_CRE_baseline &gt;= 10"
+  },
+  {
+    "objectID": "index.html#control-group",
+    "href": "index.html#control-group",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Control Group",
+    "text": "Control Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nUnique EMPIs from RPDR Dem.txt\n\n\n2\nHas neoplasm Dx (ICD10 C00-D49) for Index_date\n\n\n3\nlast_cre_days &gt; 0\n\n\n4\nBaseline CRE within 12 months prior to Index_date\n\n\n5\nFollow-up &gt;= 18 months (548 days)\n\n\n6\n&gt;= 2 CRE results after Index_date\n\n\n7\nNon-missing baseline CRE\n\n\n8\neGFR_CRE_baseline &gt;= 10"
+  },
+  {
+    "objectID": "index.html#treated-group-1",
+    "href": "index.html#treated-group-1",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Treated Group",
+    "text": "Treated Group\n\n\n\n\n\n\n\nFile\nDescription\n\n\n\n\ntreated group.xlsx\n393 ICI-treated patients (EMPI, ICI_Dose_Date, DOB, sex, race, ethnicity, cancer Dx/stage, ICI name, death date, last CRE date)\n\n\nRPDR Lab, Dia, Med\nFrom Carboplatin Paper RPDR folder"
+  },
+  {
+    "objectID": "index.html#control-group-1",
+    "href": "index.html#control-group-1",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Control Group",
+    "text": "Control Group\n\n\n\n\n\n\n\n\nFile\nSource\nDescription\n\n\n\n\nmes98_..._Dem.txt\nRPDR\nDemographics: EMPI, DOB, death date, sex, race, ethnicity\n\n\nmes98_..._Dia.txt\nRPDR\nDiagnoses: ICD codes, dates, names\n\n\nmes98_..._Lab.txt\nRPDR\nLab results: CRE values, dates\n\n\nmes98_..._Med.txt\nRPDR\nMedications: names, dates\n\n\n\nRPDR path: /Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/"
+  },
+  {
+    "objectID": "index.html#demographics",
+    "href": "index.html#demographics",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Demographics",
+    "text": "Demographics\n\n\n\n\n\n\n\n\n\nVariable\nTreated Source\nControl Source\nDefinition\n\n\n\n\nEMPI\nExcel\nDem.txt\nPatient identifier\n\n\nIndex_date\nICI_Dose_Date (Excel)\nFirst C00-D49 Dx date (Dia.txt)\nTime anchor\n\n\nAge\nDerived\nDerived\nfloor((Index_date - DOB) / 365.25)\n\n\nmale\nDerived\nDerived\n1 if Male\n\n\nRace / Race1\nExcel (Race)\nDem.txt (Race1)\nRecoded: White / Black / Asian / Other/Unknown\n\n\nEthnic_Group\nExcel\nDem.txt\nRecoded: Hispanic / Non_hispanic / Other\n\n\ngroup\n\"treated\"\n\"control\"\nGroup label"
+  },
+  {
+    "objectID": "index.html#ici-specific-treated-only",
+    "href": "index.html#ici-specific-treated-only",
+    "title": "CKD after ICI – Project Summary",
+    "section": "ICI-specific (Treated only)",
+    "text": "ICI-specific (Treated only)\n\n\n\nVariable\nDefinition\n\n\n\n\nICI_Name\nICI drug name\n\n\nICI_Class\nPD1 / PDL1 / CTLA4 / Combination\n\n\nCancer_Diagnosis\nCancer type\n\n\nCancers_stage\nCancer stage"
+  },
+  {
+    "objectID": "index.html#follow-up-death",
+    "href": "index.html#follow-up-death",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Follow-up & Death",
+    "text": "Follow-up & Death\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nlast_cre_date\nLast CRE lab date (Excel for treated, derived from Lab for control)\n\n\nlast_cre_days\nlast_cre_date - Index_date (days)\n\n\ndeath\n1 if Date_Of_Death is not NA\n\n\ndeath_days\nDate_Of_Death - Index_date (days)\n\n\ntime_to_death\nSame as death_days\n\n\nlast_date\nDate_Of_Death if dead, else last_cre_date\n\n\nlast_days\nlast_date - Index_date (days)\n\n\ndeath_Xyear (1-10)\n1 if died within X years (death_days &lt; 365*X)\n\n\nsurvival_Xyear (1-10)\n1 if last_cre_days &gt;= 365*X"
+  },
+  {
+    "objectID": "index.html#comorbidities-from-rpdr-dia-pre-index",
+    "href": "index.html#comorbidities-from-rpdr-dia-pre-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Comorbidities (from RPDR Dia, pre-index)",
+    "text": "Comorbidities (from RPDR Dia, pre-index)\nAll derived via dia_list_icd() or dia_list_name() with Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nMethod\nSearch Terms\n\n\n\n\ndm\nICD codes\n250.00-250.03, E10.9, E11.9, E10.65, E11.65, E10.21, E11.21, E10.22, E11.22, E13.9\n\n\nhtn\nICD + Med\nICD: 401.x, I10, I15.x; Meds: HCTZ, amlodipine, lisinopril, losartan, valsartan, diltiazem, clonidine\n\n\ncad\nDx name\nCoronary artery disease, Coronary atherosclerosis, Atherosclerotic heart disease, Angina, Unstable angina\n\n\ncirrhosis\nDx name\ngrepl(\"cirrhosis\")\n\n\nsmoking\nDx name\nsmoking, tobacco, cigarette, nicotine, smoke\n\n\nesrd_kt\nICD codes\n585.6, N18.6, V45.1, Z94.0, Z99.2, 996.81, T86.1x"
+  },
+  {
+    "objectID": "index.html#medications-from-rpdr-med-pre-index",
+    "href": "index.html#medications-from-rpdr-med-pre-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Medications (from RPDR Med, pre-index)",
+    "text": "Medications (from RPDR Med, pre-index)\nAll derived via med_list() with Medication_Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nSearch Terms\nExclusions\n\n\n\n\nppi\nomeprazole, lansoprazole, dexlansoprazole, rabeprazole, pantoprazole, esomeprazole + brands\nNone\n\n\nace_arb\nbenazepril, captopril, enalapril, fosinopril, lisinopril, ramipril, losartan, valsartan, irbesartan, olmesartan, candesartan, telmisartan, azilsartan, eprosartan\nNone\n\n\ndiu\nbumetanide, furosemide, torsemide, HCTZ, chlorthalidone, metolazone, spironolactone, triamterene, amiloride, eplerenone\nNone\n\n\nsteroids\nprednisone, methylprednisolone, prednisolone, dexamethasone, budesonide\nInhaler, Nebulization, Ointment, Ophthalmic\n\n\nstatins\nAtorvastatin, Fluvastatin, Lovastatin, Pitavastatin, Pravastatin, Rosuvastatin, Simvastatin + brands\nNone\n\n\ndpp4i\nAlogliptin, Vipidia, Nesina, Linagliptin, Tradjenta, Saxagliptin, Onglyza, Sitagliptin, Januvia, Vildagliptin, Galvus\nNone\n\n\nsglt2i\nCanagliflozin, Dapagliflozin, Empagliflozin, Ertugliflozin, Invokana, Farxiga, Forxiga, Jardiance, Steglatro\nNone"
+  },
+  {
+    "objectID": "index.html#baseline-lab-from-rpdr-lab",
+    "href": "index.html#baseline-lab-from-rpdr-lab",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Baseline Lab (from RPDR Lab)",
+    "text": "Baseline Lab (from RPDR Lab)\n\n\n\n\n\n\n\n\nVariable\nFunction\nTime Frame\n\n\n\n\npre_median_CRE_90days\npre_lab_median(time=90)\n[Index_date - 90d, Index_date]\n\n\neGFR_CRE_baseline\ngfr_calc() CKD-EPI 2021 race-free\nFrom baseline CRE\n\n\nckd_stage_baseline\n1-5 from eGFR\n&gt;=90 / &gt;=60 / &gt;=30 / &gt;=15 / &lt;15\n\n\nckd_stage_baseline_3\n3-level\nstage 1 / stage 2 / stage 3 or more"
+  },
+  {
+    "objectID": "index.html#ckd-outcomes-post-index-sustained-90-days",
+    "href": "index.html#ckd-outcomes-post-index-sustained-90-days",
+    "title": "CKD after ICI – Project Summary",
+    "section": "CKD Outcomes (post-index, sustained >= 90 days)",
+    "text": "CKD Outcomes (post-index, sustained &gt;= 90 days)\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nckd_incidence\n&gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60\n\n\nckd_progression\n&gt;30% eGFR drop, from baseline &lt;60\n\n\neskd_defination_1\neGFR &lt;10\n\n\nesrd_kt_after_ici\nESRD/KT ICD codes after Index_date\n\n\neskd_composite\neskd_defination_1 OR esrd_kt_after_ici\n\n\nckd_composite\neskd_composite OR ckd_incidence OR ckd_progression\n\n\ntime_to_ckd_incidence\nDays from Index_date to event\n\n\ntime_to_ckd_progression\nDays from Index_date to event\n\n\ntime_to_eskd_composite\nDays from Index_date to event\n\n\ntime_to_ckd_composite\npmin(incidence, progression, eskd)"
+  },
+  {
+    "objectID": "index.html#aki",
+    "href": "index.html#aki",
+    "title": "CKD after ICI – Project Summary",
+    "section": "AKI",
+    "text": "AKI\n\n\n\nVariable\nDefinition\nTime Frame\n\n\n\n\naki\nCRE &gt; 1.5x baseline\n(Index_date, Index_date + 90d]\n\n\naki_date\nDate of first qualifying CRE\nSame window\n\n\naki_before_ckd\n1 if AKI before CKD composite\n–"
+  },
+  {
+    "objectID": "index.html#yearly-lab-1-10-years-post-index",
+    "href": "index.html#yearly-lab-1-10-years-post-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Yearly Lab (1-10 years post-index)",
+    "text": "Yearly Lab (1-10 years post-index)\nFunction: pre_lab_median_year(year=X, days=90) – window: [Index_date + X*365 - 90d, Index_date + X*365]\n\n\n\nVariable\nDefinition\n\n\n\n\npre_median_CRE_Xyear\nMedian CRE in 90-day window\n\n\neGFR_CRE_Xyear\nCKD-EPI 2021 from yearly CRE\n\n\nckd_stage_Xyear\nCKD stage 1-5\n\n\nlab_num_Xyear\nNumber of CRE labs in window"
+  },
+  {
+    "objectID": "index.html#competing-risk",
+    "href": "index.html#competing-risk",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Competing Risk",
+    "text": "Competing Risk\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nyear_10\nAge / 10\n\n\neGFR_CRE_baseline_decrease_10\n(eGFR_CRE_baseline * -1) / 10\n\n\ntime_to_ckd_cmp\npmin(time_to_ckd_composite, last_cre_days, death_days)\n\n\nstatus_ckd_cmp\nFactor: Death(2) &gt; CKD Composite(1) &gt; Censored(0)\n\n\nckd_incidence_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_progression_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\neskd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor"
+  },
+  {
+    "objectID": "treated_group.html#pre_lab_median",
+    "href": "treated_group.html#pre_lab_median",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.1 pre_lab_median",
+    "text": "2.1 pre_lab_median"
+  },
+  {
+    "objectID": "treated_group.html#pre_lab_median_year",
+    "href": "treated_group.html#pre_lab_median_year",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.2 pre_lab_median_year",
+    "text": "2.2 pre_lab_median_year"
+  },
+  {
+    "objectID": "treated_group.html#left_join_all",
+    "href": "treated_group.html#left_join_all",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.3 left_join_all",
+    "text": "2.3 left_join_all"
+  },
+  {
+    "objectID": "treated_group.html#get_ckd_stage",
+    "href": "treated_group.html#get_ckd_stage",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.4 get_ckd_stage",
+    "text": "2.4 get_ckd_stage"
+  },
+  {
+    "objectID": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "href": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
+    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
+  },
+  {
+    "objectID": "treated_group.html#load-treated-group-excel",
+    "href": "treated_group.html#load-treated-group-excel",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.1 Load treated group Excel",
+    "text": "4.1 Load treated group Excel"
+  },
+  {
+    "objectID": "treated_group.html#rename-derive-variables",
+    "href": "treated_group.html#rename-derive-variables",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.2 Rename & derive variables",
+    "text": "4.2 Rename & derive variables"
+  },
+  {
+    "objectID": "treated_group.html#death-flags-110-years",
+    "href": "treated_group.html#death-flags-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.3 Death flags (1–10 years)",
+    "text": "4.3 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
+  },
+  {
+    "objectID": "treated_group.html#load-rpdr-files-lab-dia-med",
+    "href": "treated_group.html#load-rpdr-files-lab-dia-med",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.4 Load RPDR files (Lab, Dia, Med)",
+    "text": "4.4 Load RPDR files (Lab, Dia, Med)"
+  },
+  {
+    "objectID": "treated_group.html#create-master_lab-master_dia-master_med",
+    "href": "treated_group.html#create-master_lab-master_dia-master_med",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.5 Create master_lab / master_dia / master_med",
+    "text": "4.5 Create master_lab / master_dia / master_med"
+  },
+  {
+    "objectID": "treated_group.html#rpdr-derived-functions",
+    "href": "treated_group.html#rpdr-derived-functions",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.6 RPDR-derived functions",
+    "text": "4.6 RPDR-derived functions"
+  },
+  {
+    "objectID": "treated_group.html#derive-comorbidities-medications-from-rpdr",
+    "href": "treated_group.html#derive-comorbidities-medications-from-rpdr",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.7 Derive comorbidities & medications from RPDR",
+    "text": "4.7 Derive comorbidities & medications from RPDR"
+  },
+  {
+    "objectID": "treated_group.html#ici_class",
+    "href": "treated_group.html#ici_class",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.8 ICI_Class",
+    "text": "4.8 ICI_Class"
+  },
+  {
+    "objectID": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "href": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
+    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
+  },
+  {
+    "objectID": "treated_group.html#baseline-egfr-ckd-stage",
+    "href": "treated_group.html#baseline-egfr-ckd-stage",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.2 Baseline eGFR & CKD stage",
+    "text": "5.2 Baseline eGFR & CKD stage"
+  },
+  {
+    "objectID": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "href": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
+    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
+  },
+  {
+    "objectID": "treated_group.html#survival-flags-110-years",
+    "href": "treated_group.html#survival-flags-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.1 Survival flags (1–10 years)",
+    "text": "6.1 Survival flags (1–10 years)"
+  },
+  {
+    "objectID": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "href": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
+    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
+  },
+  {
+    "objectID": "treated_group.html#aki-from-rpdr-lab",
+    "href": "treated_group.html#aki-from-rpdr-lab",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.3 AKI (from RPDR Lab)",
+    "text": "6.3 AKI (from RPDR Lab)"
+  },
+  {
+    "objectID": "treated_group.html#competing-risk-analysis-variables",
+    "href": "treated_group.html#competing-risk-analysis-variables",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.4 Competing risk & analysis variables",
+    "text": "6.4 Competing risk & analysis variables"
+  },
+  {
+    "objectID": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "href": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
+    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
+  },
+  {
+    "objectID": "treated_group.html#save-treated_group.xlsx",
+    "href": "treated_group.html#save-treated_group.xlsx",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "7.2 Save treated_group.xlsx",
+    "text": "7.2 Save treated_group.xlsx"
+  },
+  {
+    "objectID": "treated_group.html#ici-year-distribution",
+    "href": "treated_group.html#ici-year-distribution",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "ICI Year Distribution",
+    "text": "ICI Year Distribution\n\n\n\n\n\nDistribution of ICI start date by year"
+  },
+  {
+    "objectID": "treated_group.html#table-1-demographics-cancer",
+    "href": "treated_group.html#table-1-demographics-cancer",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "Table 1 – Demographics & Cancer",
+    "text": "Table 1 – Demographics & Cancer\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 3791\n\n\n\n\nAge\n67 (56, 74)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n144 (38%)\n\n\n    Male\n235 (62%)\n\n\nRace\n\n\n\n\n    Asian\n3 (0.8%)\n\n\n    Black\n2 (0.5%)\n\n\n    Other/Unknown\n11 (2.9%)\n\n\n    White\n363 (96%)\n\n\nEthnic_Group\n\n\n\n\n    Other\n379 (100%)\n\n\nICI_Name\n\n\n\n\n    nivolumab\n83 (22%)\n\n\n    Nivolumab\n56 (15%)\n\n\n    pembrolizumab\n240 (63%)\n\n\nICI_Class\n\n\n\n\n    PD1\n379 (100%)\n\n\ndm\n48 (13%)\n\n\nhtn\n210 (55%)\n\n\ncad\n54 (14%)\n\n\ncirrhosis\n1 (0.3%)\n\n\nace_arb\n123 (32%)\n\n\ndiu\n79 (21%)\n\n\nppi\n103 (27%)\n\n\nsteroids\n266 (70%)\n\n\nsmoking\n148 (39%)\n\n\nstatins\n158 (42%)\n\n\ndpp4i\n5 (1.3%)\n\n\nsglt2i\n4 (1.1%)\n\n\neGFR_CRE_baseline\n88 (73, 97)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n165 (44%)\n\n\n    2\n181 (48%)\n\n\n    3\n29 (7.7%)\n\n\n    4\n4 (1.1%)\n\n\npre_median_HGB_90days\n14.00 (13.05, 14.80)\n\n\npre_median_ALB_90days\n4.30 (4.10, 4.53)\n\n\n    Missing\n3\n\n\npre_median_GHBA1C_90days\n6.30 (6.00, 7.30)\n\n\n    Missing\n357\n\n\naki\n5 (1.3%)\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "control_group.html#pre_lab_median",
+    "href": "control_group.html#pre_lab_median",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.1 pre_lab_median",
+    "text": "2.1 pre_lab_median"
+  },
+  {
+    "objectID": "control_group.html#pre_lab_median_year",
+    "href": "control_group.html#pre_lab_median_year",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.2 pre_lab_median_year",
+    "text": "2.2 pre_lab_median_year"
+  },
+  {
+    "objectID": "control_group.html#left_join_all",
+    "href": "control_group.html#left_join_all",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.3 left_join_all",
+    "text": "2.3 left_join_all"
+  },
+  {
+    "objectID": "control_group.html#get_ckd_stage",
+    "href": "control_group.html#get_ckd_stage",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.4 get_ckd_stage",
+    "text": "2.4 get_ckd_stage"
+  },
+  {
+    "objectID": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "href": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
+    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
+  },
+  {
+    "objectID": "control_group.html#load-rpdr-files-dem-lab-dia-med",
+    "href": "control_group.html#load-rpdr-files-dem-lab-dia-med",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.1 Load RPDR files (Dem, Lab, Dia, Med)",
+    "text": "4.1 Load RPDR files (Dem, Lab, Dia, Med)"
+  },
+  {
+    "objectID": "control_group.html#define-cohort-from-dem.txt",
+    "href": "control_group.html#define-cohort-from-dem.txt",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.2 Define cohort from Dem.txt",
+    "text": "4.2 Define cohort from Dem.txt"
+  },
+  {
+    "objectID": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
+    "href": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)",
+    "text": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)"
+  },
+  {
+    "objectID": "control_group.html#derive-last_cre_date-from-rpdr-lab",
+    "href": "control_group.html#derive-last_cre_date-from-rpdr-lab",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.4 Derive last_cre_date from RPDR Lab",
+    "text": "4.4 Derive last_cre_date from RPDR Lab"
+  },
+  {
+    "objectID": "control_group.html#derive-variables",
+    "href": "control_group.html#derive-variables",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.5 Derive variables",
+    "text": "4.5 Derive variables"
+  },
+  {
+    "objectID": "control_group.html#inclusion-criteria-1",
+    "href": "control_group.html#inclusion-criteria-1",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.6 Inclusion criteria",
+    "text": "4.6 Inclusion criteria"
+  },
+  {
+    "objectID": "control_group.html#death-flags-110-years",
+    "href": "control_group.html#death-flags-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.7 Death flags (1–10 years)",
+    "text": "4.7 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
+  },
+  {
+    "objectID": "control_group.html#create-master_lab-master_dia-master_med",
+    "href": "control_group.html#create-master_lab-master_dia-master_med",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.8 Create master_lab / master_dia / master_med",
+    "text": "4.8 Create master_lab / master_dia / master_med"
+  },
+  {
+    "objectID": "control_group.html#rpdr-derived-functions",
+    "href": "control_group.html#rpdr-derived-functions",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.9 RPDR-derived functions",
+    "text": "4.9 RPDR-derived functions"
+  },
+  {
+    "objectID": "control_group.html#derive-comorbidities-medications-from-rpdr",
+    "href": "control_group.html#derive-comorbidities-medications-from-rpdr",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.10 Derive comorbidities & medications from RPDR",
+    "text": "4.10 Derive comorbidities & medications from RPDR"
+  },
+  {
+    "objectID": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "href": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
+    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
+  },
+  {
+    "objectID": "control_group.html#baseline-egfr-ckd-stage",
+    "href": "control_group.html#baseline-egfr-ckd-stage",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.2 Baseline eGFR & CKD stage",
+    "text": "5.2 Baseline eGFR & CKD stage"
+  },
+  {
+    "objectID": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "href": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
+    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
+  },
+  {
+    "objectID": "control_group.html#survival-flags-110-years",
+    "href": "control_group.html#survival-flags-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.1 Survival flags (1–10 years)",
+    "text": "6.1 Survival flags (1–10 years)"
+  },
+  {
+    "objectID": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "href": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
+    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
+  },
+  {
+    "objectID": "control_group.html#aki-from-rpdr-lab",
+    "href": "control_group.html#aki-from-rpdr-lab",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.3 AKI (from RPDR Lab)",
+    "text": "6.3 AKI (from RPDR Lab)"
+  },
+  {
+    "objectID": "control_group.html#competing-risk-analysis-variables",
+    "href": "control_group.html#competing-risk-analysis-variables",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.4 Competing risk & analysis variables",
+    "text": "6.4 Competing risk & analysis variables"
+  },
+  {
+    "objectID": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "href": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
+    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
+  },
+  {
+    "objectID": "control_group.html#save-control_group.xlsx",
+    "href": "control_group.html#save-control_group.xlsx",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "7.2 Save control_group.xlsx",
+    "text": "7.2 Save control_group.xlsx"
+  },
+  {
+    "objectID": "control_group.html#index-year-distribution",
+    "href": "control_group.html#index-year-distribution",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "Index Year Distribution",
+    "text": "Index Year Distribution\n\n\n\n\n\nDistribution of Index_date (first neoplasm diagnosis) by year"
+  },
+  {
+    "objectID": "control_group.html#table-1-demographics",
+    "href": "control_group.html#table-1-demographics",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "Table 1 – Demographics",
+    "text": "Table 1 – Demographics\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 2,3151\n\n\n\n\nAge\n66 (57, 73)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n1,091 (47%)\n\n\n    Male\n1,224 (53%)\n\n\nRace1\n\n\n\n\n    Asian\n1 (&lt;0.1%)\n\n\n    Black\n6 (0.3%)\n\n\n    Other/Unknown\n36 (1.6%)\n\n\n    White\n2,272 (98%)\n\n\nEthnic_Group\n\n\n\n\n    Hispanic\n3 (0.1%)\n\n\n    Non_hispanic\n2,066 (89%)\n\n\n    Other\n246 (11%)\n\n\ndm\n343 (15%)\n\n\nhtn\n1,481 (64%)\n\n\ncad\n519 (22%)\n\n\ncirrhosis\n13 (0.6%)\n\n\nace_arb\n835 (36%)\n\n\ndiu\n754 (33%)\n\n\nppi\n817 (35%)\n\n\nsteroids\n853 (37%)\n\n\nsmoking\n1,074 (46%)\n\n\nstatins\n1,006 (43%)\n\n\ndpp4i\n18 (0.8%)\n\n\nsglt2i\n6 (0.3%)\n\n\neGFR_CRE_baseline\n82 (69, 93)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n766 (33%)\n\n\n    2\n1,250 (54%)\n\n\n    3\n280 (12%)\n\n\n    4\n17 (0.7%)\n\n\n    5\n2 (&lt;0.1%)\n\n\npre_median_HGB_90days\nNA (NA, NA)\n\n\n    Missing\n2,315\n\n\npre_median_ALB_90days\nNA (NA, NA)\n\n\n    Missing\n2,315\n\n\npre_median_GHBA1C_90days\n5.70 (5.40, 6.30)\n\n\n    Missing\n1,735\n\n\naki\n35 (1.5%)\n\n\n\n1 Median (Q1, Q3); n (%)"
+  }
+]

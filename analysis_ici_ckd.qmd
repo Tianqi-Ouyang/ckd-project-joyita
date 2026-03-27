@@ -2,16 +2,6 @@
 title: "ICI CKD – Long-term Kidney Outcomes Analysis"
 author: "Tianqi Ouyang"
 date: "2026-03-19"
-format:
-  html:
-    theme: lumen
-    toc: true
-    toc-float: true
-    toc-depth: 4
-    code-fold: true
-  pdf:
-    toc: true
-    toc-depth: 4
 execute:
   warning: false
   message: false
@@ -761,6 +751,13 @@ statins_names <- c("Atorvastatin", "Lipitor", "Fluvastatin", "Lescol",
                    "Lovastatin", "Mevacor", "Pitavastatin", "Livalo",
                    "Pravastatin", "Pravachol", "Rosuvastatin", "Crestor",
                    "Simvastatin", "Zocor")
+dpp4i_names <- c("Alogliptin", "Vipidia", "Nesina",
+                 "Linagliptin", "Tradjenta",
+                 "Saxagliptin", "Onglyza",
+                 "Sitagliptin", "Januvia",
+                 "Vildagliptin", "Galvus")
+sglt2i_names <- c("Canagliflozin", "Dapagliflozin", "Empagliflozin", "Ertugliflozin",
+                  "Invokana", "Farxiga", "Forxiga", "Jardiance", "Steglatro")
 ```
 
 ## 5.2 Diagnosis code lists
@@ -817,6 +814,8 @@ diu      <- med_list(data = master_med, names = diuretics_names, index_date = In
 steroids <- med_list(data = master_med, names = steroids_names,
                      index_date = Index_date, excluded_names = no_steroid_names)
 statins  <- med_list(data = master_med, names = statins_names, index_date = Index_date)
+dpp4i    <- med_list(data = master_med, names = dpp4i_names, index_date = Index_date)
+sglt2i   <- med_list(data = master_med, names = sglt2i_names, index_date = Index_date)
 
 # Diagnoses
 esrd_kt <- dia_list_icd(master_dia, icd_code = esrd_kt_codes, index_date = Index_date)
@@ -850,7 +849,9 @@ final_master <- final_master %>%
     smoking  = ifelse(EMPI %in% smoking$EMPI, 1, 0),
     cad      = ifelse(EMPI %in% cad$EMPI, 1, 0),
     cirrhosis = ifelse(EMPI %in% cirrhosis$EMPI, 1, 0),
-    statins  = ifelse(EMPI %in% statins$EMPI, 1, 0)
+    statins  = ifelse(EMPI %in% statins$EMPI, 1, 0),
+    dpp4i    = ifelse(EMPI %in% dpp4i$EMPI, 1, 0),
+    sglt2i   = ifelse(EMPI %in% sglt2i$EMPI, 1, 0)
   )
 
 # Merge esrd_kt_after_ici date
@@ -895,9 +896,24 @@ pre_lab_baseline <- pre_lab_median(
   master_lab, month = FALSE, time = 90,
   index_date = Index_date, Group_Id = "CRE"
 )
+pre_lab_hgb <- pre_lab_median(
+  master_lab, month = FALSE, time = 90,
+  index_date = Index_date, Group_Id = "HGB"
+)
+pre_lab_alb <- pre_lab_median(
+  master_lab, month = FALSE, time = 90,
+  index_date = Index_date, Group_Id = "ALB"
+)
+pre_lab_a1c <- pre_lab_median(
+  master_lab, month = FALSE, time = 90,
+  index_date = Index_date, Group_Id = "GHBA1C"
+)
 
 final_master <- final_master %>%
-  merge(pre_lab_baseline, by = "EMPI", all.x = TRUE)
+  merge(pre_lab_baseline, by = "EMPI", all.x = TRUE) %>%
+  merge(pre_lab_hgb, by = "EMPI", all.x = TRUE) %>%
+  merge(pre_lab_alb, by = "EMPI", all.x = TRUE) %>%
+  merge(pre_lab_a1c, by = "EMPI", all.x = TRUE)
 ```
 
 ## 6.2 Baseline eGFR & CKD stage
@@ -1017,6 +1033,14 @@ final_master <- final_master %>%
     death         = ifelse(!is.na(Date_Of_Death), 1, 0),
     last_date     = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death),
     last_days     = as.numeric(last_date - Index_date),
+    Race = ifelse(Race == "White", "White",
+           ifelse(Race == "Black", "Black",
+           ifelse(Race == "Asian", "Asian", "Other/Unknown"))),
+    Ethnic_Group = case_when(
+      Ethnic_Group == "HISPANIC" ~ "Hispanic",
+      Ethnic_Group == "Non Hispanic" ~ "Non_hispanic",
+      TRUE ~ "Other"
+    ),
     # Competing risk: pmin of all event times, then priority-based status
     time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days, na.rm = TRUE),
     status_cmp = case_when(
@@ -1037,9 +1061,9 @@ final_master <- final_master %>%
 ```{r}
 #| label: clean-survival-flags
 for (yr in 1:10) {
-  # death_Xyear: last_days < 365*X (matches Kavita master builder)
+  # death_Xyear: strict death only within X years
   final_master[[paste0("death_", yr, "year")]] <-
-    ifelse(final_master$last_days < 365 * yr, 1, 0)
+    ifelse(!is.na(final_master$death_days) & final_master$death_days < 365 * yr, 1, 0)
   # survival_Xyear: last_cre_days >= 365*X (lab follow-up)
   col_name <- paste0("survival_", yr, "year")
   final_master[[col_name]] <- ifelse(final_master$last_cre_days >= 365 * yr, 1, 0)

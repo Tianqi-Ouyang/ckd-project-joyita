@@ -1,0 +1,22 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "CKD after ICI – Project 2026"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Summary
+      - href: analysis_ici_ckd.qmd
+        text: Analysis
+      - href: treated_group.qmd
+        text: Treated Group
+      - href: control_group.qmd
+        text: Control Group
+
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 3

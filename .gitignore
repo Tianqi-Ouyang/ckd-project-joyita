@@ -9,9 +9,11 @@
 # Temp files
 ~$*
 
-# Rendered output
+# Rendered output (except docs/ for GitHub Pages)
 *.html
 *_files/
+!docs/
+!docs/**
 
 # R/RStudio
 .Rproj.user
@@ -25,3 +27,6 @@ Thumbs.db
 
 # Claude
 .claude/
+
+/.quarto/
+**/*.quarto_ipynb

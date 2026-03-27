@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tianqi Ouyang">
+<meta name="dcterms.date" content="2026-03-26">
+
+<title>CKD after ICI – Project Summary – CKD after ICI – Project 2026</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-b6a8276bf55561bdbc268162d41bd1f7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-0f9aa9b9e44320098794e46e8ae1c927.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">CKD after ICI – Project 2026</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">Summary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./analysis_ici_ckd.html"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./treated_group.html"> 
+<span class="menu-text">Treated Group</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./control_group.html"> 
+<span class="menu-text">Control Group</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#project-overview" id="toc-project-overview" class="nav-link active" data-scroll-target="#project-overview">Project Overview</a></li>
+  <li><a href="#study-design" id="toc-study-design" class="nav-link" data-scroll-target="#study-design">Study Design</a></li>
+  <li><a href="#inclusion-exclusion-criteria" id="toc-inclusion-exclusion-criteria" class="nav-link" data-scroll-target="#inclusion-exclusion-criteria">Inclusion / Exclusion Criteria</a>
+  <ul class="collapse">
+  <li><a href="#treated-group" id="toc-treated-group" class="nav-link" data-scroll-target="#treated-group">Treated Group</a></li>
+  <li><a href="#control-group" id="toc-control-group" class="nav-link" data-scroll-target="#control-group">Control Group</a></li>
+  </ul></li>
+  <li><a href="#input-files" id="toc-input-files" class="nav-link" data-scroll-target="#input-files">Input Files</a>
+  <ul class="collapse">
+  <li><a href="#treated-group-1" id="toc-treated-group-1" class="nav-link" data-scroll-target="#treated-group-1">Treated Group</a></li>
+  <li><a href="#control-group-1" id="toc-control-group-1" class="nav-link" data-scroll-target="#control-group-1">Control Group</a></li>
+  </ul></li>
+  <li><a href="#variable-dictionary" id="toc-variable-dictionary" class="nav-link" data-scroll-target="#variable-dictionary">Variable Dictionary</a>
+  <ul class="collapse">
+  <li><a href="#demographics" id="toc-demographics" class="nav-link" data-scroll-target="#demographics">Demographics</a></li>
+  <li><a href="#ici-specific-treated-only" id="toc-ici-specific-treated-only" class="nav-link" data-scroll-target="#ici-specific-treated-only">ICI-specific (Treated only)</a></li>
+  <li><a href="#follow-up-death" id="toc-follow-up-death" class="nav-link" data-scroll-target="#follow-up-death">Follow-up &amp; Death</a></li>
+  <li><a href="#comorbidities-from-rpdr-dia-pre-index" id="toc-comorbidities-from-rpdr-dia-pre-index" class="nav-link" data-scroll-target="#comorbidities-from-rpdr-dia-pre-index">Comorbidities (from RPDR Dia, pre-index)</a></li>
+  <li><a href="#medications-from-rpdr-med-pre-index" id="toc-medications-from-rpdr-med-pre-index" class="nav-link" data-scroll-target="#medications-from-rpdr-med-pre-index">Medications (from RPDR Med, pre-index)</a></li>
+  <li><a href="#baseline-lab-from-rpdr-lab" id="toc-baseline-lab-from-rpdr-lab" class="nav-link" data-scroll-target="#baseline-lab-from-rpdr-lab">Baseline Lab (from RPDR Lab)</a></li>
+  <li><a href="#ckd-outcomes-post-index-sustained-90-days" id="toc-ckd-outcomes-post-index-sustained-90-days" class="nav-link" data-scroll-target="#ckd-outcomes-post-index-sustained-90-days">CKD Outcomes (post-index, sustained &gt;= 90 days)</a></li>
+  <li><a href="#aki" id="toc-aki" class="nav-link" data-scroll-target="#aki">AKI</a></li>
+  <li><a href="#yearly-lab-1-10-years-post-index" id="toc-yearly-lab-1-10-years-post-index" class="nav-link" data-scroll-target="#yearly-lab-1-10-years-post-index">Yearly Lab (1-10 years post-index)</a></li>
+  <li><a href="#competing-risk" id="toc-competing-risk" class="nav-link" data-scroll-target="#competing-risk">Competing Risk</a></li>
+  </ul></li>
+  <li><a href="#key-conventions" id="toc-key-conventions" class="nav-link" data-scroll-target="#key-conventions">Key Conventions</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">CKD after ICI – Project Summary</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Tianqi Ouyang </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 26, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="project-overview" class="level1">
+<h1>Project Overview</h1>
+<p>Clinical research analysis of <strong>long-term kidney outcomes after immune checkpoint inhibitor (ICI) therapy</strong> — CKD incidence, progression, and ESKD over 10-year follow-up.</p>
+<p>This website contains three components:</p>
+<ul>
+<li><a href="./analysis_ici_ckd.html"><strong>Analysis</strong></a> — Main cohort analysis (full pipeline + models)</li>
+<li><a href="./treated_group.html"><strong>Treated Group</strong></a> — ICI-treated cohort data build + Table 1</li>
+<li><a href="./control_group.html"><strong>Control Group</strong></a> — Non-ICI cancer control cohort data build + Table 1</li>
+</ul>
+<hr>
+</section>
+<section id="study-design" class="level1">
+<h1>Study Design</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Treated Group</th>
+<th>Control Group</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Cohort source</strong></td>
+<td><code>treated group.xlsx</code> (393 ICI-treated patients)</td>
+<td>RPDR <code>Dem.txt</code> (unique EMPIs)</td>
+</tr>
+<tr class="even">
+<td><strong>Index_date</strong></td>
+<td>ICI start date (<code>ICI_Dose_Date</code>)</td>
+<td>First neoplasm Dx (ICD10 C00-D49)</td>
+</tr>
+<tr class="odd">
+<td><strong>Demographics</strong></td>
+<td>From Excel</td>
+<td>From RPDR Dem.txt</td>
+</tr>
+<tr class="even">
+<td><strong>Group label</strong></td>
+<td><code>group = "treated"</code></td>
+<td><code>group = "control"</code></td>
+</tr>
+<tr class="odd">
+<td><strong>RPDR path</strong></td>
+<td>Carboplatin Paper RPDR</td>
+<td>CKD after ICI RPDR</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="inclusion-exclusion-criteria" class="level1">
+<h1>Inclusion / Exclusion Criteria</h1>
+<section id="treated-group" class="level2">
+<h2 class="anchored" data-anchor-id="treated-group">Treated Group</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Criterion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>ICI-treated patients from source Excel</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>last_cre_days &gt; 0</code> (follow-up after index)</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Non-missing baseline CRE (<code>pre_median_CRE_90days</code>)</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><code>eGFR_CRE_baseline &gt;= 10</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="control-group" class="level2">
+<h2 class="anchored" data-anchor-id="control-group">Control Group</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Criterion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Unique EMPIs from RPDR Dem.txt</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Has neoplasm Dx (ICD10 C00-D49) for Index_date</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>last_cre_days &gt; 0</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Baseline CRE within 12 months prior to Index_date</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Follow-up &gt;= 18 months (548 days)</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>&gt;= 2 CRE results after Index_date</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Non-missing baseline CRE</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><code>eGFR_CRE_baseline &gt;= 10</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="input-files" class="level1">
+<h1>Input Files</h1>
+<section id="treated-group-1" class="level2">
+<h2 class="anchored" data-anchor-id="treated-group-1">Treated Group</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>treated group.xlsx</code></td>
+<td>393 ICI-treated patients (EMPI, ICI_Dose_Date, DOB, sex, race, ethnicity, cancer Dx/stage, ICI name, death date, last CRE date)</td>
+</tr>
+<tr class="even">
+<td>RPDR Lab, Dia, Med</td>
+<td>From Carboplatin Paper RPDR folder</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="control-group-1" class="level2">
+<h2 class="anchored" data-anchor-id="control-group-1">Control Group</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Source</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mes98_..._Dem.txt</code></td>
+<td>RPDR</td>
+<td>Demographics: EMPI, DOB, death date, sex, race, ethnicity</td>
+</tr>
+<tr class="even">
+<td><code>mes98_..._Dia.txt</code></td>
+<td>RPDR</td>
+<td>Diagnoses: ICD codes, dates, names</td>
+</tr>
+<tr class="odd">
+<td><code>mes98_..._Lab.txt</code></td>
+<td>RPDR</td>
+<td>Lab results: CRE values, dates</td>
+</tr>
+<tr class="even">
+<td><code>mes98_..._Med.txt</code></td>
+<td>RPDR</td>
+<td>Medications: names, dates</td>
+</tr>
+</tbody>
+</table>
+<p>RPDR path: <code>/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/</code></p>
+<hr>
+</section>
+</section>
+<section id="variable-dictionary" class="level1">
+<h1>Variable Dictionary</h1>
+<section id="demographics" class="level2">
+<h2 class="anchored" data-anchor-id="demographics">Demographics</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Treated Source</th>
+<th>Control Source</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>EMPI</code></td>
+<td>Excel</td>
+<td>Dem.txt</td>
+<td>Patient identifier</td>
+</tr>
+<tr class="even">
+<td><code>Index_date</code></td>
+<td><code>ICI_Dose_Date</code> (Excel)</td>
+<td>First C00-D49 Dx date (Dia.txt)</td>
+<td>Time anchor</td>
+</tr>
+<tr class="odd">
+<td><code>Age</code></td>
+<td>Derived</td>
+<td>Derived</td>
+<td><code>floor((Index_date - DOB) / 365.25)</code></td>
+</tr>
+<tr class="even">
+<td><code>male</code></td>
+<td>Derived</td>
+<td>Derived</td>
+<td><code>1</code> if Male</td>
+</tr>
+<tr class="odd">
+<td><code>Race</code> / <code>Race1</code></td>
+<td>Excel (<code>Race</code>)</td>
+<td>Dem.txt (<code>Race1</code>)</td>
+<td>Recoded: White / Black / Asian / Other/Unknown</td>
+</tr>
+<tr class="even">
+<td><code>Ethnic_Group</code></td>
+<td>Excel</td>
+<td>Dem.txt</td>
+<td>Recoded: Hispanic / Non_hispanic / Other</td>
+</tr>
+<tr class="odd">
+<td><code>group</code></td>
+<td><code>"treated"</code></td>
+<td><code>"control"</code></td>
+<td>Group label</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ici-specific-treated-only" class="level2">
+<h2 class="anchored" data-anchor-id="ici-specific-treated-only">ICI-specific (Treated only)</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ICI_Name</code></td>
+<td>ICI drug name</td>
+</tr>
+<tr class="even">
+<td><code>ICI_Class</code></td>
+<td>PD1 / PDL1 / CTLA4 / Combination</td>
+</tr>
+<tr class="odd">
+<td><code>Cancer_Diagnosis</code></td>
+<td>Cancer type</td>
+</tr>
+<tr class="even">
+<td><code>Cancers_stage</code></td>
+<td>Cancer stage</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="follow-up-death" class="level2">
+<h2 class="anchored" data-anchor-id="follow-up-death">Follow-up &amp; Death</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>last_cre_date</code></td>
+<td>Last CRE lab date (Excel for treated, derived from Lab for control)</td>
+</tr>
+<tr class="even">
+<td><code>last_cre_days</code></td>
+<td><code>last_cre_date - Index_date</code> (days)</td>
+</tr>
+<tr class="odd">
+<td><code>death</code></td>
+<td><code>1</code> if <code>Date_Of_Death</code> is not NA</td>
+</tr>
+<tr class="even">
+<td><code>death_days</code></td>
+<td><code>Date_Of_Death - Index_date</code> (days)</td>
+</tr>
+<tr class="odd">
+<td><code>time_to_death</code></td>
+<td>Same as <code>death_days</code></td>
+</tr>
+<tr class="even">
+<td><code>last_date</code></td>
+<td><code>Date_Of_Death</code> if dead, else <code>last_cre_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>last_days</code></td>
+<td><code>last_date - Index_date</code> (days)</td>
+</tr>
+<tr class="even">
+<td><code>death_Xyear</code> (1-10)</td>
+<td><code>1</code> if died within X years (<code>death_days &lt; 365*X</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>survival_Xyear</code> (1-10)</td>
+<td><code>1</code> if <code>last_cre_days &gt;= 365*X</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="comorbidities-from-rpdr-dia-pre-index" class="level2">
+<h2 class="anchored" data-anchor-id="comorbidities-from-rpdr-dia-pre-index">Comorbidities (from RPDR Dia, pre-index)</h2>
+<p>All derived via <code>dia_list_icd()</code> or <code>dia_list_name()</code> with <code>Date &lt;= Index_date</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Method</th>
+<th>Search Terms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dm</code></td>
+<td>ICD codes</td>
+<td>250.00-250.03, E10.9, E11.9, E10.65, E11.65, E10.21, E11.21, E10.22, E11.22, E13.9</td>
+</tr>
+<tr class="even">
+<td><code>htn</code></td>
+<td>ICD + Med</td>
+<td>ICD: 401.x, I10, I15.x; Meds: HCTZ, amlodipine, lisinopril, losartan, valsartan, diltiazem, clonidine</td>
+</tr>
+<tr class="odd">
+<td><code>cad</code></td>
+<td>Dx name</td>
+<td>Coronary artery disease, Coronary atherosclerosis, Atherosclerotic heart disease, Angina, Unstable angina</td>
+</tr>
+<tr class="even">
+<td><code>cirrhosis</code></td>
+<td>Dx name</td>
+<td><code>grepl("cirrhosis")</code></td>
+</tr>
+<tr class="odd">
+<td><code>smoking</code></td>
+<td>Dx name</td>
+<td>smoking, tobacco, cigarette, nicotine, smoke</td>
+</tr>
+<tr class="even">
+<td><code>esrd_kt</code></td>
+<td>ICD codes</td>
+<td>585.6, N18.6, V45.1, Z94.0, Z99.2, 996.81, T86.1x</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="medications-from-rpdr-med-pre-index" class="level2">
+<h2 class="anchored" data-anchor-id="medications-from-rpdr-med-pre-index">Medications (from RPDR Med, pre-index)</h2>
+<p>All derived via <code>med_list()</code> with <code>Medication_Date &lt;= Index_date</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Search Terms</th>
+<th>Exclusions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ppi</code></td>
+<td>omeprazole, lansoprazole, dexlansoprazole, rabeprazole, pantoprazole, esomeprazole + brands</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><code>ace_arb</code></td>
+<td>benazepril, captopril, enalapril, fosinopril, lisinopril, ramipril, losartan, valsartan, irbesartan, olmesartan, candesartan, telmisartan, azilsartan, eprosartan</td>
+<td>None</td>
+</tr>
+<tr class="odd">
+<td><code>diu</code></td>
+<td>bumetanide, furosemide, torsemide, HCTZ, chlorthalidone, metolazone, spironolactone, triamterene, amiloride, eplerenone</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><code>steroids</code></td>
+<td>prednisone, methylprednisolone, prednisolone, dexamethasone, budesonide</td>
+<td>Inhaler, Nebulization, Ointment, Ophthalmic</td>
+</tr>
+<tr class="odd">
+<td><code>statins</code></td>
+<td>Atorvastatin, Fluvastatin, Lovastatin, Pitavastatin, Pravastatin, Rosuvastatin, Simvastatin + brands</td>
+<td>None</td>
+</tr>
+<tr class="even">
+<td><code>dpp4i</code></td>
+<td>Alogliptin, Vipidia, Nesina, Linagliptin, Tradjenta, Saxagliptin, Onglyza, Sitagliptin, Januvia, Vildagliptin, Galvus</td>
+<td>None</td>
+</tr>
+<tr class="odd">
+<td><code>sglt2i</code></td>
+<td>Canagliflozin, Dapagliflozin, Empagliflozin, Ertugliflozin, Invokana, Farxiga, Forxiga, Jardiance, Steglatro</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="baseline-lab-from-rpdr-lab" class="level2">
+<h2 class="anchored" data-anchor-id="baseline-lab-from-rpdr-lab">Baseline Lab (from RPDR Lab)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Function</th>
+<th>Time Frame</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pre_median_CRE_90days</code></td>
+<td><code>pre_lab_median(time=90)</code></td>
+<td><code>[Index_date - 90d, Index_date]</code></td>
+</tr>
+<tr class="even">
+<td><code>eGFR_CRE_baseline</code></td>
+<td><code>gfr_calc()</code> CKD-EPI 2021 race-free</td>
+<td>From baseline CRE</td>
+</tr>
+<tr class="odd">
+<td><code>ckd_stage_baseline</code></td>
+<td>1-5 from eGFR</td>
+<td>&gt;=90 / &gt;=60 / &gt;=30 / &gt;=15 / &lt;15</td>
+</tr>
+<tr class="even">
+<td><code>ckd_stage_baseline_3</code></td>
+<td>3-level</td>
+<td>stage 1 / stage 2 / stage 3 or more</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ckd-outcomes-post-index-sustained-90-days" class="level2">
+<h2 class="anchored" data-anchor-id="ckd-outcomes-post-index-sustained-90-days">CKD Outcomes (post-index, sustained &gt;= 90 days)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ckd_incidence</code></td>
+<td>&gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60</td>
+</tr>
+<tr class="even">
+<td><code>ckd_progression</code></td>
+<td>&gt;30% eGFR drop, from baseline &lt;60</td>
+</tr>
+<tr class="odd">
+<td><code>eskd_defination_1</code></td>
+<td>eGFR &lt;10</td>
+</tr>
+<tr class="even">
+<td><code>esrd_kt_after_ici</code></td>
+<td>ESRD/KT ICD codes after Index_date</td>
+</tr>
+<tr class="odd">
+<td><code>eskd_composite</code></td>
+<td><code>eskd_defination_1 OR esrd_kt_after_ici</code></td>
+</tr>
+<tr class="even">
+<td><code>ckd_composite</code></td>
+<td><code>eskd_composite OR ckd_incidence OR ckd_progression</code></td>
+</tr>
+<tr class="odd">
+<td><code>time_to_ckd_incidence</code></td>
+<td>Days from Index_date to event</td>
+</tr>
+<tr class="even">
+<td><code>time_to_ckd_progression</code></td>
+<td>Days from Index_date to event</td>
+</tr>
+<tr class="odd">
+<td><code>time_to_eskd_composite</code></td>
+<td>Days from Index_date to event</td>
+</tr>
+<tr class="even">
+<td><code>time_to_ckd_composite</code></td>
+<td><code>pmin(incidence, progression, eskd)</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="aki" class="level2">
+<h2 class="anchored" data-anchor-id="aki">AKI</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+<th>Time Frame</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>aki</code></td>
+<td>CRE &gt; 1.5x baseline</td>
+<td><code>(Index_date, Index_date + 90d]</code></td>
+</tr>
+<tr class="even">
+<td><code>aki_date</code></td>
+<td>Date of first qualifying CRE</td>
+<td>Same window</td>
+</tr>
+<tr class="odd">
+<td><code>aki_before_ckd</code></td>
+<td><code>1</code> if AKI before CKD composite</td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="yearly-lab-1-10-years-post-index" class="level2">
+<h2 class="anchored" data-anchor-id="yearly-lab-1-10-years-post-index">Yearly Lab (1-10 years post-index)</h2>
+<p>Function: <code>pre_lab_median_year(year=X, days=90)</code> – window: <code>[Index_date + X*365 - 90d, Index_date + X*365]</code></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pre_median_CRE_Xyear</code></td>
+<td>Median CRE in 90-day window</td>
+</tr>
+<tr class="even">
+<td><code>eGFR_CRE_Xyear</code></td>
+<td>CKD-EPI 2021 from yearly CRE</td>
+</tr>
+<tr class="odd">
+<td><code>ckd_stage_Xyear</code></td>
+<td>CKD stage 1-5</td>
+</tr>
+<tr class="even">
+<td><code>lab_num_Xyear</code></td>
+<td>Number of CRE labs in window</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="competing-risk" class="level2">
+<h2 class="anchored" data-anchor-id="competing-risk">Competing Risk</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>year_10</code></td>
+<td><code>Age / 10</code></td>
+</tr>
+<tr class="even">
+<td><code>eGFR_CRE_baseline_decrease_10</code></td>
+<td><code>(eGFR_CRE_baseline * -1) / 10</code></td>
+</tr>
+<tr class="odd">
+<td><code>time_to_ckd_cmp</code></td>
+<td><code>pmin(time_to_ckd_composite, last_cre_days, death_days)</code></td>
+</tr>
+<tr class="even">
+<td><code>status_ckd_cmp</code></td>
+<td>Factor: Death(2) &gt; CKD Composite(1) &gt; Censored(0)</td>
+</tr>
+<tr class="odd">
+<td><code>ckd_incidence_Xyear</code></td>
+<td><code>1</code> if event within X years, NA-&gt;0, factor</td>
+</tr>
+<tr class="even">
+<td><code>ckd_progression_Xyear</code></td>
+<td><code>1</code> if event within X years, NA-&gt;0, factor</td>
+</tr>
+<tr class="odd">
+<td><code>eskd_composite_Xyear</code></td>
+<td><code>1</code> if event within X years, NA-&gt;0, factor</td>
+</tr>
+<tr class="even">
+<td><code>ckd_composite_Xyear</code></td>
+<td><code>1</code> if event within X years, NA-&gt;0, factor</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="key-conventions" class="level1">
+<h1>Key Conventions</h1>
+<ul>
+<li>All time anchored on <code>Index_date</code></li>
+<li>eGFR: CKD-EPI 2021 creatinine-only (race-free)</li>
+<li>Yearly windows: year X = days <code>(X*365 - 90)</code> to <code>(X*365)</code> post-index</li>
+<li>CKD outcomes require sustained &gt;= 90 days</li>
+<li>Competing risk priority: Death(2) &gt; CKD(1) &gt; Censored(0)</li>
+<li><code>death_Xyear = 1</code> strictly means patient died within X years</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
