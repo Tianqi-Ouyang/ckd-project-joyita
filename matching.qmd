@@ -50,6 +50,7 @@ Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on d
 | Exact-match on era only | Era shift is large/structural; sex balances adequately via PS alone |
 | Include `n_cre_pre_1yr` + `pre_history_days` in PS model | Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly |
 | Exclude `Cancer_Diagnosis` / `Cancers_stage` | Control cohort lacks these fields (only treated has them) |
+| Exclude `pre_median_HGB_90days`, `pre_median_ALB_90days`, `pre_median_GHBA1C_90days` from PS model | ~77% missing in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only |
 | Exclude post-exposure variables (`last_cre_days`, `aki`, outcomes) | Would induce collider bias if included |
 
 ---
@@ -192,8 +193,10 @@ ps_covars <- c("Age", "male", "Race", "Ethnic_Group",
                "dm", "htn", "cad", "cirrhosis",
                "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
                "eGFR_CRE_baseline",
-               "pre_median_HGB_90days", "pre_median_ALB_90days", "pre_median_GHBA1C_90days",
                "n_cre_pre_1yr", "pre_history_days")
+# HGB / ALB / HbA1c excluded from PS model: ~77% missing in controls
+# (oncology-workup labs not routinely drawn in the control pool).
+# Kept in Table 1 for descriptive comparison only.
 
 n_before_cc <- nrow(combined)
 combined_cc <- combined %>% drop_na(all_of(ps_covars))
@@ -246,7 +249,7 @@ m.out <- matchit(
   method       = "nearest",
   distance     = "glm",
   link         = "logit",
-  ratio        = 3,
+  ratio        = 2,
   min.controls = 1,
   max.controls = 3,
   exact        = ~ era,

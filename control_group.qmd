@@ -232,39 +232,40 @@ gfr_calc <- Vectorize(ckd_epi_gfr)
 
 # 4 Data Loading
 
-## 4.1 Load RPDR files (Dem, Lab, Dia, Med)
+## 4.1 Load RPDR files (Dem, Lab from 04092026 pull; Dia, Med from original pull)
 
 ```{r}
 #| label: load-rpdr
-rpdr_path <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/RPDR Joyita/"
+rpdr_path_new <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/RPDR Joyita/04092026/"
+rpdr_path_old <- "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/RPDR Joyita/"
 
-# Demographics — cohort source
+# Demographics — cohort source (new pull)
 dem <- read.table(
-  paste0(rpdr_path, "MES98_20251202_101837_Dem.txt"),
+  paste0(rpdr_path_new, "mes98_040726114217167239_Dem.txt"),
   sep = "|", fill = TRUE, quote = "", header = TRUE
 )
 dem$Date_of_Birth <- as.Date(dem$Date_of_Birth, "%m/%d/%Y")
 dem$Date_Of_Death <- as.Date(dem$Date_Of_Death, "%m/%d/%Y")
 
-# Lab
+# Lab (new pull)
 lab <- read.table(
-  paste0(rpdr_path, "MES98_20251202_101837_Lab.txt"),
+  paste0(rpdr_path_new, "mes98_040726114217167239_Lab.txt"),
   sep = "|", fill = TRUE, quote = "", header = TRUE
 ) %>%
   select(EMPI, EPIC_PMRN, Seq_Date_Time, Result, Group_Id, Test_Description)
 lab$Seq_Date_Time <- as.Date(lab$Seq_Date_Time, "%m/%d/%Y")
 
-# Diagnoses
+# Diagnoses (old pull — Dia.txt not included in 04092026)
 dia <- read.table(
-  paste0(rpdr_path, "MES98_20251202_101837_Dia.txt"),
+  paste0(rpdr_path_old, "MES98_20251202_101837_Dia.txt"),
   sep = "|", fill = TRUE, quote = "", header = TRUE
 ) %>%
   select(EMPI, EPIC_PMRN, Code, Date, Diagnosis_Name)
 dia$Date <- as.Date(dia$Date, "%m/%d/%Y")
 
-# Medications
+# Medications (old pull — Med.txt not included in 04092026)
 med <- read.table(
-  paste0(rpdr_path, "MES98_20251202_101837_Med.txt"),
+  paste0(rpdr_path_old, "MES98_20251202_101837_Med.txt"),
   sep = "|", fill = TRUE, quote = "", header = TRUE
 ) %>%
   select(EMPI, Medication_Date, Medication)

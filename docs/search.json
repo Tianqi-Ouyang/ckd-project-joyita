@@ -1,5 +1,509 @@
 [
   {
+    "objectID": "matching.html",
+    "href": "matching.html",
+    "title": "Propensity-Score Matching – Treated vs Control",
+    "section": "",
+    "text": "Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — baseline creatinine surveillance intensity (n_cre_pre_1yr). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.\n\n\n\n\n\n\n\n\n\n\nParameter\nValue\n\n\n\n\nMatching algorithm\nNearest-neighbor PS matching (logit PS), greedy, no replacement\n\n\nRatio\nVariable 1:k, min.controls = 1, max.controls = 3\n\n\nCaliper\n0.2 × SD(logit PS)\n\n\nExact-match stratum\nera (2016–2019 / 2020–2023)\n\n\nEligibility filter\nhas_pre_cre == 1\n\n\nSeed\nset.seed(42)\n\n\nSoftware\nR MatchIt 4.x\n\n\nBalance target\nStandardized mean difference (SMD) &lt; 0.1 for all PS model covariates\n\n\n\n\n\n\n\n\n\nStep\nControl n\n\n\n\n\nAfter cohort build (Control Group page)\n2,315\n\n\nDrop Index year ≤ 2015 (no treated counterpart)\n−1,025\n\n\nDrop has_pre_cre == 0\n(computed below)\n\n\nEligible for matching\nsee chunk cohort-restrict\n\n\n\n\n\n\n\n\n\n\n\n\n\nChoice\nReason\n\n\n\n\nDrop pre-2016 controls\nTreated cohort begins 2016; earlier controls have no temporal counterpart\n\n\nVariable 1:k (max 3)\nKeeps all 379 treated even in 2020–2023 where control pool is tighter; variance-reduction gains plateau after k≈4 (Rubin 1996)\n\n\nCaliper 0.2 × SD(logit PS)\nAustin (2011) — empirically optimal for bias removal\n\n\nExact-match on era only\nEra shift is large/structural; sex balances adequately via PS alone\n\n\nInclude n_cre_pre_1yr + pre_history_days in PS model\nSurveillance intensity is a study-specific candidate confounder; must be balanced explicitly\n\n\nExclude Cancer_Diagnosis / Cancers_stage\nControl cohort lacks these fields (only treated has them)\n\n\nExclude pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days from PS model\n~77% missing in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only\n\n\nExclude post-exposure variables (last_cre_days, aki, outcomes)\nWould induce collider bias if included\n\n\n\n\n\n\n\n\n\n\nNotePrerequisite\n\n\n\nBefore rendering this page, re-render treated_group.qmd and control_group.qmd so the new n_cre_pre_1yr, pre_history_days, has_pre_cre, cre_rate_pre, n_cre_post, cre_rate_post columns are present in the output .xlsx files."
+  },
+  {
+    "objectID": "matching.html#rationale",
+    "href": "matching.html#rationale",
+    "title": "Propensity-Score Matching – Treated vs Control",
+    "section": "",
+    "text": "Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — baseline creatinine surveillance intensity (n_cre_pre_1yr). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients."
+  },
+  {
+    "objectID": "matching.html#method",
+    "href": "matching.html#method",
+    "title": "Propensity-Score Matching – Treated vs Control",
+    "section": "",
+    "text": "Parameter\nValue\n\n\n\n\nMatching algorithm\nNearest-neighbor PS matching (logit PS), greedy, no replacement\n\n\nRatio\nVariable 1:k, min.controls = 1, max.controls = 3\n\n\nCaliper\n0.2 × SD(logit PS)\n\n\nExact-match stratum\nera (2016–2019 / 2020–2023)\n\n\nEligibility filter\nhas_pre_cre == 1\n\n\nSeed\nset.seed(42)\n\n\nSoftware\nR MatchIt 4.x\n\n\nBalance target\nStandardized mean difference (SMD) &lt; 0.1 for all PS model covariates"
+  },
+  {
+    "objectID": "matching.html#cohort-restriction-before-matching",
+    "href": "matching.html#cohort-restriction-before-matching",
+    "title": "Propensity-Score Matching – Treated vs Control",
+    "section": "",
+    "text": "Step\nControl n\n\n\n\n\nAfter cohort build (Control Group page)\n2,315\n\n\nDrop Index year ≤ 2015 (no treated counterpart)\n−1,025\n\n\nDrop has_pre_cre == 0\n(computed below)\n\n\nEligible for matching\nsee chunk cohort-restrict"
+  },
+  {
+    "objectID": "matching.html#key-design-choices",
+    "href": "matching.html#key-design-choices",
+    "title": "Propensity-Score Matching – Treated vs Control",
+    "section": "",
+    "text": "Choice\nReason\n\n\n\n\nDrop pre-2016 controls\nTreated cohort begins 2016; earlier controls have no temporal counterpart\n\n\nVariable 1:k (max 3)\nKeeps all 379 treated even in 2020–2023 where control pool is tighter; variance-reduction gains plateau after k≈4 (Rubin 1996)\n\n\nCaliper 0.2 × SD(logit PS)\nAustin (2011) — empirically optimal for bias removal\n\n\nExact-match on era only\nEra shift is large/structural; sex balances adequately via PS alone\n\n\nInclude n_cre_pre_1yr + pre_history_days in PS model\nSurveillance intensity is a study-specific candidate confounder; must be balanced explicitly\n\n\nExclude Cancer_Diagnosis / Cancers_stage\nControl cohort lacks these fields (only treated has them)\n\n\nExclude pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days from PS model\n~77% missing in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only\n\n\nExclude post-exposure variables (last_cre_days, aki, outcomes)\nWould induce collider bias if included\n\n\n\n\n\n\n\n\n\n\nNotePrerequisite\n\n\n\nBefore rendering this page, re-render treated_group.qmd and control_group.qmd so the new n_cre_pre_1yr, pre_history_days, has_pre_cre, cre_rate_pre, n_cre_post, cre_rate_post columns are present in the output .xlsx files."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CKD after ICI – Project Summary",
+    "section": "",
+    "text": "Clinical research analysis of long-term kidney outcomes after immune checkpoint inhibitor (ICI) therapy — CKD incidence, progression, and ESKD over 10-year follow-up.\nThis website contains three components:\n\nAnalysis — Main cohort analysis (full pipeline + models)\nTreated Group — ICI-treated cohort data build + Table 1\nControl Group — Non-ICI cancer control cohort data build + Table 1\nMatching — Propensity-score matching of treated vs control with balance diagnostics"
+  },
+  {
+    "objectID": "index.html#treated-group",
+    "href": "index.html#treated-group",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Treated Group",
+    "text": "Treated Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nICI-treated patients from source Excel\n\n\n2\nlast_cre_days &gt; 0 (follow-up after index)\n\n\n3\nNon-missing baseline CRE (pre_median_CRE_90days)\n\n\n4\neGFR_CRE_baseline &gt;= 10"
+  },
+  {
+    "objectID": "index.html#control-group",
+    "href": "index.html#control-group",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Control Group",
+    "text": "Control Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nUnique EMPIs from RPDR Dem.txt\n\n\n2\nHas neoplasm Dx (ICD10 C00-D49) for Index_date\n\n\n3\nlast_cre_days &gt; 0\n\n\n4\nBaseline CRE within 12 months prior to Index_date\n\n\n5\nFollow-up &gt;= 18 months (548 days)\n\n\n6\n&gt;= 2 CRE results after Index_date\n\n\n7\nNon-missing baseline CRE\n\n\n8\neGFR_CRE_baseline &gt;= 10"
+  },
+  {
+    "objectID": "index.html#treated-group-1",
+    "href": "index.html#treated-group-1",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Treated Group",
+    "text": "Treated Group\n\n\n\n\n\n\n\nFile\nDescription\n\n\n\n\ntreated group.xlsx\n393 ICI-treated patients (EMPI, ICI_Dose_Date, DOB, sex, race, ethnicity, cancer Dx/stage, ICI name, death date, last CRE date)\n\n\nRPDR Lab, Dia, Med\nFrom Carboplatin Paper RPDR folder"
+  },
+  {
+    "objectID": "index.html#control-group-1",
+    "href": "index.html#control-group-1",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Control Group",
+    "text": "Control Group\n\n\n\n\n\n\n\n\nFile\nSource\nDescription\n\n\n\n\nmes98_..._Dem.txt\nRPDR\nDemographics: EMPI, DOB, death date, sex, race, ethnicity\n\n\nmes98_..._Dia.txt\nRPDR\nDiagnoses: ICD codes, dates, names\n\n\nmes98_..._Lab.txt\nRPDR\nLab results: CRE values, dates\n\n\nmes98_..._Med.txt\nRPDR\nMedications: names, dates\n\n\n\nRPDR path: /Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/"
+  },
+  {
+    "objectID": "index.html#demographics",
+    "href": "index.html#demographics",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Demographics",
+    "text": "Demographics\n\n\n\n\n\n\n\n\n\nVariable\nTreated Source\nControl Source\nDefinition\n\n\n\n\nEMPI\nExcel\nDem.txt\nPatient identifier\n\n\nIndex_date\nICI_Dose_Date (Excel)\nFirst C00-D49 Dx date (Dia.txt)\nTime anchor\n\n\nAge\nDerived\nDerived\nfloor((Index_date - DOB) / 365.25)\n\n\nmale\nDerived\nDerived\n1 if Male\n\n\nRace / Race1\nExcel (Race)\nDem.txt (Race1)\nRecoded: White / Black / Asian / Other/Unknown\n\n\nEthnic_Group\nExcel\nDem.txt\nRecoded: Hispanic / Non_hispanic / Other\n\n\ngroup\n\"treated\"\n\"control\"\nGroup label"
+  },
+  {
+    "objectID": "index.html#ici-specific-treated-only",
+    "href": "index.html#ici-specific-treated-only",
+    "title": "CKD after ICI – Project Summary",
+    "section": "ICI-specific (Treated only)",
+    "text": "ICI-specific (Treated only)\n\n\n\nVariable\nDefinition\n\n\n\n\nICI_Name\nICI drug name\n\n\nICI_Class\nPD1 / PDL1 / CTLA4 / Combination\n\n\nCancer_Diagnosis\nCancer type\n\n\nCancers_stage\nCancer stage"
+  },
+  {
+    "objectID": "index.html#follow-up-death",
+    "href": "index.html#follow-up-death",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Follow-up & Death",
+    "text": "Follow-up & Death\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nlast_cre_date\nLast CRE lab date (Excel for treated, derived from Lab for control)\n\n\nlast_cre_days\nlast_cre_date - Index_date (days)\n\n\ndeath\n1 if Date_Of_Death is not NA\n\n\ndeath_days\nDate_Of_Death - Index_date (days)\n\n\ntime_to_death\nSame as death_days\n\n\nlast_date\nDate_Of_Death if dead, else last_cre_date\n\n\nlast_days\nlast_date - Index_date (days)\n\n\ndeath_Xyear (1-10)\n1 if died within X years (death_days &lt; 365*X)\n\n\nsurvival_Xyear (1-10)\n1 if last_cre_days &gt;= 365*X"
+  },
+  {
+    "objectID": "index.html#comorbidities-from-rpdr-dia-pre-index",
+    "href": "index.html#comorbidities-from-rpdr-dia-pre-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Comorbidities (from RPDR Dia, pre-index)",
+    "text": "Comorbidities (from RPDR Dia, pre-index)\nAll derived via dia_list_icd() or dia_list_name() with Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nMethod\nSearch Terms\n\n\n\n\ndm\nICD codes\n250.00-250.03, E10.9, E11.9, E10.65, E11.65, E10.21, E11.21, E10.22, E11.22, E13.9\n\n\nhtn\nICD + Med\nICD: 401.x, I10, I15.x; Meds: HCTZ, amlodipine, lisinopril, losartan, valsartan, diltiazem, clonidine\n\n\ncad\nDx name\nCoronary artery disease, Coronary atherosclerosis, Atherosclerotic heart disease, Angina, Unstable angina\n\n\ncirrhosis\nDx name\ngrepl(\"cirrhosis\")\n\n\nsmoking\nDx name\nsmoking, tobacco, cigarette, nicotine, smoke\n\n\nesrd_kt\nICD codes\n585.6, N18.6, V45.1, Z94.0, Z99.2, 996.81, T86.1x"
+  },
+  {
+    "objectID": "index.html#medications-from-rpdr-med-pre-index",
+    "href": "index.html#medications-from-rpdr-med-pre-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Medications (from RPDR Med, pre-index)",
+    "text": "Medications (from RPDR Med, pre-index)\nAll derived via med_list() with Medication_Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nSearch Terms\nExclusions\n\n\n\n\nppi\nomeprazole, lansoprazole, dexlansoprazole, rabeprazole, pantoprazole, esomeprazole + brands\nNone\n\n\nace_arb\nbenazepril, captopril, enalapril, fosinopril, lisinopril, ramipril, losartan, valsartan, irbesartan, olmesartan, candesartan, telmisartan, azilsartan, eprosartan\nNone\n\n\ndiu\nbumetanide, furosemide, torsemide, HCTZ, chlorthalidone, metolazone, spironolactone, triamterene, amiloride, eplerenone\nNone\n\n\nsteroids\nprednisone, methylprednisolone, prednisolone, dexamethasone, budesonide\nInhaler, Nebulization, Ointment, Ophthalmic\n\n\nstatins\nAtorvastatin, Fluvastatin, Lovastatin, Pitavastatin, Pravastatin, Rosuvastatin, Simvastatin + brands\nNone\n\n\ndpp4i\nAlogliptin, Vipidia, Nesina, Linagliptin, Tradjenta, Saxagliptin, Onglyza, Sitagliptin, Januvia, Vildagliptin, Galvus\nNone\n\n\nsglt2i\nCanagliflozin, Dapagliflozin, Empagliflozin, Ertugliflozin, Invokana, Farxiga, Forxiga, Jardiance, Steglatro\nNone"
+  },
+  {
+    "objectID": "index.html#baseline-lab-from-rpdr-lab",
+    "href": "index.html#baseline-lab-from-rpdr-lab",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Baseline Lab (from RPDR Lab)",
+    "text": "Baseline Lab (from RPDR Lab)\n\n\n\n\n\n\n\n\nVariable\nFunction\nTime Frame\n\n\n\n\npre_median_CRE_90days\npre_lab_median(time=90)\n[Index_date - 90d, Index_date]\n\n\neGFR_CRE_baseline\ngfr_calc() CKD-EPI 2021 race-free\nFrom baseline CRE\n\n\nckd_stage_baseline\n1-5 from eGFR\n&gt;=90 / &gt;=60 / &gt;=30 / &gt;=15 / &lt;15\n\n\nckd_stage_baseline_3\n3-level\nstage 1 / stage 2 / stage 3 or more"
+  },
+  {
+    "objectID": "index.html#ckd-outcomes-post-index-sustained-90-days",
+    "href": "index.html#ckd-outcomes-post-index-sustained-90-days",
+    "title": "CKD after ICI – Project Summary",
+    "section": "CKD Outcomes (post-index, sustained >= 90 days)",
+    "text": "CKD Outcomes (post-index, sustained &gt;= 90 days)\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nckd_incidence\n&gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60\n\n\nckd_progression\n&gt;30% eGFR drop, from baseline &lt;60\n\n\neskd_defination_1\neGFR &lt;10\n\n\nesrd_kt_after_ici\nESRD/KT ICD codes after Index_date\n\n\neskd_composite\neskd_defination_1 OR esrd_kt_after_ici\n\n\nckd_composite\neskd_composite OR ckd_incidence OR ckd_progression\n\n\ntime_to_ckd_incidence\nDays from Index_date to event\n\n\ntime_to_ckd_progression\nDays from Index_date to event\n\n\ntime_to_eskd_composite\nDays from Index_date to event\n\n\ntime_to_ckd_composite\npmin(incidence, progression, eskd)"
+  },
+  {
+    "objectID": "index.html#aki",
+    "href": "index.html#aki",
+    "title": "CKD after ICI – Project Summary",
+    "section": "AKI",
+    "text": "AKI\n\n\n\nVariable\nDefinition\nTime Frame\n\n\n\n\naki\nCRE &gt; 1.5x baseline\n(Index_date, Index_date + 90d]\n\n\naki_date\nDate of first qualifying CRE\nSame window\n\n\naki_before_ckd\n1 if AKI before CKD composite\n–"
+  },
+  {
+    "objectID": "index.html#yearly-lab-1-10-years-post-index",
+    "href": "index.html#yearly-lab-1-10-years-post-index",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Yearly Lab (1-10 years post-index)",
+    "text": "Yearly Lab (1-10 years post-index)\nFunction: pre_lab_median_year(year=X, days=90) – window: [Index_date + X*365 - 90d, Index_date + X*365]\n\n\n\nVariable\nDefinition\n\n\n\n\npre_median_CRE_Xyear\nMedian CRE in 90-day window\n\n\neGFR_CRE_Xyear\nCKD-EPI 2021 from yearly CRE\n\n\nckd_stage_Xyear\nCKD stage 1-5\n\n\nlab_num_Xyear\nNumber of CRE labs in window"
+  },
+  {
+    "objectID": "index.html#competing-risk",
+    "href": "index.html#competing-risk",
+    "title": "CKD after ICI – Project Summary",
+    "section": "Competing Risk",
+    "text": "Competing Risk\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nyear_10\nAge / 10\n\n\neGFR_CRE_baseline_decrease_10\n(eGFR_CRE_baseline * -1) / 10\n\n\ntime_to_ckd_cmp\npmin(time_to_ckd_composite, last_cre_days, death_days)\n\n\nstatus_ckd_cmp\nFactor: Death(2) &gt; CKD Composite(1) &gt; Censored(0)\n\n\nckd_incidence_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_progression_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\neskd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor"
+  },
+  {
+    "objectID": "treated_group.html#pre_lab_median",
+    "href": "treated_group.html#pre_lab_median",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.1 pre_lab_median",
+    "text": "2.1 pre_lab_median"
+  },
+  {
+    "objectID": "treated_group.html#pre_lab_median_year",
+    "href": "treated_group.html#pre_lab_median_year",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.2 pre_lab_median_year",
+    "text": "2.2 pre_lab_median_year"
+  },
+  {
+    "objectID": "treated_group.html#left_join_all",
+    "href": "treated_group.html#left_join_all",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.3 left_join_all",
+    "text": "2.3 left_join_all"
+  },
+  {
+    "objectID": "treated_group.html#get_ckd_stage",
+    "href": "treated_group.html#get_ckd_stage",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.4 get_ckd_stage",
+    "text": "2.4 get_ckd_stage"
+  },
+  {
+    "objectID": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "href": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
+    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
+  },
+  {
+    "objectID": "treated_group.html#load-treated-group-excel",
+    "href": "treated_group.html#load-treated-group-excel",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.1 Load treated group Excel",
+    "text": "4.1 Load treated group Excel"
+  },
+  {
+    "objectID": "treated_group.html#rename-derive-variables",
+    "href": "treated_group.html#rename-derive-variables",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.2 Rename & derive variables",
+    "text": "4.2 Rename & derive variables"
+  },
+  {
+    "objectID": "treated_group.html#death-flags-110-years",
+    "href": "treated_group.html#death-flags-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.3 Death flags (1–10 years)",
+    "text": "4.3 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
+  },
+  {
+    "objectID": "treated_group.html#load-rpdr-files-lab-dia-med",
+    "href": "treated_group.html#load-rpdr-files-lab-dia-med",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.4 Load RPDR files (Lab, Dia, Med)",
+    "text": "4.4 Load RPDR files (Lab, Dia, Med)"
+  },
+  {
+    "objectID": "treated_group.html#create-master_lab-master_dia-master_med",
+    "href": "treated_group.html#create-master_lab-master_dia-master_med",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.5 Create master_lab / master_dia / master_med",
+    "text": "4.5 Create master_lab / master_dia / master_med"
+  },
+  {
+    "objectID": "treated_group.html#rpdr-derived-functions",
+    "href": "treated_group.html#rpdr-derived-functions",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.6 RPDR-derived functions",
+    "text": "4.6 RPDR-derived functions"
+  },
+  {
+    "objectID": "treated_group.html#derive-comorbidities-medications-from-rpdr",
+    "href": "treated_group.html#derive-comorbidities-medications-from-rpdr",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.7 Derive comorbidities & medications from RPDR",
+    "text": "4.7 Derive comorbidities & medications from RPDR"
+  },
+  {
+    "objectID": "treated_group.html#ici_class",
+    "href": "treated_group.html#ici_class",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "4.8 ICI_Class",
+    "text": "4.8 ICI_Class"
+  },
+  {
+    "objectID": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "href": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
+    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
+  },
+  {
+    "objectID": "treated_group.html#b-cre-measurement-counts-for-matching",
+    "href": "treated_group.html#b-cre-measurement-counts-for-matching",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.1b CRE measurement counts (for matching)",
+    "text": "5.1b CRE measurement counts (for matching)"
+  },
+  {
+    "objectID": "treated_group.html#baseline-egfr-ckd-stage",
+    "href": "treated_group.html#baseline-egfr-ckd-stage",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.2 Baseline eGFR & CKD stage",
+    "text": "5.2 Baseline eGFR & CKD stage"
+  },
+  {
+    "objectID": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "href": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
+    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
+  },
+  {
+    "objectID": "treated_group.html#survival-flags-110-years",
+    "href": "treated_group.html#survival-flags-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.1 Survival flags (1–10 years)",
+    "text": "6.1 Survival flags (1–10 years)"
+  },
+  {
+    "objectID": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "href": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
+    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
+  },
+  {
+    "objectID": "treated_group.html#aki-from-rpdr-lab",
+    "href": "treated_group.html#aki-from-rpdr-lab",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.3 AKI (from RPDR Lab)",
+    "text": "6.3 AKI (from RPDR Lab)"
+  },
+  {
+    "objectID": "treated_group.html#competing-risk-analysis-variables",
+    "href": "treated_group.html#competing-risk-analysis-variables",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "6.4 Competing risk & analysis variables",
+    "text": "6.4 Competing risk & analysis variables"
+  },
+  {
+    "objectID": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "href": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
+    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
+  },
+  {
+    "objectID": "treated_group.html#save-treated_group.xlsx",
+    "href": "treated_group.html#save-treated_group.xlsx",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "7.2 Save treated_group.xlsx",
+    "text": "7.2 Save treated_group.xlsx"
+  },
+  {
+    "objectID": "treated_group.html#ici-year-distribution",
+    "href": "treated_group.html#ici-year-distribution",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "ICI Year Distribution",
+    "text": "ICI Year Distribution\n\n\n\n\n\nDistribution of ICI start date by year"
+  },
+  {
+    "objectID": "treated_group.html#table-1-demographics-cancer",
+    "href": "treated_group.html#table-1-demographics-cancer",
+    "title": "Treated Group – Descriptive Analysis",
+    "section": "Table 1 – Demographics & Cancer",
+    "text": "Table 1 – Demographics & Cancer\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 3791\n\n\n\n\nAge\n67 (56, 74)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n144 (38%)\n\n\n    Male\n235 (62%)\n\n\nRace\n\n\n\n\n    Asian\n3 (0.8%)\n\n\n    Black\n2 (0.5%)\n\n\n    Other/Unknown\n11 (2.9%)\n\n\n    White\n363 (96%)\n\n\nEthnic_Group\n\n\n\n\n    Other\n379 (100%)\n\n\nICI_Name\n\n\n\n\n    Nivolumab\n56 (15%)\n\n\n    nivolumab\n83 (22%)\n\n\n    pembrolizumab\n240 (63%)\n\n\nICI_Class\n\n\n\n\n    PD1\n379 (100%)\n\n\ndm\n48 (13%)\n\n\nhtn\n210 (55%)\n\n\ncad\n54 (14%)\n\n\ncirrhosis\n1 (0.3%)\n\n\nace_arb\n123 (32%)\n\n\ndiu\n79 (21%)\n\n\nppi\n103 (27%)\n\n\nsteroids\n266 (70%)\n\n\nsmoking\n148 (39%)\n\n\nstatins\n158 (42%)\n\n\ndpp4i\n5 (1.3%)\n\n\nsglt2i\n4 (1.1%)\n\n\neGFR_CRE_baseline\n88 (73, 97)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n165 (44%)\n\n\n    2\n181 (48%)\n\n\n    3\n29 (7.7%)\n\n\n    4\n4 (1.1%)\n\n\npre_median_HGB_90days\n14.00 (13.05, 14.80)\n\n\npre_median_ALB_90days\n4.30 (4.10, 4.53)\n\n\n    Missing\n3\n\n\npre_median_GHBA1C_90days\n6.30 (6.00, 7.30)\n\n\n    Missing\n357\n\n\nn_cre_pre_1yr\n1 (0, 3)\n\n\nn_cre_pre_all\n2 (1, 10)\n\n\npre_history_days\n110 (12, 3,123)\n\n\ncre_rate_pre\n5 (1, 13)\n\n\n    Missing\n76\n\n\nhas_pre_cre\n280 (74%)\n\n\nn_cre_post\n31 (20, 45)\n\n\ncre_rate_post\n8 (5, 12)\n\n\naki\n5 (1.3%)\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
+    "objectID": "control_group.html#pre_lab_median",
+    "href": "control_group.html#pre_lab_median",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.1 pre_lab_median",
+    "text": "2.1 pre_lab_median"
+  },
+  {
+    "objectID": "control_group.html#pre_lab_median_year",
+    "href": "control_group.html#pre_lab_median_year",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.2 pre_lab_median_year",
+    "text": "2.2 pre_lab_median_year"
+  },
+  {
+    "objectID": "control_group.html#left_join_all",
+    "href": "control_group.html#left_join_all",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.3 left_join_all",
+    "text": "2.3 left_join_all"
+  },
+  {
+    "objectID": "control_group.html#get_ckd_stage",
+    "href": "control_group.html#get_ckd_stage",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.4 get_ckd_stage",
+    "text": "2.4 get_ckd_stage"
+  },
+  {
+    "objectID": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "href": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
+    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
+  },
+  {
+    "objectID": "control_group.html#load-rpdr-files-dem-lab-from-04092026-pull-dia-med-from-original-pull",
+    "href": "control_group.html#load-rpdr-files-dem-lab-from-04092026-pull-dia-med-from-original-pull",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.1 Load RPDR files (Dem, Lab from 04092026 pull; Dia, Med from original pull)",
+    "text": "4.1 Load RPDR files (Dem, Lab from 04092026 pull; Dia, Med from original pull)"
+  },
+  {
+    "objectID": "control_group.html#define-cohort-from-dem.txt",
+    "href": "control_group.html#define-cohort-from-dem.txt",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.2 Define cohort from Dem.txt",
+    "text": "4.2 Define cohort from Dem.txt"
+  },
+  {
+    "objectID": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
+    "href": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)",
+    "text": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)"
+  },
+  {
+    "objectID": "control_group.html#derive-last_cre_date-from-rpdr-lab",
+    "href": "control_group.html#derive-last_cre_date-from-rpdr-lab",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.4 Derive last_cre_date from RPDR Lab",
+    "text": "4.4 Derive last_cre_date from RPDR Lab"
+  },
+  {
+    "objectID": "control_group.html#derive-variables",
+    "href": "control_group.html#derive-variables",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.5 Derive variables",
+    "text": "4.5 Derive variables"
+  },
+  {
+    "objectID": "control_group.html#inclusion-criteria-1",
+    "href": "control_group.html#inclusion-criteria-1",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.6 Inclusion criteria",
+    "text": "4.6 Inclusion criteria"
+  },
+  {
+    "objectID": "control_group.html#death-flags-110-years",
+    "href": "control_group.html#death-flags-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.7 Death flags (1–10 years)",
+    "text": "4.7 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
+  },
+  {
+    "objectID": "control_group.html#create-master_lab-master_dia-master_med",
+    "href": "control_group.html#create-master_lab-master_dia-master_med",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.8 Create master_lab / master_dia / master_med",
+    "text": "4.8 Create master_lab / master_dia / master_med"
+  },
+  {
+    "objectID": "control_group.html#rpdr-derived-functions",
+    "href": "control_group.html#rpdr-derived-functions",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.9 RPDR-derived functions",
+    "text": "4.9 RPDR-derived functions"
+  },
+  {
+    "objectID": "control_group.html#derive-comorbidities-medications-from-rpdr",
+    "href": "control_group.html#derive-comorbidities-medications-from-rpdr",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "4.10 Derive comorbidities & medications from RPDR",
+    "text": "4.10 Derive comorbidities & medications from RPDR"
+  },
+  {
+    "objectID": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "href": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
+    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
+  },
+  {
+    "objectID": "control_group.html#b-cre-measurement-counts-for-matching",
+    "href": "control_group.html#b-cre-measurement-counts-for-matching",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.1b CRE measurement counts (for matching)",
+    "text": "5.1b CRE measurement counts (for matching)"
+  },
+  {
+    "objectID": "control_group.html#baseline-egfr-ckd-stage",
+    "href": "control_group.html#baseline-egfr-ckd-stage",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.2 Baseline eGFR & CKD stage",
+    "text": "5.2 Baseline eGFR & CKD stage"
+  },
+  {
+    "objectID": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "href": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
+    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
+  },
+  {
+    "objectID": "control_group.html#survival-flags-110-years",
+    "href": "control_group.html#survival-flags-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.1 Survival flags (1–10 years)",
+    "text": "6.1 Survival flags (1–10 years)"
+  },
+  {
+    "objectID": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "href": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
+    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
+  },
+  {
+    "objectID": "control_group.html#aki-from-rpdr-lab",
+    "href": "control_group.html#aki-from-rpdr-lab",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.3 AKI (from RPDR Lab)",
+    "text": "6.3 AKI (from RPDR Lab)"
+  },
+  {
+    "objectID": "control_group.html#competing-risk-analysis-variables",
+    "href": "control_group.html#competing-risk-analysis-variables",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "6.4 Competing risk & analysis variables",
+    "text": "6.4 Competing risk & analysis variables"
+  },
+  {
+    "objectID": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "href": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
+    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
+  },
+  {
+    "objectID": "control_group.html#save-control_group.xlsx",
+    "href": "control_group.html#save-control_group.xlsx",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "7.2 Save control_group.xlsx",
+    "text": "7.2 Save control_group.xlsx"
+  },
+  {
+    "objectID": "control_group.html#index-year-distribution",
+    "href": "control_group.html#index-year-distribution",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "Index Year Distribution",
+    "text": "Index Year Distribution\n\n\n\n\n\nDistribution of Index_date (first neoplasm diagnosis) by year"
+  },
+  {
+    "objectID": "control_group.html#table-1-demographics",
+    "href": "control_group.html#table-1-demographics",
+    "title": "Control Group – Descriptive Analysis",
+    "section": "Table 1 – Demographics",
+    "text": "Table 1 – Demographics\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 1,3071\n\n\n\n\nAge\n67 (58, 74)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n662 (51%)\n\n\n    Male\n645 (49%)\n\n\nRace1\n\n\n\n\n    Asian\n1 (&lt;0.1%)\n\n\n    Black\n4 (0.3%)\n\n\n    Other/Unknown\n20 (1.5%)\n\n\n    White\n1,282 (98%)\n\n\nEthnic_Group\n\n\n\n\n    Hispanic\n3 (0.2%)\n\n\n    Non_hispanic\n1,163 (89%)\n\n\n    Other\n141 (11%)\n\n\ndm\n178 (14%)\n\n\nhtn\n828 (63%)\n\n\ncad\n188 (14%)\n\n\ncirrhosis\n9 (0.7%)\n\n\nace_arb\n497 (38%)\n\n\ndiu\n431 (33%)\n\n\nppi\n415 (32%)\n\n\nsteroids\n484 (37%)\n\n\nsmoking\n558 (43%)\n\n\nstatins\n577 (44%)\n\n\ndpp4i\n12 (0.9%)\n\n\nsglt2i\n6 (0.5%)\n\n\neGFR_CRE_baseline\n82 (69, 94)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n445 (34%)\n\n\n    2\n692 (53%)\n\n\n    3\n158 (12%)\n\n\n    4\n11 (0.8%)\n\n\n    5\n1 (&lt;0.1%)\n\n\npre_median_HGB_90days\n13.90 (12.90, 14.90)\n\n\n    Missing\n285\n\n\npre_median_ALB_90days\n4.40 (4.20, 4.60)\n\n\n    Missing\n422\n\n\npre_median_GHBA1C_90days\nNA (NA, NA)\n\n\n    Missing\n1,307\n\n\nn_cre_pre_1yr\n1 (0, 2)\n\n\nn_cre_pre_all\n11 (4, 20)\n\n\npre_history_days\n4,252 (1,225, 6,353)\n\n\ncre_rate_pre\n1.2 (0.7, 2.2)\n\n\n    Missing\n88\n\n\nhas_pre_cre\n969 (74%)\n\n\nn_cre_post\n13 (7, 27)\n\n\ncre_rate_post\n1.9 (1.1, 3.9)\n\n\naki\n9 (0.7%)\n\n\n\n1 Median (Q1, Q3); n (%)"
+  },
+  {
     "objectID": "analysis_ici_ckd.html",
     "href": "analysis_ici_ckd.html",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
@@ -326,70 +830,70 @@
     "href": "analysis_ici_ckd.html#year-outcomes",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "1-Year Outcomes",
-    "text": "1-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 9,3531\n\n\n\n\n\n\nAge\n\n\n69 (60, 76)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n4,461 (48%)\n\n\n\n\n    1\n\n\n4,892 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n286 (3.1%)\n\n\n\n\n    Black\n\n\n264 (2.8%)\n\n\n\n\n    Other/Unknown\n\n\n392 (4.2%)\n\n\n\n\n    White\n\n\n8,411 (90%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n9,353 (100%)\n\n\n\n\nckd_incidence_1year\n\n\n\n\n\n\n\n    0\n\n\n9,005 (96%)\n\n\n\n\n    1\n\n\n348 (3.7%)\n\n\n\n\nckd_progression_1year\n\n\n\n\n\n\n\n    0\n\n\n9,305 (99%)\n\n\n\n\n    1\n\n\n48 (0.5%)\n\n\n\n\neskd_composite_1year\n\n\n\n\n\n\n\n    0\n\n\n9,325 (100%)\n\n\n\n\n    1\n\n\n28 (0.3%)\n\n\n\n\nckd_composite_1year\n\n\n\n\n\n\n\n    0\n\n\n8,937 (96%)\n\n\n\n\n    1\n\n\n416 (4.4%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n3,481 (37%)\n\n\n\n\n    2\n\n\n4,133 (44%)\n\n\n\n\n    3\n\n\n1,627 (17%)\n\n\n\n\n    4\n\n\n102 (1.1%)\n\n\n\n\n    5\n\n\n10 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n3,968 (42%)\n\n\n\n\n    2\n\n\n4,031 (43%)\n\n\n\n\n    3\n\n\n1,278 (14%)\n\n\n\n\n    4\n\n\n74 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n8,830 (94%)\n\n\n\n\n    1\n\n\n523 (5.6%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n8,070 (86%)\n\n\n\n\n    1\n\n\n1,283 (14%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n3,846 (41%)\n\n\n\n\n    1\n\n\n5,507 (59%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n7,457 (80%)\n\n\n\n\n    1\n\n\n1,896 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n9,191 (98%)\n\n\n\n\n    1\n\n\n162 (1.7%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n6,138 (66%)\n\n\n\n\n    1\n\n\n3,215 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n6,248 (67%)\n\n\n\n\n    1\n\n\n3,105 (33%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n5,195 (56%)\n\n\n\n\n    1\n\n\n4,158 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n2,495 (27%)\n\n\n\n\n    1\n\n\n6,858 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n4,577 (49%)\n\n\n\n\n    1\n\n\n4,776 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n5,766 (62%)\n\n\n\n\n    1\n\n\n3,587 (38%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n6,215 (68%)\n\n\n\n\n    Combination\n\n\n1,097 (12%)\n\n\n\n\n    CTLA4\n\n\n420 (4.6%)\n\n\n\n\n    PDL1\n\n\n1,347 (15%)\n\n\n\n\n    Missing\n\n\n274\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n4,875 (52%)\n\n\n\n\n    1\n\n\n4,478 (48%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.70 (11.40, 13.90)\n\n\n\n\n    Missing\n\n\n8\n\n\n\n\npre_ALB_180days\n\n\n4.10 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n27\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "1-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 9,3531\n\n\n\n\n\n\nAge\n\n\n69 (60, 76)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n4,461 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4,892 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n286 (3.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n264 (2.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n392 (4.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n8,411 (90%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n9,353 (100%)\n\n\n\n\nckd_incidence_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n9,005 (96%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n348 (3.7%)\n\n\n\n\nckd_progression_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n9,305 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n48 (0.5%)\n\n\n\n\neskd_composite_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n9,325 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n28 (0.3%)\n\n\n\n\nckd_composite_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n8,937 (96%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n416 (4.4%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,481 (37%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n4,133 (44%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n1,627 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n102 (1.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n10 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,968 (42%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n4,031 (43%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n1,278 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n74 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n8,830 (94%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n523 (5.6%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n8,070 (86%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,283 (14%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,846 (41%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n5,507 (59%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n7,457 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,896 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n9,191 (98%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n162 (1.7%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n6,138 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,215 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n6,248 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,105 (33%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,195 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4,158 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,495 (27%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n6,858 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n4,577 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4,776 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,766 (62%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,587 (38%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n6,215 (68%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n420 (4.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n1,097 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n1,347 (15%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n274\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n4,875 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4,478 (48%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.70 (11.40, 13.90)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n8\n\n\n\n\npre_ALB_180days\n\n\n4.10 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n27\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-1",
     "href": "analysis_ici_ckd.html#year-outcomes-1",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "2-Year Outcomes",
-    "text": "2-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 5,9871\n\n\n\n\n\n\nAge\n\n\n69 (60, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n2,803 (47%)\n\n\n\n\n    1\n\n\n3,184 (53%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n162 (2.7%)\n\n\n\n\n    Black\n\n\n148 (2.5%)\n\n\n\n\n    Other/Unknown\n\n\n237 (4.0%)\n\n\n\n\n    White\n\n\n5,440 (91%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n5,987 (100%)\n\n\n\n\nckd_incidence_2year\n\n\n\n\n\n\n\n    0\n\n\n5,544 (93%)\n\n\n\n\n    1\n\n\n443 (7.4%)\n\n\n\n\nckd_progression_2year\n\n\n\n\n\n\n\n    0\n\n\n5,921 (99%)\n\n\n\n\n    1\n\n\n66 (1.1%)\n\n\n\n\neskd_composite_2year\n\n\n\n\n\n\n\n    0\n\n\n5,962 (100%)\n\n\n\n\n    1\n\n\n25 (0.4%)\n\n\n\n\nckd_composite_2year\n\n\n\n\n\n\n\n    0\n\n\n5,464 (91%)\n\n\n\n\n    1\n\n\n523 (8.7%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n2,042 (34%)\n\n\n\n\n    2\n\n\n2,829 (47%)\n\n\n\n\n    3\n\n\n1,058 (18%)\n\n\n\n\n    4\n\n\n55 (0.9%)\n\n\n\n\n    5\n\n\n3 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n1,927 (32%)\n\n\n\n\n    2\n\n\n2,860 (48%)\n\n\n\n\n    3\n\n\n1,127 (19%)\n\n\n\n\n    4\n\n\n66 (1.1%)\n\n\n\n\n    5\n\n\n7 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n2,442 (41%)\n\n\n\n\n    2\n\n\n2,691 (45%)\n\n\n\n\n    3\n\n\n808 (13%)\n\n\n\n\n    4\n\n\n44 (0.7%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n5,685 (95%)\n\n\n\n\n    1\n\n\n302 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n5,212 (87%)\n\n\n\n\n    1\n\n\n775 (13%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n2,505 (42%)\n\n\n\n\n    1\n\n\n3,482 (58%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n4,815 (80%)\n\n\n\n\n    1\n\n\n1,172 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n5,906 (99%)\n\n\n\n\n    1\n\n\n81 (1.4%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n3,996 (67%)\n\n\n\n\n    1\n\n\n1,991 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n4,072 (68%)\n\n\n\n\n    1\n\n\n1,915 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n3,363 (56%)\n\n\n\n\n    1\n\n\n2,624 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n1,632 (27%)\n\n\n\n\n    1\n\n\n4,355 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n2,936 (49%)\n\n\n\n\n    1\n\n\n3,051 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n3,768 (63%)\n\n\n\n\n    1\n\n\n2,219 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n3,908 (67%)\n\n\n\n\n    Combination\n\n\n760 (13%)\n\n\n\n\n    CTLA4\n\n\n319 (5.5%)\n\n\n\n\n    PDL1\n\n\n809 (14%)\n\n\n\n\n    Missing\n\n\n191\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n3,402 (57%)\n\n\n\n\n    1\n\n\n2,585 (43%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.90 (11.60, 14.00)\n\n\n\n\n    Missing\n\n\n6\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n18\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "2-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 5,9871\n\n\n\n\n\n\nAge\n\n\n69 (60, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,803 (47%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,184 (53%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n162 (2.7%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n148 (2.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n237 (4.0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n5,440 (91%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n5,987 (100%)\n\n\n\n\nckd_incidence_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,544 (93%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n443 (7.4%)\n\n\n\n\nckd_progression_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,921 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n66 (1.1%)\n\n\n\n\neskd_composite_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,962 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n25 (0.4%)\n\n\n\n\nckd_composite_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,464 (91%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n523 (8.7%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,042 (34%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n2,829 (47%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n1,058 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n55 (0.9%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n3 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,927 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n2,860 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n1,127 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n66 (1.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n7 (0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,442 (41%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n2,691 (45%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n808 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n44 (0.7%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,685 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n302 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,212 (87%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n775 (13%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,505 (42%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,482 (58%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n4,815 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,172 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n5,906 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n81 (1.4%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,996 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,991 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n4,072 (68%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,915 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,363 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,624 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,632 (27%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4,355 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,936 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3,051 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,768 (63%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,219 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n3,908 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n319 (5.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n760 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n809 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n191\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,402 (57%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,585 (43%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n12.90 (11.60, 14.00)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n6\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n18\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-2",
     "href": "analysis_ici_ckd.html#year-outcomes-2",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "3-Year Outcomes",
-    "text": "3-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3,7551\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n1,719 (46%)\n\n\n\n\n    1\n\n\n2,036 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n85 (2.3%)\n\n\n\n\n    Black\n\n\n78 (2.1%)\n\n\n\n\n    Other/Unknown\n\n\n145 (3.9%)\n\n\n\n\n    White\n\n\n3,447 (92%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n3,755 (100%)\n\n\n\n\nckd_incidence_3year\n\n\n\n\n\n\n\n    0\n\n\n3,385 (90%)\n\n\n\n\n    1\n\n\n370 (9.9%)\n\n\n\n\nckd_progression_3year\n\n\n\n\n\n\n\n    0\n\n\n3,691 (98%)\n\n\n\n\n    1\n\n\n64 (1.7%)\n\n\n\n\neskd_composite_3year\n\n\n\n\n\n\n\n    0\n\n\n3,738 (100%)\n\n\n\n\n    1\n\n\n17 (0.5%)\n\n\n\n\nckd_composite_3year\n\n\n\n\n\n\n\n    0\n\n\n3,312 (88%)\n\n\n\n\n    1\n\n\n443 (12%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n1,244 (33%)\n\n\n\n\n    2\n\n\n1,826 (49%)\n\n\n\n\n    3\n\n\n653 (17%)\n\n\n\n\n    4\n\n\n30 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n1,144 (30%)\n\n\n\n\n    2\n\n\n1,883 (50%)\n\n\n\n\n    3\n\n\n697 (19%)\n\n\n\n\n    4\n\n\n30 (0.8%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n1,133 (30%)\n\n\n\n\n    2\n\n\n1,867 (50%)\n\n\n\n\n    3\n\n\n703 (19%)\n\n\n\n\n    4\n\n\n45 (1.2%)\n\n\n\n\n    5\n\n\n7 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n1,510 (40%)\n\n\n\n\n    2\n\n\n1,717 (46%)\n\n\n\n\n    3\n\n\n507 (14%)\n\n\n\n\n    4\n\n\n20 (0.5%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n3,590 (96%)\n\n\n\n\n    1\n\n\n165 (4.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n3,302 (88%)\n\n\n\n\n    1\n\n\n453 (12%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n1,598 (43%)\n\n\n\n\n    1\n\n\n2,157 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n3,033 (81%)\n\n\n\n\n    1\n\n\n722 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n3,711 (99%)\n\n\n\n\n    1\n\n\n44 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n2,518 (67%)\n\n\n\n\n    1\n\n\n1,237 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n2,558 (68%)\n\n\n\n\n    1\n\n\n1,197 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n2,110 (56%)\n\n\n\n\n    1\n\n\n1,645 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n1,026 (27%)\n\n\n\n\n    1\n\n\n2,729 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n1,808 (48%)\n\n\n\n\n    1\n\n\n1,947 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n2,377 (63%)\n\n\n\n\n    1\n\n\n1,378 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n2,436 (67%)\n\n\n\n\n    Combination\n\n\n498 (14%)\n\n\n\n\n    CTLA4\n\n\n221 (6.1%)\n\n\n\n\n    PDL1\n\n\n485 (13%)\n\n\n\n\n    Missing\n\n\n115\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n2,297 (61%)\n\n\n\n\n    1\n\n\n1,458 (39%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.00 (11.70, 14.10)\n\n\n\n\n    Missing\n\n\n5\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n13\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "3-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3,7551\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,719 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,036 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n85 (2.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n78 (2.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n145 (3.9%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n3,447 (92%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n3,755 (100%)\n\n\n\n\nckd_incidence_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,385 (90%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n370 (9.9%)\n\n\n\n\nckd_progression_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,691 (98%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n64 (1.7%)\n\n\n\n\neskd_composite_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,738 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n17 (0.5%)\n\n\n\n\nckd_composite_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,312 (88%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n443 (12%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,244 (33%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,826 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n653 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n30 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,144 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,883 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n697 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n30 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,133 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,867 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n703 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n45 (1.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n7 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,510 (40%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,717 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n507 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n20 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,590 (96%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n165 (4.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,302 (88%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n453 (12%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,598 (43%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,157 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,033 (81%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n722 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n3,711 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n44 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,518 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,237 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,558 (68%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,197 (32%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,110 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,645 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,026 (27%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n2,729 (73%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,808 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,947 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,377 (63%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,378 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n2,436 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n221 (6.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n498 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n485 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n115\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,297 (61%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,458 (39%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.00 (11.70, 14.10)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n5\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n13\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-3",
     "href": "analysis_ici_ckd.html#year-outcomes-3",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "4-Year Outcomes",
-    "text": "4-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2,5151\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n1,146 (46%)\n\n\n\n\n    1\n\n\n1,369 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n52 (2.1%)\n\n\n\n\n    Black\n\n\n43 (1.7%)\n\n\n\n\n    Other/Unknown\n\n\n90 (3.6%)\n\n\n\n\n    White\n\n\n2,330 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n2,515 (100%)\n\n\n\n\nckd_incidence_4year\n\n\n\n\n\n\n\n    0\n\n\n2,220 (88%)\n\n\n\n\n    1\n\n\n295 (12%)\n\n\n\n\nckd_progression_4year\n\n\n\n\n\n\n\n    0\n\n\n2,466 (98%)\n\n\n\n\n    1\n\n\n49 (1.9%)\n\n\n\n\neskd_composite_4year\n\n\n\n\n\n\n\n    0\n\n\n2,502 (99%)\n\n\n\n\n    1\n\n\n13 (0.5%)\n\n\n\n\nckd_composite_4year\n\n\n\n\n\n\n\n    0\n\n\n2,163 (86%)\n\n\n\n\n    1\n\n\n352 (14%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n806 (32%)\n\n\n\n\n    2\n\n\n1,266 (50%)\n\n\n\n\n    3\n\n\n420 (17%)\n\n\n\n\n    4\n\n\n21 (0.8%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n750 (30%)\n\n\n\n\n    2\n\n\n1,298 (52%)\n\n\n\n\n    3\n\n\n446 (18%)\n\n\n\n\n    4\n\n\n20 (0.8%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n727 (29%)\n\n\n\n\n    2\n\n\n1,295 (51%)\n\n\n\n\n    3\n\n\n469 (19%)\n\n\n\n\n    4\n\n\n21 (0.8%)\n\n\n\n\n    5\n\n\n3 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n748 (30%)\n\n\n\n\n    2\n\n\n1,263 (50%)\n\n\n\n\n    3\n\n\n473 (19%)\n\n\n\n\n    4\n\n\n29 (1.2%)\n\n\n\n\n    5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n1,006 (40%)\n\n\n\n\n    2\n\n\n1,167 (46%)\n\n\n\n\n    3\n\n\n330 (13%)\n\n\n\n\n    4\n\n\n11 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n2,407 (96%)\n\n\n\n\n    1\n\n\n108 (4.3%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n2,229 (89%)\n\n\n\n\n    1\n\n\n286 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n1,084 (43%)\n\n\n\n\n    1\n\n\n1,431 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n2,021 (80%)\n\n\n\n\n    1\n\n\n494 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n2,486 (99%)\n\n\n\n\n    1\n\n\n29 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n1,668 (66%)\n\n\n\n\n    1\n\n\n847 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n1,734 (69%)\n\n\n\n\n    1\n\n\n781 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n1,416 (56%)\n\n\n\n\n    1\n\n\n1,099 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n707 (28%)\n\n\n\n\n    1\n\n\n1,808 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n1,210 (48%)\n\n\n\n\n    1\n\n\n1,305 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n1,583 (63%)\n\n\n\n\n    1\n\n\n932 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n1,626 (67%)\n\n\n\n\n    Combination\n\n\n330 (14%)\n\n\n\n\n    CTLA4\n\n\n158 (6.5%)\n\n\n\n\n    PDL1\n\n\n323 (13%)\n\n\n\n\n    Missing\n\n\n78\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n1,622 (64%)\n\n\n\n\n    1\n\n\n893 (36%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.10 (11.80, 14.20)\n\n\n\n\n    Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n7\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "4-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2,5151\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,146 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,369 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n52 (2.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n43 (1.7%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n90 (3.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n2,330 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n2,515 (100%)\n\n\n\n\nckd_incidence_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,220 (88%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n295 (12%)\n\n\n\n\nckd_progression_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,466 (98%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n49 (1.9%)\n\n\n\n\neskd_composite_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,502 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n13 (0.5%)\n\n\n\n\nckd_composite_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,163 (86%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n352 (14%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n806 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,266 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n420 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n21 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n750 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,298 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n446 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n20 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n727 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,295 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n469 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n21 (0.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n3 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n748 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,263 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n473 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n29 (1.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (&lt;0.1%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,006 (40%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n1,167 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n330 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n11 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,407 (96%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n108 (4.3%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,229 (89%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n286 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,084 (43%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,431 (57%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,021 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n494 (20%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n2,486 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n29 (1.2%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,668 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n847 (34%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,734 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n781 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,416 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,099 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n707 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,808 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,210 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,305 (52%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,583 (63%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n932 (37%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n1,626 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n158 (6.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n330 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n323 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n78\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,622 (64%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n893 (36%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.10 (11.80, 14.20)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n7\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-4",
     "href": "analysis_ici_ckd.html#year-outcomes-4",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "5-Year Outcomes",
-    "text": "5-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,7201\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n782 (45%)\n\n\n\n\n    1\n\n\n938 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n37 (2.2%)\n\n\n\n\n    Black\n\n\n25 (1.5%)\n\n\n\n\n    Other/Unknown\n\n\n58 (3.4%)\n\n\n\n\n    White\n\n\n1,600 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n1,720 (100%)\n\n\n\n\nckd_incidence_5year\n\n\n\n\n\n\n\n    0\n\n\n1,491 (87%)\n\n\n\n\n    1\n\n\n229 (13%)\n\n\n\n\nckd_progression_5year\n\n\n\n\n\n\n\n    0\n\n\n1,675 (97%)\n\n\n\n\n    1\n\n\n45 (2.6%)\n\n\n\n\neskd_composite_5year\n\n\n\n\n\n\n\n    0\n\n\n1,707 (99%)\n\n\n\n\n    1\n\n\n13 (0.8%)\n\n\n\n\nckd_composite_5year\n\n\n\n\n\n\n\n    0\n\n\n1,437 (84%)\n\n\n\n\n    1\n\n\n283 (16%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n553 (32%)\n\n\n\n\n    2\n\n\n878 (51%)\n\n\n\n\n    3\n\n\n277 (16%)\n\n\n\n\n    4\n\n\n11 (0.6%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n502 (29%)\n\n\n\n\n    2\n\n\n913 (53%)\n\n\n\n\n    3\n\n\n293 (17%)\n\n\n\n\n    4\n\n\n11 (0.6%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n478 (28%)\n\n\n\n\n    2\n\n\n914 (53%)\n\n\n\n\n    3\n\n\n318 (18%)\n\n\n\n\n    4\n\n\n7 (0.4%)\n\n\n\n\n    5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n498 (29%)\n\n\n\n\n    2\n\n\n895 (52%)\n\n\n\n\n    3\n\n\n310 (18%)\n\n\n\n\n    4\n\n\n15 (0.9%)\n\n\n\n\n    5\n\n\n2 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n512 (30%)\n\n\n\n\n    2\n\n\n861 (50%)\n\n\n\n\n    3\n\n\n322 (19%)\n\n\n\n\n    4\n\n\n22 (1.3%)\n\n\n\n\n    5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n696 (40%)\n\n\n\n\n    2\n\n\n801 (47%)\n\n\n\n\n    3\n\n\n214 (12%)\n\n\n\n\n    4\n\n\n9 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n1,639 (95%)\n\n\n\n\n    1\n\n\n81 (4.7%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n1,540 (90%)\n\n\n\n\n    1\n\n\n180 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n754 (44%)\n\n\n\n\n    1\n\n\n966 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n1,393 (81%)\n\n\n\n\n    1\n\n\n327 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n1,704 (99%)\n\n\n\n\n    1\n\n\n16 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n1,159 (67%)\n\n\n\n\n    1\n\n\n561 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n1,191 (69%)\n\n\n\n\n    1\n\n\n529 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n975 (57%)\n\n\n\n\n    1\n\n\n745 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n494 (29%)\n\n\n\n\n    1\n\n\n1,226 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n839 (49%)\n\n\n\n\n    1\n\n\n881 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n1,099 (64%)\n\n\n\n\n    1\n\n\n621 (36%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n1,131 (68%)\n\n\n\n\n    Combination\n\n\n206 (12%)\n\n\n\n\n    CTLA4\n\n\n119 (7.2%)\n\n\n\n\n    PDL1\n\n\n206 (12%)\n\n\n\n\n    Missing\n\n\n58\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n1,142 (66%)\n\n\n\n\n    1\n\n\n578 (34%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\n    Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n6\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "5-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,7201\n\n\n\n\n\n\nAge\n\n\n70 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n782 (45%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n938 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n37 (2.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n25 (1.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n58 (3.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n1,600 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n1,720 (100%)\n\n\n\n\nckd_incidence_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,491 (87%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n229 (13%)\n\n\n\n\nckd_progression_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,675 (97%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n45 (2.6%)\n\n\n\n\neskd_composite_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,707 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n13 (0.8%)\n\n\n\n\nckd_composite_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,437 (84%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n283 (16%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n553 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n878 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n277 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n11 (0.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n502 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n913 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n293 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n11 (0.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n478 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n914 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n318 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n7 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n498 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n895 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n310 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n15 (0.9%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n512 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n861 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n322 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n22 (1.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n3 (0.2%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n696 (40%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n801 (47%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n214 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n9 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,639 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n81 (4.7%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,540 (90%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n180 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n754 (44%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n966 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,393 (81%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n327 (19%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,704 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n16 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,159 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n561 (33%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,191 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n529 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n975 (57%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n745 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n494 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1,226 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n839 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n881 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,099 (64%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n621 (36%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n1,131 (68%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n119 (7.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n206 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n206 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n58\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,142 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n578 (34%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n1\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n6\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-5",
     "href": "analysis_ici_ckd.html#year-outcomes-5",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "6-Year Outcomes",
-    "text": "6-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,1111\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n516 (46%)\n\n\n\n\n    1\n\n\n595 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n18 (1.6%)\n\n\n\n\n    Black\n\n\n23 (2.1%)\n\n\n\n\n    Other/Unknown\n\n\n38 (3.4%)\n\n\n\n\n    White\n\n\n1,032 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n1,111 (100%)\n\n\n\n\nckd_incidence_6year\n\n\n\n\n\n\n\n    0\n\n\n953 (86%)\n\n\n\n\n    1\n\n\n158 (14%)\n\n\n\n\nckd_progression_6year\n\n\n\n\n\n\n\n    0\n\n\n1,077 (97%)\n\n\n\n\n    1\n\n\n34 (3.1%)\n\n\n\n\neskd_composite_6year\n\n\n\n\n\n\n\n    0\n\n\n1,101 (99%)\n\n\n\n\n    1\n\n\n10 (0.9%)\n\n\n\n\nckd_composite_6year\n\n\n\n\n\n\n\n    0\n\n\n913 (82%)\n\n\n\n\n    1\n\n\n198 (18%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n371 (33%)\n\n\n\n\n    2\n\n\n571 (51%)\n\n\n\n\n    3\n\n\n164 (15%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n326 (29%)\n\n\n\n\n    2\n\n\n606 (55%)\n\n\n\n\n    3\n\n\n175 (16%)\n\n\n\n\n    4\n\n\n3 (0.3%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n309 (28%)\n\n\n\n\n    2\n\n\n598 (54%)\n\n\n\n\n    3\n\n\n199 (18%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n326 (29%)\n\n\n\n\n    2\n\n\n583 (52%)\n\n\n\n\n    3\n\n\n193 (17%)\n\n\n\n\n    4\n\n\n8 (0.7%)\n\n\n\n\n    5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n335 (30%)\n\n\n\n\n    2\n\n\n567 (51%)\n\n\n\n\n    3\n\n\n193 (17%)\n\n\n\n\n    4\n\n\n14 (1.3%)\n\n\n\n\n    5\n\n\n2 (0.2%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n325 (29%)\n\n\n\n\n    2\n\n\n555 (50%)\n\n\n\n\n    3\n\n\n211 (19%)\n\n\n\n\n    4\n\n\n17 (1.5%)\n\n\n\n\n    5\n\n\n3 (0.3%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n455 (41%)\n\n\n\n\n    2\n\n\n515 (46%)\n\n\n\n\n    3\n\n\n137 (12%)\n\n\n\n\n    4\n\n\n4 (0.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n1,056 (95%)\n\n\n\n\n    1\n\n\n55 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n995 (90%)\n\n\n\n\n    1\n\n\n116 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n494 (44%)\n\n\n\n\n    1\n\n\n617 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n912 (82%)\n\n\n\n\n    1\n\n\n199 (18%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n1,101 (99%)\n\n\n\n\n    1\n\n\n10 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n769 (69%)\n\n\n\n\n    1\n\n\n342 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n773 (70%)\n\n\n\n\n    1\n\n\n338 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n610 (55%)\n\n\n\n\n    1\n\n\n501 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n316 (28%)\n\n\n\n\n    1\n\n\n795 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n544 (49%)\n\n\n\n\n    1\n\n\n567 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n727 (65%)\n\n\n\n\n    1\n\n\n384 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n722 (67%)\n\n\n\n\n    Combination\n\n\n120 (11%)\n\n\n\n\n    CTLA4\n\n\n104 (9.6%)\n\n\n\n\n    PDL1\n\n\n134 (12%)\n\n\n\n\n    Missing\n\n\n31\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n764 (69%)\n\n\n\n\n    1\n\n\n347 (31%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.30 (12.10, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "6-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 1,1111\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n516 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n595 (54%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n18 (1.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n23 (2.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n38 (3.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n1,032 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n1,111 (100%)\n\n\n\n\nckd_incidence_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n953 (86%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n158 (14%)\n\n\n\n\nckd_progression_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,077 (97%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n34 (3.1%)\n\n\n\n\neskd_composite_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,101 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n10 (0.9%)\n\n\n\n\nckd_composite_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n913 (82%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n198 (18%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n371 (33%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n571 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n164 (15%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n4 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n326 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n606 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n175 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n3 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n309 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n598 (54%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n199 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n4 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n326 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n583 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n193 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n8 (0.7%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (&lt;0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n335 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n567 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n193 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n14 (1.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (0.2%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n325 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n555 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n211 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n17 (1.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n3 (0.3%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n455 (41%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n515 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n137 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n4 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,056 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n55 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n995 (90%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n116 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n494 (44%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n617 (56%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n912 (82%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n199 (18%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n1,101 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n10 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n769 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n342 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n773 (70%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n338 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n610 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n501 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n316 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n795 (72%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n544 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n567 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n727 (65%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n384 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n722 (67%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n104 (9.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n120 (11%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n134 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n31\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n764 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n347 (31%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.72, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.30 (12.10, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-6",
     "href": "analysis_ici_ckd.html#year-outcomes-6",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "7-Year Outcomes",
-    "text": "7-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 6771\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n306 (45%)\n\n\n\n\n    1\n\n\n371 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n9 (1.3%)\n\n\n\n\n    Black\n\n\n15 (2.2%)\n\n\n\n\n    Other/Unknown\n\n\n24 (3.5%)\n\n\n\n\n    White\n\n\n629 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n677 (100%)\n\n\n\n\nckd_incidence_7year\n\n\n\n\n\n\n\n    0\n\n\n567 (84%)\n\n\n\n\n    1\n\n\n110 (16%)\n\n\n\n\nckd_progression_7year\n\n\n\n\n\n\n\n    0\n\n\n657 (97%)\n\n\n\n\n    1\n\n\n20 (3.0%)\n\n\n\n\neskd_composite_7year\n\n\n\n\n\n\n\n    0\n\n\n668 (99%)\n\n\n\n\n    1\n\n\n9 (1.3%)\n\n\n\n\nckd_composite_7year\n\n\n\n\n\n\n\n    0\n\n\n544 (80%)\n\n\n\n\n    1\n\n\n133 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n231 (34%)\n\n\n\n\n    2\n\n\n350 (52%)\n\n\n\n\n    3\n\n\n92 (14%)\n\n\n\n\n    4\n\n\n3 (0.4%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n215 (32%)\n\n\n\n\n    2\n\n\n352 (52%)\n\n\n\n\n    3\n\n\n107 (16%)\n\n\n\n\n    4\n\n\n2 (0.3%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n196 (29%)\n\n\n\n\n    2\n\n\n358 (53%)\n\n\n\n\n    3\n\n\n120 (18%)\n\n\n\n\n    4\n\n\n2 (0.3%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n197 (29%)\n\n\n\n\n    2\n\n\n355 (52%)\n\n\n\n\n    3\n\n\n119 (18%)\n\n\n\n\n    4\n\n\n5 (0.7%)\n\n\n\n\n    5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n207 (31%)\n\n\n\n\n    2\n\n\n340 (50%)\n\n\n\n\n    3\n\n\n121 (18%)\n\n\n\n\n    4\n\n\n7 (1.0%)\n\n\n\n\n    5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n199 (29%)\n\n\n\n\n    2\n\n\n345 (51%)\n\n\n\n\n    3\n\n\n119 (18%)\n\n\n\n\n    4\n\n\n12 (1.8%)\n\n\n\n\n    5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n191 (28%)\n\n\n\n\n    2\n\n\n344 (51%)\n\n\n\n\n    3\n\n\n126 (19%)\n\n\n\n\n    4\n\n\n12 (1.8%)\n\n\n\n\n    5\n\n\n4 (0.6%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n283 (42%)\n\n\n\n\n    2\n\n\n309 (46%)\n\n\n\n\n    3\n\n\n81 (12%)\n\n\n\n\n    4\n\n\n4 (0.6%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n643 (95%)\n\n\n\n\n    1\n\n\n34 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n600 (89%)\n\n\n\n\n    1\n\n\n77 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n302 (45%)\n\n\n\n\n    1\n\n\n375 (55%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n570 (84%)\n\n\n\n\n    1\n\n\n107 (16%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n671 (99%)\n\n\n\n\n    1\n\n\n6 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n465 (69%)\n\n\n\n\n    1\n\n\n212 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n465 (69%)\n\n\n\n\n    1\n\n\n212 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n377 (56%)\n\n\n\n\n    1\n\n\n300 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n199 (29%)\n\n\n\n\n    1\n\n\n478 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n334 (49%)\n\n\n\n\n    1\n\n\n343 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n438 (65%)\n\n\n\n\n    1\n\n\n239 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n427 (65%)\n\n\n\n\n    Combination\n\n\n81 (12%)\n\n\n\n\n    CTLA4\n\n\n84 (13%)\n\n\n\n\n    PDL1\n\n\n70 (11%)\n\n\n\n\n    Missing\n\n\n15\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n503 (74%)\n\n\n\n\n    1\n\n\n174 (26%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.10)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "7-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 6771\n\n\n\n\n\n\nAge\n\n\n69 (61, 77)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n306 (45%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n371 (55%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n9 (1.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n15 (2.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n24 (3.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n629 (93%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n677 (100%)\n\n\n\n\nckd_incidence_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n567 (84%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n110 (16%)\n\n\n\n\nckd_progression_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n657 (97%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n20 (3.0%)\n\n\n\n\neskd_composite_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n668 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n9 (1.3%)\n\n\n\n\nckd_composite_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n544 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n133 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n231 (34%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n350 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n92 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n3 (0.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n215 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n352 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n107 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n2 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n196 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n358 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n120 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n2 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n197 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n355 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n119 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n5 (0.7%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n1 (0.1%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n207 (31%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n340 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n121 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n7 (1.0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n199 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n345 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n119 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n12 (1.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n2 (0.3%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n191 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n344 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n126 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n12 (1.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n4 (0.6%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n283 (42%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n309 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n81 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n4 (0.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n643 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n34 (5.0%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n600 (89%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n77 (11%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n302 (45%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n375 (55%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n570 (84%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n107 (16%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n671 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n6 (0.9%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n465 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n212 (31%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n465 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n212 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n377 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n300 (44%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n199 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n478 (71%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n334 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n343 (51%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n438 (65%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n239 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n427 (65%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n84 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n81 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n70 (11%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n15\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n503 (74%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n174 (26%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.73, 1.04)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.10)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (3.90, 4.40)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n3\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 97)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-7",
     "href": "analysis_ici_ckd.html#year-outcomes-7",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "8-Year Outcomes",
-    "text": "8-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3911\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n162 (41%)\n\n\n\n\n    1\n\n\n229 (59%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n5 (1.3%)\n\n\n\n\n    Black\n\n\n7 (1.8%)\n\n\n\n\n    Other/Unknown\n\n\n8 (2.0%)\n\n\n\n\n    White\n\n\n371 (95%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n391 (100%)\n\n\n\n\nckd_incidence_8year\n\n\n\n\n\n\n\n    0\n\n\n322 (82%)\n\n\n\n\n    1\n\n\n69 (18%)\n\n\n\n\nckd_progression_8year\n\n\n\n\n\n\n\n    0\n\n\n382 (98%)\n\n\n\n\n    1\n\n\n9 (2.3%)\n\n\n\n\neskd_composite_8year\n\n\n\n\n\n\n\n    0\n\n\n387 (99%)\n\n\n\n\n    1\n\n\n4 (1.0%)\n\n\n\n\nckd_composite_8year\n\n\n\n\n\n\n\n    0\n\n\n311 (80%)\n\n\n\n\n    1\n\n\n80 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n129 (33%)\n\n\n\n\n    2\n\n\n214 (55%)\n\n\n\n\n    3\n\n\n48 (12%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n122 (31%)\n\n\n\n\n    2\n\n\n207 (53%)\n\n\n\n\n    3\n\n\n61 (16%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n116 (30%)\n\n\n\n\n    2\n\n\n208 (53%)\n\n\n\n\n    3\n\n\n67 (17%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n110 (28%)\n\n\n\n\n    2\n\n\n211 (54%)\n\n\n\n\n    3\n\n\n69 (18%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n112 (29%)\n\n\n\n\n    2\n\n\n200 (51%)\n\n\n\n\n    3\n\n\n77 (20%)\n\n\n\n\n    4\n\n\n2 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n111 (28%)\n\n\n\n\n    2\n\n\n204 (52%)\n\n\n\n\n    3\n\n\n70 (18%)\n\n\n\n\n    4\n\n\n6 (1.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n114 (29%)\n\n\n\n\n    2\n\n\n197 (50%)\n\n\n\n\n    3\n\n\n75 (19%)\n\n\n\n\n    4\n\n\n5 (1.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n114 (29%)\n\n\n\n\n    2\n\n\n199 (51%)\n\n\n\n\n    3\n\n\n71 (18%)\n\n\n\n\n    4\n\n\n7 (1.8%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n159 (41%)\n\n\n\n\n    2\n\n\n187 (48%)\n\n\n\n\n    3\n\n\n44 (11%)\n\n\n\n\n    4\n\n\n1 (0.3%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n370 (95%)\n\n\n\n\n    1\n\n\n21 (5.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n351 (90%)\n\n\n\n\n    1\n\n\n40 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n183 (47%)\n\n\n\n\n    1\n\n\n208 (53%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n334 (85%)\n\n\n\n\n    1\n\n\n57 (15%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n388 (99%)\n\n\n\n\n    1\n\n\n3 (0.8%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n274 (70%)\n\n\n\n\n    1\n\n\n117 (30%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n275 (70%)\n\n\n\n\n    1\n\n\n116 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n216 (55%)\n\n\n\n\n    1\n\n\n175 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n138 (35%)\n\n\n\n\n    1\n\n\n253 (65%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n207 (53%)\n\n\n\n\n    1\n\n\n184 (47%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n257 (66%)\n\n\n\n\n    1\n\n\n134 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n216 (56%)\n\n\n\n\n    Combination\n\n\n60 (16%)\n\n\n\n\n    CTLA4\n\n\n70 (18%)\n\n\n\n\n    PDL1\n\n\n41 (11%)\n\n\n\n\n    Missing\n\n\n4\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n311 (80%)\n\n\n\n\n    1\n\n\n80 (20%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.74, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (4.00, 4.50)\n\n\n\n\n    Missing\n\n\n2\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "8-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 3911\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n162 (41%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n229 (59%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n5 (1.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n7 (1.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n8 (2.0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n371 (95%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n391 (100%)\n\n\n\n\nckd_incidence_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n322 (82%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n69 (18%)\n\n\n\n\nckd_progression_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n382 (98%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n9 (2.3%)\n\n\n\n\neskd_composite_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n387 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4 (1.0%)\n\n\n\n\nckd_composite_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n311 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n80 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n129 (33%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n214 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n48 (12%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n122 (31%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n207 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n61 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n116 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n208 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n67 (17%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n110 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n211 (54%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n69 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n112 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n200 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n77 (20%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n2 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n111 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n204 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n70 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n6 (1.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n114 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n197 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n75 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n5 (1.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n114 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n199 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n71 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n7 (1.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n159 (41%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n187 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n44 (11%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.3%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n370 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n21 (5.4%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n351 (90%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n40 (10%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n183 (47%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n208 (53%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n334 (85%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n57 (15%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n388 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3 (0.8%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n274 (70%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n117 (30%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n275 (70%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n116 (30%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n216 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n175 (45%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n138 (35%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n253 (65%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n207 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n184 (47%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n257 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n134 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n216 (56%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n70 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n60 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n41 (11%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n4\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n311 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n80 (20%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.74, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.20 (12.00, 14.20)\n\n\n\n\npre_ALB_180days\n\n\n4.20 (4.00, 4.50)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n2\n\n\n\n\neGFR_CRE_baseline\n\n\n86 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-8",
     "href": "analysis_ici_ckd.html#year-outcomes-8",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "9-Year Outcomes",
-    "text": "9-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2081\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n91 (44%)\n\n\n\n\n    1\n\n\n117 (56%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n2 (1.0%)\n\n\n\n\n    Black\n\n\n2 (1.0%)\n\n\n\n\n    Other/Unknown\n\n\n3 (1.4%)\n\n\n\n\n    White\n\n\n201 (97%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n208 (100%)\n\n\n\n\nckd_incidence_9year\n\n\n\n\n\n\n\n    0\n\n\n171 (82%)\n\n\n\n\n    1\n\n\n37 (18%)\n\n\n\n\nckd_progression_9year\n\n\n\n\n\n\n\n    0\n\n\n204 (98%)\n\n\n\n\n    1\n\n\n4 (1.9%)\n\n\n\n\neskd_composite_9year\n\n\n\n\n\n\n\n    0\n\n\n207 (100%)\n\n\n\n\n    1\n\n\n1 (0.5%)\n\n\n\n\nckd_composite_9year\n\n\n\n\n\n\n\n    0\n\n\n167 (80%)\n\n\n\n\n    1\n\n\n41 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n122 (59%)\n\n\n\n\n    3\n\n\n20 (9.6%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n115 (55%)\n\n\n\n\n    3\n\n\n26 (13%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n62 (30%)\n\n\n\n\n    2\n\n\n115 (55%)\n\n\n\n\n    3\n\n\n31 (15%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n63 (30%)\n\n\n\n\n    2\n\n\n113 (54%)\n\n\n\n\n    3\n\n\n32 (15%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n62 (30%)\n\n\n\n\n    2\n\n\n106 (51%)\n\n\n\n\n    3\n\n\n40 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n61 (29%)\n\n\n\n\n    2\n\n\n108 (52%)\n\n\n\n\n    3\n\n\n39 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n71 (34%)\n\n\n\n\n    2\n\n\n96 (46%)\n\n\n\n\n    3\n\n\n41 (20%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n68 (33%)\n\n\n\n\n    2\n\n\n101 (49%)\n\n\n\n\n    3\n\n\n38 (18%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n    1\n\n\n66 (32%)\n\n\n\n\n    2\n\n\n100 (48%)\n\n\n\n\n    3\n\n\n41 (20%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n80 (38%)\n\n\n\n\n    2\n\n\n105 (50%)\n\n\n\n\n    3\n\n\n22 (11%)\n\n\n\n\n    4\n\n\n1 (0.5%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n196 (94%)\n\n\n\n\n    1\n\n\n12 (5.8%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n190 (91%)\n\n\n\n\n    1\n\n\n18 (8.7%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n100 (48%)\n\n\n\n\n    1\n\n\n108 (52%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n188 (90%)\n\n\n\n\n    1\n\n\n20 (9.6%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n207 (100%)\n\n\n\n\n    1\n\n\n1 (0.5%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n149 (72%)\n\n\n\n\n    1\n\n\n59 (28%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n144 (69%)\n\n\n\n\n    1\n\n\n64 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n118 (57%)\n\n\n\n\n    1\n\n\n90 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n89 (43%)\n\n\n\n\n    1\n\n\n119 (57%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n113 (54%)\n\n\n\n\n    1\n\n\n95 (46%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n136 (65%)\n\n\n\n\n    1\n\n\n72 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n96 (47%)\n\n\n\n\n    Combination\n\n\n36 (18%)\n\n\n\n\n    CTLA4\n\n\n57 (28%)\n\n\n\n\n    PDL1\n\n\n16 (7.8%)\n\n\n\n\n    Missing\n\n\n3\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n169 (81%)\n\n\n\n\n    1\n\n\n39 (19%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.76, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.40 (12.00, 14.30)\n\n\n\n\npre_ALB_180days\n\n\n4.30 (4.10, 4.50)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "9-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 2081\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n91 (44%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n117 (56%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n2 (1.0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n2 (1.0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n3 (1.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n201 (97%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n208 (100%)\n\n\n\n\nckd_incidence_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n171 (82%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n37 (18%)\n\n\n\n\nckd_progression_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n204 (98%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4 (1.9%)\n\n\n\n\neskd_composite_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n207 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1 (0.5%)\n\n\n\n\nckd_composite_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n167 (80%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n41 (20%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n66 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n122 (59%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n20 (9.6%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n66 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n115 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n26 (13%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n62 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n115 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n31 (15%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n63 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n113 (54%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n32 (15%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n62 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n106 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n40 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n61 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n108 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n39 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n71 (34%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n96 (46%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n41 (20%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n68 (33%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n101 (49%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n38 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n66 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n100 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n41 (20%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n80 (38%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n105 (50%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n22 (11%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (0.5%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n196 (94%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n12 (5.8%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n190 (91%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n18 (8.7%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n100 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n108 (52%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n188 (90%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n20 (9.6%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n207 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1 (0.5%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n149 (72%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n59 (28%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n144 (69%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n64 (31%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n118 (57%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n90 (43%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n89 (43%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n119 (57%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n113 (54%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n95 (46%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n136 (65%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n72 (35%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n96 (47%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n57 (28%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n36 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n16 (7.8%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Missing\n\n\n3\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n169 (81%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n39 (19%)\n\n\n\n\npre_CRE_180days\n\n\n0.87 (0.76, 1.03)\n\n\n\n\npre_HGB_180days\n\n\n13.40 (12.00, 14.30)\n\n\n\n\npre_ALB_180days\n\n\n4.30 (4.10, 4.50)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (71, 96)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#year-outcomes-9",
     "href": "analysis_ici_ckd.html#year-outcomes-9",
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "10-Year Outcomes",
-    "text": "10-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 731\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n    0\n\n\n35 (48%)\n\n\n\n\n    1\n\n\n38 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n    Asian\n\n\n0 (0%)\n\n\n\n\n    Black\n\n\n0 (0%)\n\n\n\n\n    Other/Unknown\n\n\n0 (0%)\n\n\n\n\n    White\n\n\n73 (100%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n    Other\n\n\n73 (100%)\n\n\n\n\nckd_incidence_10year\n\n\n\n\n\n\n\n    0\n\n\n61 (84%)\n\n\n\n\n    1\n\n\n12 (16%)\n\n\n\n\nckd_progression_10year\n\n\n\n\n\n\n\n    0\n\n\n70 (96%)\n\n\n\n\n    1\n\n\n3 (4.1%)\n\n\n\n\neskd_composite_10year\n\n\n\n\n\n\n\n    0\n\n\n72 (99%)\n\n\n\n\n    1\n\n\n1 (1.4%)\n\n\n\n\nckd_composite_10year\n\n\n\n\n\n\n\n    0\n\n\n58 (79%)\n\n\n\n\n    1\n\n\n15 (21%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n    1\n\n\n23 (32%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n10 (14%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n42 (58%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n    1\n\n\n22 (30%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n13 (18%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n    1\n\n\n21 (29%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n14 (19%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n    1\n\n\n20 (27%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n39 (53%)\n\n\n\n\n    3\n\n\n16 (22%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n38 (52%)\n\n\n\n\n    3\n\n\n15 (21%)\n\n\n\n\n    4\n\n\n1 (1.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n    1\n\n\n19 (26%)\n\n\n\n\n    2\n\n\n37 (51%)\n\n\n\n\n    3\n\n\n16 (22%)\n\n\n\n\n    4\n\n\n1 (1.4%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_10year\n\n\n\n\n\n\n\n    1\n\n\n18 (25%)\n\n\n\n\n    2\n\n\n40 (55%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n3 (4.1%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n    1\n\n\n24 (33%)\n\n\n\n\n    2\n\n\n37 (51%)\n\n\n\n\n    3\n\n\n12 (16%)\n\n\n\n\n    4\n\n\n0 (0%)\n\n\n\n\n    5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n    0\n\n\n69 (95%)\n\n\n\n\n    1\n\n\n4 (5.5%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n    0\n\n\n67 (92%)\n\n\n\n\n    1\n\n\n6 (8.2%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n    0\n\n\n39 (53%)\n\n\n\n\n    1\n\n\n34 (47%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n    0\n\n\n65 (89%)\n\n\n\n\n    1\n\n\n8 (11%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n    0\n\n\n73 (100%)\n\n\n\n\n    1\n\n\n0 (0%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n    0\n\n\n52 (71%)\n\n\n\n\n    1\n\n\n21 (29%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n    0\n\n\n48 (66%)\n\n\n\n\n    1\n\n\n25 (34%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n    0\n\n\n38 (52%)\n\n\n\n\n    1\n\n\n35 (48%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n    0\n\n\n40 (55%)\n\n\n\n\n    1\n\n\n33 (45%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n    0\n\n\n33 (45%)\n\n\n\n\n    1\n\n\n40 (55%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n    0\n\n\n48 (66%)\n\n\n\n\n    1\n\n\n25 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n    PD1\n\n\n25 (34%)\n\n\n\n\n    Combination\n\n\n6 (8.2%)\n\n\n\n\n    CTLA4\n\n\n40 (55%)\n\n\n\n\n    PDL1\n\n\n2 (2.7%)\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n    0\n\n\n63 (86%)\n\n\n\n\n    1\n\n\n10 (14%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.78, 1.02)\n\n\n\n\npre_HGB_180days\n\n\n13.70 (12.60, 14.50)\n\n\n\n\npre_ALB_180days\n\n\n4.40 (4.20, 4.70)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 93)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
+    "text": "10-Year Outcomes\n\n\n\n\n\n\nCharacteristic\n\n\nN = 731\n\n\n\n\n\n\nAge\n\n\n71 (61, 78)\n\n\n\n\nmale\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n35 (48%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n38 (52%)\n\n\n\n\nRace\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Asian\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Black\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other/Unknown\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;White\n\n\n73 (100%)\n\n\n\n\nEthnic_Group\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Other\n\n\n73 (100%)\n\n\n\n\nckd_incidence_10year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n61 (84%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n12 (16%)\n\n\n\n\nckd_progression_10year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n70 (96%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n3 (4.1%)\n\n\n\n\neskd_composite_10year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n72 (99%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n1 (1.4%)\n\n\n\n\nckd_composite_10year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n58 (79%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n15 (21%)\n\n\n\n\nckd_stage_1year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n23 (32%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n40 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n10 (14%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_2year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n19 (26%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n42 (58%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n12 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_3year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n22 (30%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n38 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n13 (18%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_4year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n21 (29%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n38 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n14 (19%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_5year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n20 (27%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n38 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n15 (21%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_6year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n18 (25%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n40 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n15 (21%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_7year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n18 (25%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n39 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n16 (22%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_8year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n19 (26%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n38 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n15 (21%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (1.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_9year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n19 (26%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n37 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n16 (22%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n1 (1.4%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_10year\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n18 (25%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n40 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n12 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n3 (4.1%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\nckd_stage_baseline\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n24 (33%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;2\n\n\n37 (51%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;3\n\n\n12 (16%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;4\n\n\n0 (0%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;5\n\n\n0 (0%)\n\n\n\n\naki\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n69 (95%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n4 (5.5%)\n\n\n\n\ndm\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n67 (92%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n6 (8.2%)\n\n\n\n\nhtn\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n39 (53%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n34 (47%)\n\n\n\n\ncad\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n65 (89%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n8 (11%)\n\n\n\n\ncirrhosis\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n73 (100%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n0 (0%)\n\n\n\n\nace_arb\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n52 (71%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n21 (29%)\n\n\n\n\ndiu\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n48 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n25 (34%)\n\n\n\n\nppi\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n38 (52%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n35 (48%)\n\n\n\n\nsteroids\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n40 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n33 (45%)\n\n\n\n\nsmoking\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n33 (45%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n40 (55%)\n\n\n\n\nstatins\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n48 (66%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n25 (34%)\n\n\n\n\nICI_Class\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PD1\n\n\n25 (34%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;CTLA4\n\n\n40 (55%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;Combination\n\n\n6 (8.2%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;PDL1\n\n\n2 (2.7%)\n\n\n\n\nnephrotoxic_chemo\n\n\n\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;0\n\n\n63 (86%)\n\n\n\n\n&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;&lt;U+00A0&gt;1\n\n\n10 (14%)\n\n\n\n\npre_CRE_180days\n\n\n0.86 (0.78, 1.02)\n\n\n\n\npre_HGB_180days\n\n\n13.70 (12.60, 14.50)\n\n\n\n\npre_ALB_180days\n\n\n4.40 (4.20, 4.70)\n\n\n\n\neGFR_CRE_baseline\n\n\n85 (70, 93)\n\n\n\n\n\n\n1 Median (Q1, Q3); n (%)"
   },
   {
     "objectID": "analysis_ici_ckd.html#required-input-columns-from-master-excel",
@@ -411,460 +915,5 @@
     "title": "ICI CKD – Long-term Kidney Outcomes Analysis",
     "section": "9.3 All Derived Variables (created by this pipeline)",
     "text": "9.3 All Derived Variables (created by this pipeline)\n\n\n\n\n\n\n\n\nVariable\nSource\nSection\n\n\n\n\npre_median_CRE_90days\nRPDR Lab (median CRE ≤ 90d pre-index)\n5.1\n\n\neGFR_CRE_baseline\nCKD-EPI from pre_median_CRE_90days\n5.2\n\n\nckd_stage_baseline\nFrom eGFR_CRE_baseline (1–5)\n5.2\n\n\nckd_stage_baseline_3\n3-level staging\n5.2\n\n\neskd_composite\nesrd_kt_after_ici OR eskd_defination_1\n5.3\n\n\neskd_composite_date\npmin of the two ESKD dates\n5.3\n\n\ntime_to_eskd_composite\nDays from Index_date\n5.4\n\n\ntime_to_ckd_incidence\nDays from Index_date\n5.4\n\n\ntime_to_ckd_progression\nDays from Index_date\n5.4\n\n\nckd_composite\nAny of the three outcomes\n5.4\n\n\ntime_to_ckd_composite\npmin of the three time-to-event\n5.4\n\n\nlast_cre_days\nDays from Index_date to last_cre_date\n5.4\n\n\nsurvival_1year … survival_10year\n1 if last_cre_days ≥ 365 × X\n5.5\n\n\nckd_incidence_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\nckd_progression_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\neskd_composite_1year … _10year\n1 if time &lt; 365 × X\n5.6\n\n\npre_median_CRE_1year … _10year\nRPDR Lab (yearly median CRE)\n5.7\n\n\neGFR_CRE_1year … _10year\nCKD-EPI from yearly median CRE\n5.7\n\n\nckd_stage_1year … _10year\nCKD stage from yearly eGFR\n5.7\n\n\nlab_num_1year … _10year\nCount of CRE labs in yearly window\n5.7"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "CKD after ICI – Project Summary",
-    "section": "",
-    "text": "Clinical research analysis of long-term kidney outcomes after immune checkpoint inhibitor (ICI) therapy — CKD incidence, progression, and ESKD over 10-year follow-up.\nThis website contains three components:\n\nAnalysis — Main cohort analysis (full pipeline + models)\nTreated Group — ICI-treated cohort data build + Table 1\nControl Group — Non-ICI cancer control cohort data build + Table 1"
-  },
-  {
-    "objectID": "index.html#treated-group",
-    "href": "index.html#treated-group",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Treated Group",
-    "text": "Treated Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nICI-treated patients from source Excel\n\n\n2\nlast_cre_days &gt; 0 (follow-up after index)\n\n\n3\nNon-missing baseline CRE (pre_median_CRE_90days)\n\n\n4\neGFR_CRE_baseline &gt;= 10"
-  },
-  {
-    "objectID": "index.html#control-group",
-    "href": "index.html#control-group",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Control Group",
-    "text": "Control Group\n\n\n\nStep\nCriterion\n\n\n\n\n1\nUnique EMPIs from RPDR Dem.txt\n\n\n2\nHas neoplasm Dx (ICD10 C00-D49) for Index_date\n\n\n3\nlast_cre_days &gt; 0\n\n\n4\nBaseline CRE within 12 months prior to Index_date\n\n\n5\nFollow-up &gt;= 18 months (548 days)\n\n\n6\n&gt;= 2 CRE results after Index_date\n\n\n7\nNon-missing baseline CRE\n\n\n8\neGFR_CRE_baseline &gt;= 10"
-  },
-  {
-    "objectID": "index.html#treated-group-1",
-    "href": "index.html#treated-group-1",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Treated Group",
-    "text": "Treated Group\n\n\n\n\n\n\n\nFile\nDescription\n\n\n\n\ntreated group.xlsx\n393 ICI-treated patients (EMPI, ICI_Dose_Date, DOB, sex, race, ethnicity, cancer Dx/stage, ICI name, death date, last CRE date)\n\n\nRPDR Lab, Dia, Med\nFrom Carboplatin Paper RPDR folder"
-  },
-  {
-    "objectID": "index.html#control-group-1",
-    "href": "index.html#control-group-1",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Control Group",
-    "text": "Control Group\n\n\n\n\n\n\n\n\nFile\nSource\nDescription\n\n\n\n\nmes98_..._Dem.txt\nRPDR\nDemographics: EMPI, DOB, death date, sex, race, ethnicity\n\n\nmes98_..._Dia.txt\nRPDR\nDiagnoses: ICD codes, dates, names\n\n\nmes98_..._Lab.txt\nRPDR\nLab results: CRE values, dates\n\n\nmes98_..._Med.txt\nRPDR\nMedications: names, dates\n\n\n\nRPDR path: /Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/"
-  },
-  {
-    "objectID": "index.html#demographics",
-    "href": "index.html#demographics",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Demographics",
-    "text": "Demographics\n\n\n\n\n\n\n\n\n\nVariable\nTreated Source\nControl Source\nDefinition\n\n\n\n\nEMPI\nExcel\nDem.txt\nPatient identifier\n\n\nIndex_date\nICI_Dose_Date (Excel)\nFirst C00-D49 Dx date (Dia.txt)\nTime anchor\n\n\nAge\nDerived\nDerived\nfloor((Index_date - DOB) / 365.25)\n\n\nmale\nDerived\nDerived\n1 if Male\n\n\nRace / Race1\nExcel (Race)\nDem.txt (Race1)\nRecoded: White / Black / Asian / Other/Unknown\n\n\nEthnic_Group\nExcel\nDem.txt\nRecoded: Hispanic / Non_hispanic / Other\n\n\ngroup\n\"treated\"\n\"control\"\nGroup label"
-  },
-  {
-    "objectID": "index.html#ici-specific-treated-only",
-    "href": "index.html#ici-specific-treated-only",
-    "title": "CKD after ICI – Project Summary",
-    "section": "ICI-specific (Treated only)",
-    "text": "ICI-specific (Treated only)\n\n\n\nVariable\nDefinition\n\n\n\n\nICI_Name\nICI drug name\n\n\nICI_Class\nPD1 / PDL1 / CTLA4 / Combination\n\n\nCancer_Diagnosis\nCancer type\n\n\nCancers_stage\nCancer stage"
-  },
-  {
-    "objectID": "index.html#follow-up-death",
-    "href": "index.html#follow-up-death",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Follow-up & Death",
-    "text": "Follow-up & Death\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nlast_cre_date\nLast CRE lab date (Excel for treated, derived from Lab for control)\n\n\nlast_cre_days\nlast_cre_date - Index_date (days)\n\n\ndeath\n1 if Date_Of_Death is not NA\n\n\ndeath_days\nDate_Of_Death - Index_date (days)\n\n\ntime_to_death\nSame as death_days\n\n\nlast_date\nDate_Of_Death if dead, else last_cre_date\n\n\nlast_days\nlast_date - Index_date (days)\n\n\ndeath_Xyear (1-10)\n1 if died within X years (death_days &lt; 365*X)\n\n\nsurvival_Xyear (1-10)\n1 if last_cre_days &gt;= 365*X"
-  },
-  {
-    "objectID": "index.html#comorbidities-from-rpdr-dia-pre-index",
-    "href": "index.html#comorbidities-from-rpdr-dia-pre-index",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Comorbidities (from RPDR Dia, pre-index)",
-    "text": "Comorbidities (from RPDR Dia, pre-index)\nAll derived via dia_list_icd() or dia_list_name() with Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nMethod\nSearch Terms\n\n\n\n\ndm\nICD codes\n250.00-250.03, E10.9, E11.9, E10.65, E11.65, E10.21, E11.21, E10.22, E11.22, E13.9\n\n\nhtn\nICD + Med\nICD: 401.x, I10, I15.x; Meds: HCTZ, amlodipine, lisinopril, losartan, valsartan, diltiazem, clonidine\n\n\ncad\nDx name\nCoronary artery disease, Coronary atherosclerosis, Atherosclerotic heart disease, Angina, Unstable angina\n\n\ncirrhosis\nDx name\ngrepl(\"cirrhosis\")\n\n\nsmoking\nDx name\nsmoking, tobacco, cigarette, nicotine, smoke\n\n\nesrd_kt\nICD codes\n585.6, N18.6, V45.1, Z94.0, Z99.2, 996.81, T86.1x"
-  },
-  {
-    "objectID": "index.html#medications-from-rpdr-med-pre-index",
-    "href": "index.html#medications-from-rpdr-med-pre-index",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Medications (from RPDR Med, pre-index)",
-    "text": "Medications (from RPDR Med, pre-index)\nAll derived via med_list() with Medication_Date &lt;= Index_date.\n\n\n\n\n\n\n\n\nVariable\nSearch Terms\nExclusions\n\n\n\n\nppi\nomeprazole, lansoprazole, dexlansoprazole, rabeprazole, pantoprazole, esomeprazole + brands\nNone\n\n\nace_arb\nbenazepril, captopril, enalapril, fosinopril, lisinopril, ramipril, losartan, valsartan, irbesartan, olmesartan, candesartan, telmisartan, azilsartan, eprosartan\nNone\n\n\ndiu\nbumetanide, furosemide, torsemide, HCTZ, chlorthalidone, metolazone, spironolactone, triamterene, amiloride, eplerenone\nNone\n\n\nsteroids\nprednisone, methylprednisolone, prednisolone, dexamethasone, budesonide\nInhaler, Nebulization, Ointment, Ophthalmic\n\n\nstatins\nAtorvastatin, Fluvastatin, Lovastatin, Pitavastatin, Pravastatin, Rosuvastatin, Simvastatin + brands\nNone\n\n\ndpp4i\nAlogliptin, Vipidia, Nesina, Linagliptin, Tradjenta, Saxagliptin, Onglyza, Sitagliptin, Januvia, Vildagliptin, Galvus\nNone\n\n\nsglt2i\nCanagliflozin, Dapagliflozin, Empagliflozin, Ertugliflozin, Invokana, Farxiga, Forxiga, Jardiance, Steglatro\nNone"
-  },
-  {
-    "objectID": "index.html#baseline-lab-from-rpdr-lab",
-    "href": "index.html#baseline-lab-from-rpdr-lab",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Baseline Lab (from RPDR Lab)",
-    "text": "Baseline Lab (from RPDR Lab)\n\n\n\n\n\n\n\n\nVariable\nFunction\nTime Frame\n\n\n\n\npre_median_CRE_90days\npre_lab_median(time=90)\n[Index_date - 90d, Index_date]\n\n\neGFR_CRE_baseline\ngfr_calc() CKD-EPI 2021 race-free\nFrom baseline CRE\n\n\nckd_stage_baseline\n1-5 from eGFR\n&gt;=90 / &gt;=60 / &gt;=30 / &gt;=15 / &lt;15\n\n\nckd_stage_baseline_3\n3-level\nstage 1 / stage 2 / stage 3 or more"
-  },
-  {
-    "objectID": "index.html#ckd-outcomes-post-index-sustained-90-days",
-    "href": "index.html#ckd-outcomes-post-index-sustained-90-days",
-    "title": "CKD after ICI – Project Summary",
-    "section": "CKD Outcomes (post-index, sustained >= 90 days)",
-    "text": "CKD Outcomes (post-index, sustained &gt;= 90 days)\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nckd_incidence\n&gt;25% eGFR drop AND eGFR &lt;60, from baseline &gt;=60\n\n\nckd_progression\n&gt;30% eGFR drop, from baseline &lt;60\n\n\neskd_defination_1\neGFR &lt;10\n\n\nesrd_kt_after_ici\nESRD/KT ICD codes after Index_date\n\n\neskd_composite\neskd_defination_1 OR esrd_kt_after_ici\n\n\nckd_composite\neskd_composite OR ckd_incidence OR ckd_progression\n\n\ntime_to_ckd_incidence\nDays from Index_date to event\n\n\ntime_to_ckd_progression\nDays from Index_date to event\n\n\ntime_to_eskd_composite\nDays from Index_date to event\n\n\ntime_to_ckd_composite\npmin(incidence, progression, eskd)"
-  },
-  {
-    "objectID": "index.html#aki",
-    "href": "index.html#aki",
-    "title": "CKD after ICI – Project Summary",
-    "section": "AKI",
-    "text": "AKI\n\n\n\nVariable\nDefinition\nTime Frame\n\n\n\n\naki\nCRE &gt; 1.5x baseline\n(Index_date, Index_date + 90d]\n\n\naki_date\nDate of first qualifying CRE\nSame window\n\n\naki_before_ckd\n1 if AKI before CKD composite\n–"
-  },
-  {
-    "objectID": "index.html#yearly-lab-1-10-years-post-index",
-    "href": "index.html#yearly-lab-1-10-years-post-index",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Yearly Lab (1-10 years post-index)",
-    "text": "Yearly Lab (1-10 years post-index)\nFunction: pre_lab_median_year(year=X, days=90) – window: [Index_date + X*365 - 90d, Index_date + X*365]\n\n\n\nVariable\nDefinition\n\n\n\n\npre_median_CRE_Xyear\nMedian CRE in 90-day window\n\n\neGFR_CRE_Xyear\nCKD-EPI 2021 from yearly CRE\n\n\nckd_stage_Xyear\nCKD stage 1-5\n\n\nlab_num_Xyear\nNumber of CRE labs in window"
-  },
-  {
-    "objectID": "index.html#competing-risk",
-    "href": "index.html#competing-risk",
-    "title": "CKD after ICI – Project Summary",
-    "section": "Competing Risk",
-    "text": "Competing Risk\n\n\n\n\n\n\n\nVariable\nDefinition\n\n\n\n\nyear_10\nAge / 10\n\n\neGFR_CRE_baseline_decrease_10\n(eGFR_CRE_baseline * -1) / 10\n\n\ntime_to_ckd_cmp\npmin(time_to_ckd_composite, last_cre_days, death_days)\n\n\nstatus_ckd_cmp\nFactor: Death(2) &gt; CKD Composite(1) &gt; Censored(0)\n\n\nckd_incidence_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_progression_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\neskd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor\n\n\nckd_composite_Xyear\n1 if event within X years, NA-&gt;0, factor"
-  },
-  {
-    "objectID": "treated_group.html#pre_lab_median",
-    "href": "treated_group.html#pre_lab_median",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "2.1 pre_lab_median",
-    "text": "2.1 pre_lab_median"
-  },
-  {
-    "objectID": "treated_group.html#pre_lab_median_year",
-    "href": "treated_group.html#pre_lab_median_year",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "2.2 pre_lab_median_year",
-    "text": "2.2 pre_lab_median_year"
-  },
-  {
-    "objectID": "treated_group.html#left_join_all",
-    "href": "treated_group.html#left_join_all",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "2.3 left_join_all",
-    "text": "2.3 left_join_all"
-  },
-  {
-    "objectID": "treated_group.html#get_ckd_stage",
-    "href": "treated_group.html#get_ckd_stage",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "2.4 get_ckd_stage",
-    "text": "2.4 get_ckd_stage"
-  },
-  {
-    "objectID": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
-    "href": "treated_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
-    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
-  },
-  {
-    "objectID": "treated_group.html#load-treated-group-excel",
-    "href": "treated_group.html#load-treated-group-excel",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.1 Load treated group Excel",
-    "text": "4.1 Load treated group Excel"
-  },
-  {
-    "objectID": "treated_group.html#rename-derive-variables",
-    "href": "treated_group.html#rename-derive-variables",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.2 Rename & derive variables",
-    "text": "4.2 Rename & derive variables"
-  },
-  {
-    "objectID": "treated_group.html#death-flags-110-years",
-    "href": "treated_group.html#death-flags-110-years",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.3 Death flags (1–10 years)",
-    "text": "4.3 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
-  },
-  {
-    "objectID": "treated_group.html#load-rpdr-files-lab-dia-med",
-    "href": "treated_group.html#load-rpdr-files-lab-dia-med",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.4 Load RPDR files (Lab, Dia, Med)",
-    "text": "4.4 Load RPDR files (Lab, Dia, Med)"
-  },
-  {
-    "objectID": "treated_group.html#create-master_lab-master_dia-master_med",
-    "href": "treated_group.html#create-master_lab-master_dia-master_med",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.5 Create master_lab / master_dia / master_med",
-    "text": "4.5 Create master_lab / master_dia / master_med"
-  },
-  {
-    "objectID": "treated_group.html#rpdr-derived-functions",
-    "href": "treated_group.html#rpdr-derived-functions",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.6 RPDR-derived functions",
-    "text": "4.6 RPDR-derived functions"
-  },
-  {
-    "objectID": "treated_group.html#derive-comorbidities-medications-from-rpdr",
-    "href": "treated_group.html#derive-comorbidities-medications-from-rpdr",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.7 Derive comorbidities & medications from RPDR",
-    "text": "4.7 Derive comorbidities & medications from RPDR"
-  },
-  {
-    "objectID": "treated_group.html#ici_class",
-    "href": "treated_group.html#ici_class",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "4.8 ICI_Class",
-    "text": "4.8 ICI_Class"
-  },
-  {
-    "objectID": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
-    "href": "treated_group.html#baseline-creatinine-median-within-90-days-pre-index",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
-    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
-  },
-  {
-    "objectID": "treated_group.html#baseline-egfr-ckd-stage",
-    "href": "treated_group.html#baseline-egfr-ckd-stage",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "5.2 Baseline eGFR & CKD stage",
-    "text": "5.2 Baseline eGFR & CKD stage"
-  },
-  {
-    "objectID": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
-    "href": "treated_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
-    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
-  },
-  {
-    "objectID": "treated_group.html#survival-flags-110-years",
-    "href": "treated_group.html#survival-flags-110-years",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "6.1 Survival flags (1–10 years)",
-    "text": "6.1 Survival flags (1–10 years)"
-  },
-  {
-    "objectID": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
-    "href": "treated_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
-    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
-  },
-  {
-    "objectID": "treated_group.html#aki-from-rpdr-lab",
-    "href": "treated_group.html#aki-from-rpdr-lab",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "6.3 AKI (from RPDR Lab)",
-    "text": "6.3 AKI (from RPDR Lab)"
-  },
-  {
-    "objectID": "treated_group.html#competing-risk-analysis-variables",
-    "href": "treated_group.html#competing-risk-analysis-variables",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "6.4 Competing risk & analysis variables",
-    "text": "6.4 Competing risk & analysis variables"
-  },
-  {
-    "objectID": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
-    "href": "treated_group.html#exclude-missing-baseline-cre-and-egfr-10",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
-    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
-  },
-  {
-    "objectID": "treated_group.html#save-treated_group.xlsx",
-    "href": "treated_group.html#save-treated_group.xlsx",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "7.2 Save treated_group.xlsx",
-    "text": "7.2 Save treated_group.xlsx"
-  },
-  {
-    "objectID": "treated_group.html#ici-year-distribution",
-    "href": "treated_group.html#ici-year-distribution",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "ICI Year Distribution",
-    "text": "ICI Year Distribution\n\n\n\n\n\nDistribution of ICI start date by year"
-  },
-  {
-    "objectID": "treated_group.html#table-1-demographics-cancer",
-    "href": "treated_group.html#table-1-demographics-cancer",
-    "title": "Treated Group – Descriptive Analysis",
-    "section": "Table 1 – Demographics & Cancer",
-    "text": "Table 1 – Demographics & Cancer\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 3791\n\n\n\n\nAge\n67 (56, 74)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n144 (38%)\n\n\n    Male\n235 (62%)\n\n\nRace\n\n\n\n\n    Asian\n3 (0.8%)\n\n\n    Black\n2 (0.5%)\n\n\n    Other/Unknown\n11 (2.9%)\n\n\n    White\n363 (96%)\n\n\nEthnic_Group\n\n\n\n\n    Other\n379 (100%)\n\n\nICI_Name\n\n\n\n\n    nivolumab\n83 (22%)\n\n\n    Nivolumab\n56 (15%)\n\n\n    pembrolizumab\n240 (63%)\n\n\nICI_Class\n\n\n\n\n    PD1\n379 (100%)\n\n\ndm\n48 (13%)\n\n\nhtn\n210 (55%)\n\n\ncad\n54 (14%)\n\n\ncirrhosis\n1 (0.3%)\n\n\nace_arb\n123 (32%)\n\n\ndiu\n79 (21%)\n\n\nppi\n103 (27%)\n\n\nsteroids\n266 (70%)\n\n\nsmoking\n148 (39%)\n\n\nstatins\n158 (42%)\n\n\ndpp4i\n5 (1.3%)\n\n\nsglt2i\n4 (1.1%)\n\n\neGFR_CRE_baseline\n88 (73, 97)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n165 (44%)\n\n\n    2\n181 (48%)\n\n\n    3\n29 (7.7%)\n\n\n    4\n4 (1.1%)\n\n\npre_median_HGB_90days\n14.00 (13.05, 14.80)\n\n\npre_median_ALB_90days\n4.30 (4.10, 4.53)\n\n\n    Missing\n3\n\n\npre_median_GHBA1C_90days\n6.30 (6.00, 7.30)\n\n\n    Missing\n357\n\n\naki\n5 (1.3%)\n\n\n\n1 Median (Q1, Q3); n (%)"
-  },
-  {
-    "objectID": "control_group.html#pre_lab_median",
-    "href": "control_group.html#pre_lab_median",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "2.1 pre_lab_median",
-    "text": "2.1 pre_lab_median"
-  },
-  {
-    "objectID": "control_group.html#pre_lab_median_year",
-    "href": "control_group.html#pre_lab_median_year",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "2.2 pre_lab_median_year",
-    "text": "2.2 pre_lab_median_year"
-  },
-  {
-    "objectID": "control_group.html#left_join_all",
-    "href": "control_group.html#left_join_all",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "2.3 left_join_all",
-    "text": "2.3 left_join_all"
-  },
-  {
-    "objectID": "control_group.html#get_ckd_stage",
-    "href": "control_group.html#get_ckd_stage",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "2.4 get_ckd_stage",
-    "text": "2.4 get_ckd_stage"
-  },
-  {
-    "objectID": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
-    "href": "control_group.html#ckd_epi_gfr-ckd-epi-2021-creatinine-only",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)",
-    "text": "2.5 ckd_epi_gfr (CKD-EPI 2021 creatinine-only)"
-  },
-  {
-    "objectID": "control_group.html#load-rpdr-files-dem-lab-dia-med",
-    "href": "control_group.html#load-rpdr-files-dem-lab-dia-med",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.1 Load RPDR files (Dem, Lab, Dia, Med)",
-    "text": "4.1 Load RPDR files (Dem, Lab, Dia, Med)"
-  },
-  {
-    "objectID": "control_group.html#define-cohort-from-dem.txt",
-    "href": "control_group.html#define-cohort-from-dem.txt",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.2 Define cohort from Dem.txt",
-    "text": "4.2 Define cohort from Dem.txt"
-  },
-  {
-    "objectID": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
-    "href": "control_group.html#derive-index_date-from-first-neoplasm-diagnosis-icd10-c00d49",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)",
-    "text": "4.3 Derive Index_date from first neoplasm diagnosis (ICD10 C00–D49)"
-  },
-  {
-    "objectID": "control_group.html#derive-last_cre_date-from-rpdr-lab",
-    "href": "control_group.html#derive-last_cre_date-from-rpdr-lab",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.4 Derive last_cre_date from RPDR Lab",
-    "text": "4.4 Derive last_cre_date from RPDR Lab"
-  },
-  {
-    "objectID": "control_group.html#derive-variables",
-    "href": "control_group.html#derive-variables",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.5 Derive variables",
-    "text": "4.5 Derive variables"
-  },
-  {
-    "objectID": "control_group.html#inclusion-criteria-1",
-    "href": "control_group.html#inclusion-criteria-1",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.6 Inclusion criteria",
-    "text": "4.6 Inclusion criteria"
-  },
-  {
-    "objectID": "control_group.html#death-flags-110-years",
-    "href": "control_group.html#death-flags-110-years",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.7 Death flags (1–10 years)",
-    "text": "4.7 Death flags (1–10 years)\nUses last_date logic from Kavita master builder: last_date = if_else(is.na(Date_Of_Death), last_cre_date, Date_Of_Death)."
-  },
-  {
-    "objectID": "control_group.html#create-master_lab-master_dia-master_med",
-    "href": "control_group.html#create-master_lab-master_dia-master_med",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.8 Create master_lab / master_dia / master_med",
-    "text": "4.8 Create master_lab / master_dia / master_med"
-  },
-  {
-    "objectID": "control_group.html#rpdr-derived-functions",
-    "href": "control_group.html#rpdr-derived-functions",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.9 RPDR-derived functions",
-    "text": "4.9 RPDR-derived functions"
-  },
-  {
-    "objectID": "control_group.html#derive-comorbidities-medications-from-rpdr",
-    "href": "control_group.html#derive-comorbidities-medications-from-rpdr",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "4.10 Derive comorbidities & medications from RPDR",
-    "text": "4.10 Derive comorbidities & medications from RPDR"
-  },
-  {
-    "objectID": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
-    "href": "control_group.html#baseline-creatinine-median-within-90-days-pre-index",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "5.1 Baseline creatinine (median within 90 days pre-index)",
-    "text": "5.1 Baseline creatinine (median within 90 days pre-index)"
-  },
-  {
-    "objectID": "control_group.html#baseline-egfr-ckd-stage",
-    "href": "control_group.html#baseline-egfr-ckd-stage",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "5.2 Baseline eGFR & CKD stage",
-    "text": "5.2 Baseline eGFR & CKD stage"
-  },
-  {
-    "objectID": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
-    "href": "control_group.html#ckd-outcomes-from-rpdr-lab-sustained-egfr-based",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)",
-    "text": "5.3 CKD outcomes from RPDR Lab (sustained eGFR-based)"
-  },
-  {
-    "objectID": "control_group.html#survival-flags-110-years",
-    "href": "control_group.html#survival-flags-110-years",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "6.1 Survival flags (1–10 years)",
-    "text": "6.1 Survival flags (1–10 years)"
-  },
-  {
-    "objectID": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
-    "href": "control_group.html#yearly-cre-medians-egfr-ckd-stage-110-years",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)",
-    "text": "6.2 Yearly CRE medians, eGFR, CKD stage (1–10 years)"
-  },
-  {
-    "objectID": "control_group.html#aki-from-rpdr-lab",
-    "href": "control_group.html#aki-from-rpdr-lab",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "6.3 AKI (from RPDR Lab)",
-    "text": "6.3 AKI (from RPDR Lab)"
-  },
-  {
-    "objectID": "control_group.html#competing-risk-analysis-variables",
-    "href": "control_group.html#competing-risk-analysis-variables",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "6.4 Competing risk & analysis variables",
-    "text": "6.4 Competing risk & analysis variables"
-  },
-  {
-    "objectID": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
-    "href": "control_group.html#exclude-missing-baseline-cre-and-egfr-10",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "7.1 Exclude missing baseline CRE and eGFR < 10",
-    "text": "7.1 Exclude missing baseline CRE and eGFR &lt; 10"
-  },
-  {
-    "objectID": "control_group.html#save-control_group.xlsx",
-    "href": "control_group.html#save-control_group.xlsx",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "7.2 Save control_group.xlsx",
-    "text": "7.2 Save control_group.xlsx"
-  },
-  {
-    "objectID": "control_group.html#index-year-distribution",
-    "href": "control_group.html#index-year-distribution",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "Index Year Distribution",
-    "text": "Index Year Distribution\n\n\n\n\n\nDistribution of Index_date (first neoplasm diagnosis) by year"
-  },
-  {
-    "objectID": "control_group.html#table-1-demographics",
-    "href": "control_group.html#table-1-demographics",
-    "title": "Control Group – Descriptive Analysis",
-    "section": "Table 1 – Demographics",
-    "text": "Table 1 – Demographics\n\n\n\n\n\n\n\n\n\n\n\n\nCharacteristic\nN = 2,3151\n\n\n\n\nAge\n66 (57, 73)\n\n\nGender_Legal_Sex\n\n\n\n\n    Female\n1,091 (47%)\n\n\n    Male\n1,224 (53%)\n\n\nRace1\n\n\n\n\n    Asian\n1 (&lt;0.1%)\n\n\n    Black\n6 (0.3%)\n\n\n    Other/Unknown\n36 (1.6%)\n\n\n    White\n2,272 (98%)\n\n\nEthnic_Group\n\n\n\n\n    Hispanic\n3 (0.1%)\n\n\n    Non_hispanic\n2,066 (89%)\n\n\n    Other\n246 (11%)\n\n\ndm\n343 (15%)\n\n\nhtn\n1,481 (64%)\n\n\ncad\n519 (22%)\n\n\ncirrhosis\n13 (0.6%)\n\n\nace_arb\n835 (36%)\n\n\ndiu\n754 (33%)\n\n\nppi\n817 (35%)\n\n\nsteroids\n853 (37%)\n\n\nsmoking\n1,074 (46%)\n\n\nstatins\n1,006 (43%)\n\n\ndpp4i\n18 (0.8%)\n\n\nsglt2i\n6 (0.3%)\n\n\neGFR_CRE_baseline\n82 (69, 93)\n\n\nckd_stage_baseline\n\n\n\n\n    1\n766 (33%)\n\n\n    2\n1,250 (54%)\n\n\n    3\n280 (12%)\n\n\n    4\n17 (0.7%)\n\n\n    5\n2 (&lt;0.1%)\n\n\npre_median_HGB_90days\nNA (NA, NA)\n\n\n    Missing\n2,315\n\n\npre_median_ALB_90days\nNA (NA, NA)\n\n\n    Missing\n2,315\n\n\npre_median_GHBA1C_90days\n5.70 (5.40, 6.30)\n\n\n    Missing\n1,735\n\n\naki\n35 (1.5%)\n\n\n\n1 Median (Q1, Q3); n (%)"
   }
 ]
