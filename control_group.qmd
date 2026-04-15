@@ -206,6 +206,18 @@ gfr_calc <- Vectorize(ckd_epi_gfr)
 | `ckd_stage_Xyear` (1–10) | Yearly CKD stage |
 | `lab_num_Xyear` (1–10) | Number of CRE labs in yearly window |
 
+#### Matching variables (CRE measurement counts)
+
+| Variable | Description |
+|---|---|
+| `n_cre_pre_1yr` | Count of CRE labs in `[Index_date − 365, Index_date)` — primary matching variable |
+| `n_cre_pre_all` | Count of all CRE labs before `Index_date` |
+| `pre_history_days` | Days from earliest pre-index CRE lab to `Index_date` (0 if none) |
+| `cre_rate_pre` | `n_cre_pre_all / (pre_history_days / 365)` — NA if no pre-index history |
+| `has_pre_cre` | 1 if `n_cre_pre_1yr > 0`, else 0 |
+| `n_cre_post` | Count of CRE labs in `(Index_date, last_cre_date]` (covariate, not for matching) |
+| `cre_rate_post` | `n_cre_post / (last_cre_days / 365)` — NA if `last_cre_days ≤ 0` |
+
 ### Inclusion criteria
 
 | Criterion | Description |
@@ -654,6 +666,54 @@ control <- control %>%
   merge(pre_lab_a1c, by = "EMPI", all.x = TRUE)
 ```
 
+## 5.1b CRE measurement counts (for matching)
+
+```{r}
+#| label: cre-measurement-counts
+# CRE labs restricted to valid numeric results, tagged with Index_date
+cre_labs <- master_lab %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  select(EMPI, Seq_Date_Time, Index_date)
+
+# Pre-index counts and rate
+pre_cre_counts <- cre_labs %>%
+  filter(Seq_Date_Time < Index_date) %>%
+  group_by(EMPI) %>%
+  summarise(
+    n_cre_pre_all    = n(),
+    n_cre_pre_1yr    = sum(Seq_Date_Time >= Index_date - 365),
+    pre_history_days = as.numeric(Index_date[1] - min(Seq_Date_Time)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    cre_rate_pre = ifelse(pre_history_days > 0,
+                          n_cre_pre_all / (pre_history_days / 365),
+                          NA_real_),
+    has_pre_cre  = as.integer(n_cre_pre_1yr > 0)
+  )
+
+# Post-index count, bounded by last_cre_date
+post_cre_counts <- cre_labs %>%
+  inner_join(control %>% select(EMPI, last_cre_date), by = "EMPI") %>%
+  filter(Seq_Date_Time > Index_date, Seq_Date_Time <= last_cre_date) %>%
+  group_by(EMPI) %>%
+  summarise(n_cre_post = n(), .groups = "drop")
+
+control <- control %>%
+  merge(pre_cre_counts,  by = "EMPI", all.x = TRUE) %>%
+  merge(post_cre_counts, by = "EMPI", all.x = TRUE) %>%
+  mutate(
+    n_cre_pre_all    = replace_na(n_cre_pre_all, 0),
+    n_cre_pre_1yr    = replace_na(n_cre_pre_1yr, 0),
+    pre_history_days = replace_na(pre_history_days, 0),
+    has_pre_cre      = replace_na(has_pre_cre, 0),
+    n_cre_post       = replace_na(n_cre_post, 0),
+    cre_rate_post    = ifelse(last_cre_days > 0,
+                              n_cre_post / (last_cre_days / 365),
+                              NA_real_)
+  )
+```
+
 ## 5.2 Baseline eGFR & CKD stage
 
 ```{r}
@@ -902,6 +962,9 @@ control %>%
     ## Baseline Labs
     eGFR_CRE_baseline, ckd_stage_baseline,
     pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+    ## Matching — CRE surveillance
+    n_cre_pre_1yr, n_cre_pre_all, pre_history_days, cre_rate_pre, has_pre_cre,
+    n_cre_post, cre_rate_post,
     ## AKI
     aki
   ) %>%
@@ -909,7 +972,13 @@ control %>%
     type = list(Age ~ "continuous", eGFR_CRE_baseline ~ "continuous",
                 pre_median_HGB_90days ~ "continuous",
                 pre_median_ALB_90days ~ "continuous",
-                pre_median_GHBA1C_90days ~ "continuous"),
+                pre_median_GHBA1C_90days ~ "continuous",
+                n_cre_pre_1yr ~ "continuous",
+                n_cre_pre_all ~ "continuous",
+                pre_history_days ~ "continuous",
+                cre_rate_pre ~ "continuous",
+                n_cre_post ~ "continuous",
+                cre_rate_post ~ "continuous"),
     statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
     missing_text = "Missing"
   ) %>%

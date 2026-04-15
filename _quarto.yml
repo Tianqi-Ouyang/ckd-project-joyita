@@ -14,6 +14,8 @@ website:
         text: Treated Group
       - href: control_group.qmd
         text: Control Group
+      - href: matching.qmd
+        text: Matching
 
 format:
   html:

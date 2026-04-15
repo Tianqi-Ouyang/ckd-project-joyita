@@ -1,0 +1,338 @@
+---
+title: "Propensity-Score Matching – Treated vs Control"
+author: "Tianqi Ouyang"
+date: "2026-04-15"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+execute:
+  warning: false
+  message: false
+---
+
+# Summary
+
+## Rationale
+
+Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — **baseline creatinine surveillance intensity** (`n_cre_pre_1yr`). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.
+
+## Method
+
+| Parameter | Value |
+|---|---|
+| Matching algorithm | Nearest-neighbor PS matching (logit PS), greedy, no replacement |
+| Ratio | Variable 1:k, `min.controls = 1`, `max.controls = 3` |
+| Caliper | 0.2 × SD(logit PS) |
+| Exact-match stratum | `era` (2016–2019 / 2020–2023) |
+| Eligibility filter | `has_pre_cre == 1` |
+| Seed | `set.seed(42)` |
+| Software | R `MatchIt` 4.x |
+| Balance target | Standardized mean difference (SMD) < 0.1 for all PS model covariates |
+
+## Cohort restriction before matching
+
+| Step | Control n |
+|---|---|
+| After cohort build (Control Group page) | 2,315 |
+| Drop Index year ≤ 2015 (no treated counterpart) | −1,025 |
+| Drop `has_pre_cre == 0` | (computed below) |
+| **Eligible for matching** | see chunk `cohort-restrict` |
+
+## Key design choices
+
+| Choice | Reason |
+|---|---|
+| Drop pre-2016 controls | Treated cohort begins 2016; earlier controls have no temporal counterpart |
+| Variable 1:k (max 3) | Keeps all 379 treated even in 2020–2023 where control pool is tighter; variance-reduction gains plateau after k≈4 (Rubin 1996) |
+| Caliper 0.2 × SD(logit PS) | Austin (2011) — empirically optimal for bias removal |
+| Exact-match on era only | Era shift is large/structural; sex balances adequately via PS alone |
+| Include `n_cre_pre_1yr` + `pre_history_days` in PS model | Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly |
+| Exclude `Cancer_Diagnosis` / `Cancers_stage` | Control cohort lacks these fields (only treated has them) |
+| Exclude post-exposure variables (`last_cre_days`, `aki`, outcomes) | Would induce collider bias if included |
+
+---
+
+::: {.callout-note}
+## Prerequisite
+Before rendering this page, re-render `treated_group.qmd` and `control_group.qmd` so the new `n_cre_pre_1yr`, `pre_history_days`, `has_pre_cre`, `cre_rate_pre`, `n_cre_post`, `cre_rate_post` columns are present in the output `.xlsx` files.
+:::
+
+---
+
+# 1 Setup
+
+```{r}
+#| label: setup
+suppressPackageStartupMessages({
+  library(readxl)
+  library(writexl)
+  library(dplyr)
+  library(tidyr)
+  library(MatchIt)
+  library(cobalt)
+  library(gtsummary)
+  library(ggplot2)
+})
+```
+
+```{r}
+#| label: load-data
+treated <- read_excel("treated_group.xlsx")
+control <- read_excel("control_group.xlsx")
+
+cat("Treated raw n =", nrow(treated), "\n")
+cat("Control raw n =", nrow(control), "\n")
+```
+
+---
+
+# 2 Harmonize and combine
+
+Rename `Race1` → `Race` in control so variable names match. Keep only columns needed for matching + downstream analysis.
+
+```{r}
+#| label: harmonize
+control <- control %>% rename(Race = Race1)
+
+# Columns needed for PS model + bookkeeping + downstream time-to-event
+common_vars <- c(
+  "EMPI", "Index_date", "last_cre_days", "Age", "male", "Race", "Ethnic_Group",
+  "dm", "htn", "cad", "cirrhosis",
+  "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
+  "eGFR_CRE_baseline",
+  "pre_median_HGB_90days", "pre_median_ALB_90days", "pre_median_GHBA1C_90days",
+  "n_cre_pre_1yr", "pre_history_days", "has_pre_cre"
+)
+
+missing_t <- setdiff(common_vars, names(treated))
+missing_c <- setdiff(common_vars, names(control))
+if (length(missing_t) > 0) stop("Treated missing columns: ", paste(missing_t, collapse = ", "))
+if (length(missing_c) > 0) stop("Control missing columns: ", paste(missing_c, collapse = ", "))
+
+combined <- bind_rows(
+  treated %>% mutate(treat = 1L) %>% select(all_of(c(common_vars, "treat"))),
+  control %>% mutate(treat = 0L) %>% select(all_of(c(common_vars, "treat")))
+)
+
+cat("Combined n =", nrow(combined), "\n")
+```
+
+---
+
+# 3 Cohort restriction
+
+```{r}
+#| label: cohort-restrict
+n0 <- nrow(combined)
+
+# Drop controls with Index year <= 2015
+combined <- combined %>%
+  mutate(index_year = as.numeric(format(as.Date(Index_date), "%Y"))) %>%
+  filter(!(treat == 0 & index_year <= 2015))
+n1 <- nrow(combined)
+
+# Eligibility: must have pre-index CRE surveillance
+combined <- combined %>% filter(has_pre_cre == 1)
+n2 <- nrow(combined)
+
+# Era bins
+combined <- combined %>%
+  mutate(era = factor(ifelse(index_year <= 2019, "2016-2019", "2020-2023")))
+
+# Attrition
+attrition <- tibble::tibble(
+  Step = c("Combined (treated + control)",
+           "Drop controls with Index year <= 2015",
+           "Drop has_pre_cre == 0"),
+  N = c(n0, n1, n2),
+  Dropped = c(NA, n0 - n1, n1 - n2)
+)
+knitr::kable(attrition)
+
+cat("\nBy group x era:\n")
+combined %>% count(treat, era) %>% knitr::kable()
+```
+
+---
+
+# 4 Pre-match Table 1
+
+```{r}
+#| label: pre-match-table1
+pre_tbl <- combined %>%
+  select(treat, Age, male, Race, Ethnic_Group,
+         dm, htn, cad, cirrhosis,
+         ace_arb, diu, ppi, steroids, smoking, statins,
+         eGFR_CRE_baseline,
+         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+         n_cre_pre_1yr, pre_history_days,
+         era) %>%
+  tbl_summary(
+    by = treat,
+    statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+    missing_text = "Missing"
+  ) %>%
+  add_difference() %>%
+  modify_header(label ~ "**Variable**") %>%
+  bold_labels()
+pre_tbl
+```
+
+---
+
+# 5 Propensity-score model
+
+Drop incomplete cases (PS model + `MatchIt` both require complete covariates).
+
+```{r}
+#| label: complete-cases
+ps_covars <- c("Age", "male", "Race", "Ethnic_Group",
+               "dm", "htn", "cad", "cirrhosis",
+               "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
+               "eGFR_CRE_baseline",
+               "pre_median_HGB_90days", "pre_median_ALB_90days", "pre_median_GHBA1C_90days",
+               "n_cre_pre_1yr", "pre_history_days")
+
+n_before_cc <- nrow(combined)
+combined_cc <- combined %>% drop_na(all_of(ps_covars))
+n_after_cc <- nrow(combined_cc)
+
+cat("Dropped", n_before_cc - n_after_cc,
+    "rows with missing PS covariates.",
+    n_after_cc, "remain.\n")
+
+cat("\nMissingness per covariate (full combined):\n")
+combined %>% summarise(across(all_of(ps_covars), ~ sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "var", values_to = "n_missing") %>%
+  arrange(desc(n_missing)) %>%
+  knitr::kable()
+```
+
+```{r}
+#| label: ps-model
+ps_formula <- as.formula(paste("treat ~", paste(ps_covars, collapse = " + ")))
+
+ps_fit <- glm(ps_formula, data = combined_cc, family = binomial(link = "logit"))
+
+combined_cc <- combined_cc %>%
+  mutate(ps = predict(ps_fit, type = "response"),
+         logit_ps = predict(ps_fit, type = "link"))
+
+ggplot(combined_cc, aes(x = logit_ps, fill = factor(treat))) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "firebrick"),
+                    labels = c("Control", "Treated"),
+                    name = "") +
+  labs(x = "Logit(PS)", y = "Density",
+       title = "Propensity-score distribution by group") +
+  theme_minimal()
+```
+
+---
+
+# 6 Matching
+
+Variable-ratio 1:k nearest-neighbor (k between 1 and 3), exact-matched on `era`, caliper 0.2 SD(logit PS).
+
+```{r}
+#| label: matchit
+set.seed(42)
+
+m.out <- matchit(
+  ps_formula,
+  data         = combined_cc,
+  method       = "nearest",
+  distance     = "glm",
+  link         = "logit",
+  ratio        = 3,
+  min.controls = 1,
+  max.controls = 3,
+  exact        = ~ era,
+  caliper      = 0.2,
+  std.caliper  = TRUE,
+  replace      = FALSE
+)
+
+summary(m.out, un = TRUE)
+```
+
+```{r}
+#| label: matched-data
+matched_data <- match.data(m.out)
+
+cat("Matched treated n =", sum(matched_data$treat == 1), "\n")
+cat("Matched control n =", sum(matched_data$treat == 0), "\n")
+cat("Unmatched treated n =", sum(combined_cc$treat == 1) - sum(matched_data$treat == 1), "\n")
+```
+
+---
+
+# 7 Post-match Table 1
+
+```{r}
+#| label: post-match-table1
+post_tbl <- matched_data %>%
+  select(treat, Age, male, Race, Ethnic_Group,
+         dm, htn, cad, cirrhosis,
+         ace_arb, diu, ppi, steroids, smoking, statins,
+         eGFR_CRE_baseline,
+         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+         n_cre_pre_1yr, pre_history_days,
+         era) %>%
+  tbl_summary(
+    by = treat,
+    statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+    missing_text = "Missing"
+  ) %>%
+  add_difference() %>%
+  modify_header(label ~ "**Variable**") %>%
+  bold_labels()
+post_tbl
+```
+
+---
+
+# 8 Balance plot
+
+```{r}
+#| label: love-plot
+#| fig-height: 8
+love.plot(
+  m.out,
+  stats       = c("mean.diffs"),
+  threshold   = 0.1,
+  abs         = TRUE,
+  var.order   = "unadjusted",
+  line        = TRUE,
+  colors      = c("firebrick", "steelblue"),
+  sample.names = c("Unmatched", "Matched")
+) +
+  labs(title = "Standardized mean differences — pre vs post matching")
+```
+
+---
+
+# 9 Export matched cohort
+
+```{r}
+#| label: export
+# Attach PS, weights, subclass for downstream use
+out_df <- matched_data
+
+write_xlsx(out_df, "matched_cohort.xlsx")
+cat("Saved matched_cohort.xlsx with", nrow(out_df), "rows and",
+    ncol(out_df), "columns.\n")
+```
+
+---
+
+# 10 Notes and caveats
+
+- **Unmatched treated**: any treated patient not matched is reported in §6; if >5%, revisit the caliper or widen era bins.
+- **Sex not exact-matched**: balanced via PS model alone. Check post-match SMD for `male` in §7; if >0.1, add `exact = ~ era + male`.
+- **Missing HbA1c**: often the largest source of complete-case drop. If >30% of rows are lost, consider adding a missingness indicator (`ghba1c_missing`) and mean-imputing, rather than dropping.
+- **Cancer type / stage** are only captured for treated patients and so cannot enter the PS model. Residual confounding by cancer type is a study limitation — address in the Discussion.
+- **Post-exposure variables** (`last_cre_days`, `aki`, any `*_Xyear` outcome) are excluded from the PS model to avoid collider / post-treatment bias.
+- **Use of matched cohort downstream**: Cox / competing-risk models should either (a) use the matched sample with robust/cluster-adjusted SEs by `subclass`, or (b) use weights from `match.data()` in a weighted outcome model.
