@@ -336,6 +336,7 @@ control <- control %>%
     Race1 = ifelse(Race1 == "White", "White",
             ifelse(Race1 == "Black", "Black",
             ifelse(Race1 == "Asian", "Asian", "Other/Unknown"))),
+    white = as.integer(Race1 == "White"),
     Ethnic_Group = case_when(
       Ethnic_Group == "HISPANIC" ~ "Hispanic",
       Ethnic_Group == "Non Hispanic" ~ "Non_hispanic",

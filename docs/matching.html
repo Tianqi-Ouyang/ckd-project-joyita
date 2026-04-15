@@ -168,8 +168,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#rationale" id="toc-rationale" class="nav-link" data-scroll-target="#rationale">Rationale</a></li>
   <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method">Method</a></li>
+  <li><a href="#how-the-control-cohort-reaches-n-1307-before-matching" id="toc-how-the-control-cohort-reaches-n-1307-before-matching" class="nav-link" data-scroll-target="#how-the-control-cohort-reaches-n-1307-before-matching">How the control cohort reaches n = 1,307 (before matching)</a></li>
   <li><a href="#cohort-restriction-before-matching" id="toc-cohort-restriction-before-matching" class="nav-link" data-scroll-target="#cohort-restriction-before-matching">Cohort restriction before matching</a></li>
   <li><a href="#key-design-choices" id="toc-key-design-choices" class="nav-link" data-scroll-target="#key-design-choices">Key design choices</a></li>
+  <li><a href="#note-on-the-20202023-era" id="toc-note-on-the-20202023-era" class="nav-link" data-scroll-target="#note-on-the-20202023-era">Note on the 2020–2023 era</a></li>
   </ul></li>
   <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">1 Setup</a></li>
   <li><a href="#harmonize-and-combine" id="toc-harmonize-and-combine" class="nav-link" data-scroll-target="#harmonize-and-combine">2 Harmonize and combine</a></li>
@@ -222,7 +224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Summary</h1>
 <section id="rationale" class="level2">
 <h2 class="anchored" data-anchor-id="rationale">Rationale</h2>
-<p>Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — <strong>baseline creatinine surveillance intensity</strong> (<code>n_cre_pre_1yr</code>). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.</p>
+<p>Treated (ICI, n=379) and control (non-ICI neoplasm, n=1,307) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — <strong>baseline creatinine surveillance intensity</strong> (<code>n_cre_pre_1yr</code>). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.</p>
 </section>
 <section id="method" class="level2">
 <h2 class="anchored" data-anchor-id="method">Method</h2>
@@ -244,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>Ratio</td>
-<td>Variable 1:k, <code>min.controls = 1</code>, <code>max.controls = 3</code></td>
+<td>Variable 1:k, <code>ratio = 2</code> (target mean), <code>min.controls = 1</code>, <code>max.controls = 3</code></td>
 </tr>
 <tr class="odd">
 <td>Caliper</td>
@@ -273,6 +275,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 </section>
+<section id="how-the-control-cohort-reaches-n-1307-before-matching" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-control-cohort-reaches-n-1307-before-matching">How the control cohort reaches n = 1,307 (before matching)</h2>
+<p>The 04092026 RPDR pull is <strong>pre-curated</strong> — the source <code>Dem.txt</code> already contains exactly 1,307 patients who satisfy every cohort-build inclusion criterion. The control pipeline filters re-confirm but do not drop additional rows.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Step (executed in <code>control_group.qmd</code>)</th>
+<th>n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. Unique EMPIs in <code>mes98_040726114217167239_Dem.txt</code></td>
+<td>1,307</td>
+</tr>
+<tr class="even">
+<td>2. Has neoplasm Dx (ICD10 C00–D49) → defines <code>Index_date</code></td>
+<td>1,307</td>
+</tr>
+<tr class="odd">
+<td>3. Has post-index CRE (<code>last_cre_days &gt; 0</code>)</td>
+<td>1,307</td>
+</tr>
+<tr class="even">
+<td>4. Has CRE within 12 months pre-index</td>
+<td>1,307</td>
+</tr>
+<tr class="odd">
+<td>5. ≥ 18 months (548 d) follow-up</td>
+<td>1,307</td>
+</tr>
+<tr class="even">
+<td>6. ≥ 2 post-index CRE measurements</td>
+<td>1,307</td>
+</tr>
+<tr class="odd">
+<td>7. Non-missing baseline CRE (90-d window)</td>
+<td>1,307</td>
+</tr>
+<tr class="even">
+<td>8. <code>eGFR_CRE_baseline ≥ 10</code></td>
+<td><strong>1,307</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="cohort-restriction-before-matching" class="level2">
 <h2 class="anchored" data-anchor-id="cohort-restriction-before-matching">Cohort restriction before matching</h2>
 <table class="caption-top table">
@@ -284,16 +332,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>After cohort build (Control Group page)</td>
-<td>2,315</td>
+<td>Eligible cohort after <code>control_group.qmd</code> build</td>
+<td>1,307</td>
 </tr>
 <tr class="even">
 <td>Drop Index year ≤ 2015 (no treated counterpart)</td>
-<td>−1,025</td>
+<td>−338 → 969</td>
 </tr>
 <tr class="odd">
 <td>Drop <code>has_pre_cre == 0</code></td>
-<td>(computed below)</td>
+<td>(computed in §3)</td>
 </tr>
 <tr class="even">
 <td><strong>Eligible for matching</strong></td>
@@ -321,8 +369,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Treated cohort begins 2016; earlier controls have no temporal counterpart</td>
 </tr>
 <tr class="even">
-<td>Variable 1:k (max 3)</td>
-<td>Keeps all 379 treated even in 2020–2023 where control pool is tighter; variance-reduction gains plateau after k≈4 (Rubin 1996)</td>
+<td>Variable 1:k matching with <code>ratio=2</code>, <code>min.controls=1</code>, <code>max.controls=3</code></td>
+<td>Allows up to 1:3 in the early era where controls are abundant; falls back to 1:1 in the late era (2020–2023) where controls are scarce. Keeps all 379 eligible treated patients in the matched cohort.</td>
 </tr>
 <tr class="odd">
 <td>Caliper 0.2 × SD(logit PS)</td>
@@ -333,23 +381,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Era shift is large/structural; sex balances adequately via PS alone</td>
 </tr>
 <tr class="odd">
-<td>Include <code>n_cre_pre_1yr</code> + <code>pre_history_days</code> in PS model</td>
+<td>Include <code>n_cre_pre_1yr</code> in PS model</td>
 <td>Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly</td>
 </tr>
 <tr class="even">
+<td>Use binary <code>white</code> (1 = White, 0 = other) instead of multi-level <code>Race</code></td>
+<td>≥96% of both cohorts are White; treating Race as a 4-level factor wastes degrees of freedom on near-empty cells. The binary form captures all of the between-group variation that exists.</td>
+</tr>
+<tr class="odd">
+<td>Exclude <code>Ethnic_Group</code> from PS model</td>
+<td>Highly collinear with <code>Race</code>/<code>white</code> after harmonisation and contributes little independent variation</td>
+</tr>
+<tr class="even">
+<td>Exclude <code>pre_history_days</code> from PS model</td>
+<td>Largely redundant with <code>n_cre_pre_1yr</code>; including both inflates the PS model without improving balance</td>
+</tr>
+<tr class="odd">
 <td>Exclude <code>Cancer_Diagnosis</code> / <code>Cancers_stage</code></td>
 <td>Control cohort lacks these fields (only treated has them)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Exclude <code>pre_median_HGB_90days</code>, <code>pre_median_ALB_90days</code> from PS model</td>
 <td>High missingness in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Exclude post-exposure variables (<code>last_cre_days</code>, <code>aki</code>, outcomes)</td>
 <td>Would induce collider bias if included</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="note-on-the-20202023-era" class="level2">
+<h2 class="anchored" data-anchor-id="note-on-the-20202023-era">Note on the 2020–2023 era</h2>
+<p>Within the 2020–2023 stratum the eligible counts are roughly <strong>1:1.4</strong> (treated 142 vs control 192), so a fixed 1:3 match is structurally infeasible — there simply aren’t 426 controls available. The variable-ratio specification handles this automatically:</p>
+<ul>
+<li>2016–2019 era: target up to 1:3 (control supply is plentiful at 777).</li>
+<li>2020–2023 era: most treated patients will receive <strong>1:1</strong> matches because <code>min.controls = 1</code> is the binding constraint once the closest controls are consumed.</li>
+</ul>
+<p>This is the right behaviour for this study — it preserves all treated patients, keeps the closest-PS controls in each era, and accepts a smaller k where the data demand it. The downstream Cox / competing-risk model uses subclass-clustered SEs (or <code>MatchIt</code> weights), so unequal cluster sizes are handled correctly.</p>
 <hr>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -407,33 +476,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="harmonize-and-combine" class="level1">
 <h1>2 Harmonize and combine</h1>
-<p>Rename <code>Race1</code> → <code>Race</code> in control so variable names match. Keep only columns needed for matching + downstream analysis.</p>
+<p>Both cohorts now carry the binary <code>white</code> variable (1 if Race == “White”, else 0); no rename is needed for matching.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>control <span class="ot">&lt;-</span> control <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">Race =</span> Race1)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Columns needed for PS model + bookkeeping + downstream time-to-event</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>common_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EMPI"</span>, <span class="st">"Index_date"</span>, <span class="st">"last_cre_days"</span>, <span class="st">"Age"</span>, <span class="st">"male"</span>, <span class="st">"Race"</span>, <span class="st">"Ethnic_Group"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dm"</span>, <span class="st">"htn"</span>, <span class="st">"cad"</span>, <span class="st">"cirrhosis"</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eGFR_CRE_baseline"</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pre_median_HGB_90days"</span>, <span class="st">"pre_median_ALB_90days"</span>,</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"pre_history_days"</span>, <span class="st">"has_pre_cre"</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>missing_t <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(treated))</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>missing_c <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(control))</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_t) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Treated missing columns: "</span>, <span class="fu">paste</span>(missing_t, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_c) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Control missing columns: "</span>, <span class="fu">paste</span>(missing_c, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  treated <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">1</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>))),</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  control <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">0</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>)))</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Combined n ="</span>, <span class="fu">nrow</span>(combined), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Columns needed for PS model + bookkeeping + downstream time-to-event</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>common_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EMPI"</span>, <span class="st">"Index_date"</span>, <span class="st">"last_cre_days"</span>, <span class="st">"Age"</span>, <span class="st">"male"</span>, <span class="st">"white"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dm"</span>, <span class="st">"htn"</span>, <span class="st">"cad"</span>, <span class="st">"cirrhosis"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eGFR_CRE_baseline"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pre_median_HGB_90days"</span>, <span class="st">"pre_median_ALB_90days"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"has_pre_cre"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>missing_t <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(treated))</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>missing_c <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(control))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_t) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Treated missing columns: "</span>, <span class="fu">paste</span>(missing_t, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_c) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Control missing columns: "</span>, <span class="fu">paste</span>(missing_c, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  treated <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">1</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>))),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  control <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">0</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>)))</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Combined n ="</span>, <span class="fu">nrow</span>(combined), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Combined n = 1686 </code></pre>
@@ -554,12 +621,12 @@ By group x era:</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pre_tbl <span class="ot">&lt;-</span> combined <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(treat, Age, male, Race, Ethnic_Group,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(treat, Age, male, white,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         dm, htn, cad, cirrhosis,</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>         ace_arb, diu, ppi, steroids, smoking, statins,</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>         eGFR_CRE_baseline,</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr, pre_history_days,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr,</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> treat,</span>
@@ -572,23 +639,23 @@ By group x era:</code></pre>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>pre_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="tebwkkgasl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tebwkkgasl table {
+<div id="wqupdcwips" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wqupdcwips table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#tebwkkgasl thead, #tebwkkgasl tbody, #tebwkkgasl tfoot, #tebwkkgasl tr, #tebwkkgasl td, #tebwkkgasl th {
+#wqupdcwips thead, #wqupdcwips tbody, #wqupdcwips tfoot, #wqupdcwips tr, #wqupdcwips td, #wqupdcwips th {
   border-style: none;
 }
 
-#tebwkkgasl p {
+#wqupdcwips p {
   margin: 0;
   padding: 0;
 }
 
-#tebwkkgasl .gt_table {
+#wqupdcwips .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -614,12 +681,12 @@ By group x era:</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_caption {
+#wqupdcwips .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#tebwkkgasl .gt_title {
+#wqupdcwips .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -631,7 +698,7 @@ By group x era:</code></pre>
   border-bottom-width: 0;
 }
 
-#tebwkkgasl .gt_subtitle {
+#wqupdcwips .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -643,7 +710,7 @@ By group x era:</code></pre>
   border-top-width: 0;
 }
 
-#tebwkkgasl .gt_heading {
+#wqupdcwips .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -655,13 +722,13 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_bottom_border {
+#wqupdcwips .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_col_headings {
+#wqupdcwips .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -676,7 +743,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_col_heading {
+#wqupdcwips .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -696,7 +763,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#tebwkkgasl .gt_column_spanner_outer {
+#wqupdcwips .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -708,15 +775,15 @@ By group x era:</code></pre>
   padding-right: 4px;
 }
 
-#tebwkkgasl .gt_column_spanner_outer:first-child {
+#wqupdcwips .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#tebwkkgasl .gt_column_spanner_outer:last-child {
+#wqupdcwips .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#tebwkkgasl .gt_column_spanner {
+#wqupdcwips .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -728,11 +795,11 @@ By group x era:</code></pre>
   width: 100%;
 }
 
-#tebwkkgasl .gt_spanner_row {
+#wqupdcwips .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#tebwkkgasl .gt_group_heading {
+#wqupdcwips .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -758,7 +825,7 @@ By group x era:</code></pre>
   text-align: left;
 }
 
-#tebwkkgasl .gt_empty_group_heading {
+#wqupdcwips .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -773,15 +840,15 @@ By group x era:</code></pre>
   vertical-align: middle;
 }
 
-#tebwkkgasl .gt_from_md > :first-child {
+#wqupdcwips .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#tebwkkgasl .gt_from_md > :last-child {
+#wqupdcwips .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#tebwkkgasl .gt_row {
+#wqupdcwips .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -800,7 +867,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#tebwkkgasl .gt_stub {
+#wqupdcwips .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -813,7 +880,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#tebwkkgasl .gt_stub_row_group {
+#wqupdcwips .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -827,15 +894,15 @@ By group x era:</code></pre>
   vertical-align: top;
 }
 
-#tebwkkgasl .gt_row_group_first td {
+#wqupdcwips .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#tebwkkgasl .gt_row_group_first th {
+#wqupdcwips .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#tebwkkgasl .gt_summary_row {
+#wqupdcwips .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -845,16 +912,16 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#tebwkkgasl .gt_first_summary_row {
+#wqupdcwips .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_first_summary_row.thick {
+#wqupdcwips .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#tebwkkgasl .gt_last_summary_row {
+#wqupdcwips .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -864,7 +931,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_grand_summary_row {
+#wqupdcwips .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -874,7 +941,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#tebwkkgasl .gt_first_grand_summary_row {
+#wqupdcwips .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -884,7 +951,7 @@ By group x era:</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_last_grand_summary_row_top {
+#wqupdcwips .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -894,11 +961,11 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_striped {
+#wqupdcwips .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#tebwkkgasl .gt_table_body {
+#wqupdcwips .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -907,7 +974,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_footnotes {
+#wqupdcwips .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -921,7 +988,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_footnote {
+#wqupdcwips .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -930,7 +997,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#tebwkkgasl .gt_sourcenotes {
+#wqupdcwips .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -944,7 +1011,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#tebwkkgasl .gt_sourcenote {
+#wqupdcwips .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -952,72 +1019,72 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#tebwkkgasl .gt_left {
+#wqupdcwips .gt_left {
   text-align: left;
 }
 
-#tebwkkgasl .gt_center {
+#wqupdcwips .gt_center {
   text-align: center;
 }
 
-#tebwkkgasl .gt_right {
+#wqupdcwips .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#tebwkkgasl .gt_font_normal {
+#wqupdcwips .gt_font_normal {
   font-weight: normal;
 }
 
-#tebwkkgasl .gt_font_bold {
+#wqupdcwips .gt_font_bold {
   font-weight: bold;
 }
 
-#tebwkkgasl .gt_font_italic {
+#wqupdcwips .gt_font_italic {
   font-style: italic;
 }
 
-#tebwkkgasl .gt_super {
+#wqupdcwips .gt_super {
   font-size: 65%;
 }
 
-#tebwkkgasl .gt_footnote_marks {
+#wqupdcwips .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#tebwkkgasl .gt_asterisk {
+#wqupdcwips .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#tebwkkgasl .gt_indent_1 {
+#wqupdcwips .gt_indent_1 {
   text-indent: 5px;
 }
 
-#tebwkkgasl .gt_indent_2 {
+#wqupdcwips .gt_indent_2 {
   text-indent: 10px;
 }
 
-#tebwkkgasl .gt_indent_3 {
+#wqupdcwips .gt_indent_3 {
   text-indent: 15px;
 }
 
-#tebwkkgasl .gt_indent_4 {
+#wqupdcwips .gt_indent_4 {
   text-indent: 20px;
 }
 
-#tebwkkgasl .gt_indent_5 {
+#wqupdcwips .gt_indent_5 {
   text-indent: 25px;
 }
 
-#tebwkkgasl .katex-display {
+#wqupdcwips .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#tebwkkgasl div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wqupdcwips div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1059,107 +1126,12 @@ By group x era:</code></pre>
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">Race</td>
-<td class="gt_row gt_center" headers="stat_1"><br>
-</td>
-<td class="gt_row gt_center" headers="stat_2"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Asian</td>
-<td class="gt_row gt_center" headers="stat_1">1 (0.1%)</td>
-<td class="gt_row gt_center" headers="stat_2">2 (0.7%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Black</td>
-<td class="gt_row gt_center" headers="stat_1">3 (0.3%)</td>
-<td class="gt_row gt_center" headers="stat_2">2 (0.7%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Other/Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">12 (1.2%)</td>
-<td class="gt_row gt_center" headers="stat_2">6 (2.1%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;White</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">white</td>
 <td class="gt_row gt_center" headers="stat_1">953 (98%)</td>
 <td class="gt_row gt_center" headers="stat_2">270 (96%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">Ethnic_Group</td>
-<td class="gt_row gt_center" headers="stat_1"><br>
-</td>
-<td class="gt_row gt_center" headers="stat_2"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Hispanic</td>
-<td class="gt_row gt_center" headers="stat_1">3 (0.3%)</td>
-<td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Non_hispanic</td>
-<td class="gt_row gt_center" headers="stat_1">859 (89%)</td>
-<td class="gt_row gt_center" headers="stat_2">0 (0%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Other</td>
-<td class="gt_row gt_center" headers="stat_1">107 (11%)</td>
-<td class="gt_row gt_center" headers="stat_2">280 (100%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
+<td class="gt_row gt_center" headers="estimate">1.9%</td>
+<td class="gt_row gt_center" headers="conf.low">-0.63%, 4.5%</td>
+<td class="gt_row gt_center" headers="p.value">0.081</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">dm</td>
@@ -1296,14 +1268,6 @@ By group x era:</code></pre>
 <td class="gt_row gt_center" headers="p.value">0.001</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_history_days</td>
-<td class="gt_row gt_center" headers="stat_1">4,375 (1,628, 6,536)</td>
-<td class="gt_row gt_center" headers="stat_2">346 (46, 3,629)</td>
-<td class="gt_row gt_center" headers="estimate">2,290</td>
-<td class="gt_row gt_center" headers="conf.low">1,896, 2,685</td>
-<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
-</tr>
-<tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">era</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
@@ -1316,7 +1280,7 @@ By group x era:</code></pre>
 <td class="gt_row gt_center" headers="p.value"><br>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2016-2019</td>
 <td class="gt_row gt_center" headers="stat_1">777 (80%)</td>
 <td class="gt_row gt_center" headers="stat_2">138 (49%)</td>
@@ -1327,7 +1291,7 @@ By group x era:</code></pre>
 <td class="gt_row gt_center" headers="p.value"><br>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2020-2023</td>
 <td class="gt_row gt_center" headers="stat_1">192 (20%)</td>
 <td class="gt_row gt_center" headers="stat_2">142 (51%)</td>
@@ -1363,22 +1327,23 @@ By group x era:</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ps_covars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"male"</span>, <span class="st">"Race"</span>, <span class="st">"Ethnic_Group"</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ps_covars <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Age"</span>, <span class="st">"male"</span>, <span class="st">"white"</span>,</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"dm"</span>, <span class="st">"htn"</span>, <span class="st">"cad"</span>, <span class="st">"cirrhosis"</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"eGFR_CRE_baseline"</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"pre_history_days"</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># HGB / ALB excluded from PS model: high missingness in controls</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (oncology-workup labs not routinely drawn in the control pool).</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Kept in Table 1 for descriptive comparison only.</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>n_before_cc <span class="ot">&lt;-</span> <span class="fu">nrow</span>(combined)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>combined_cc <span class="ot">&lt;-</span> combined <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(<span class="fu">all_of</span>(ps_covars))</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>n_after_cc <span class="ot">&lt;-</span> <span class="fu">nrow</span>(combined_cc)</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Dropped"</span>, n_before_cc <span class="sc">-</span> n_after_cc,</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rows with missing PS covariates."</span>,</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    n_after_cc, <span class="st">"remain.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"n_cre_pre_1yr"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Excluded from PS model:</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># - HGB / ALB: high missingness in controls (kept in Table 1 only).</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># - Ethnic_Group: redundant with Race/white after harmonisation.</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - pre_history_days: redundant with n_cre_pre_1yr.</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>n_before_cc <span class="ot">&lt;-</span> <span class="fu">nrow</span>(combined)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>combined_cc <span class="ot">&lt;-</span> combined <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(<span class="fu">all_of</span>(ps_covars))</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>n_after_cc <span class="ot">&lt;-</span> <span class="fu">nrow</span>(combined_cc)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Dropped"</span>, n_before_cc <span class="sc">-</span> n_after_cc,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rows with missing PS covariates."</span>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    n_after_cc, <span class="st">"remain.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Dropped 0 rows with missing PS covariates. 1249 remain.</code></pre>
@@ -1416,63 +1381,55 @@ Missingness per covariate (full combined):</code></pre>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Race</td>
+<td style="text-align: left;">white</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Ethnic_Group</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">dm</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">htn</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">cad</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">cirrhosis</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">ace_arb</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">diu</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">ppi</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">steroids</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">smoking</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">statins</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">eGFR_CRE_baseline</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">n_cre_pre_1yr</td>
-<td style="text-align: right;">0</td>
-</tr>
 <tr class="odd">
-<td style="text-align: left;">pre_history_days</td>
+<td style="text-align: left;">n_cre_pre_1yr</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
@@ -1543,120 +1500,92 @@ matchit(formula = ps_formula, data = combined_cc, method = "nearest",
     max.controls = 3)
 
 Summary of Balance for All Data:
-                         Means Treated Means Control Std. Mean Diff. Var. Ratio
-distance                        0.8058        0.0561          3.9908     1.1020
-Age                            65.1679       66.6006         -0.1051     1.3355
-male                            0.6250        0.5005          0.2571          .
-RaceAsian                       0.0071        0.0010          0.0726          .
-RaceBlack                       0.0071        0.0031          0.0481          .
-RaceOther/Unknown               0.0214        0.0124          0.0625          .
-RaceWhite                       0.9643        0.9835         -0.1035          .
-Ethnic_GroupHispanic            0.0000        0.0031         -0.0633          .
-Ethnic_GroupNon_hispanic        0.0000        0.8865         -3.1726          .
-Ethnic_GroupOther               1.0000        0.1104   16247872.1022          .
-dm                              0.1464        0.1620         -0.0441          .
-htn                             0.6214        0.6904         -0.1422          .
-cad                             0.1643        0.1703         -0.0162          .
-cirrhosis                       0.0036        0.0083         -0.0785          .
-ace_arb                         0.3500        0.4252         -0.1576          .
-diu                             0.2321        0.3736         -0.3350          .
-ppi                             0.3214        0.3581         -0.0785          .
-steroids                        0.7357        0.4128          0.7323          .
-smoking                         0.3893        0.4510         -0.1265          .
-statins                         0.4643        0.4892         -0.0499          .
-eGFR_CRE_baseline              83.5873       78.8833          0.2458     1.0989
-n_cre_pre_1yr                   4.0964        2.8421          0.2148     1.3140
-pre_history_days             2086.2643     4376.7234         -0.7739     0.9950
-era2016-2019                    0.4929        0.8019         -0.6181          .
-era2020-2023                    0.5071        0.1981          0.6181          .
-                         eCDF Mean eCDF Max
-distance                    0.6071   0.8974
-Age                         0.0231   0.0676
-male                        0.1245   0.1245
-RaceAsian                   0.0061   0.0061
-RaceBlack                   0.0040   0.0040
-RaceOther/Unknown           0.0090   0.0090
-RaceWhite                   0.0192   0.0192
-Ethnic_GroupHispanic        0.0031   0.0031
-Ethnic_GroupNon_hispanic    0.8865   0.8865
-Ethnic_GroupOther           0.8896   0.8896
-dm                          0.0156   0.0156
-htn                         0.0690   0.0690
-cad                         0.0060   0.0060
-cirrhosis                   0.0047   0.0047
-ace_arb                     0.0752   0.0752
-diu                         0.1414   0.1414
-ppi                         0.0367   0.0367
-steroids                    0.3229   0.3229
-smoking                     0.0617   0.0617
-statins                     0.0249   0.0249
-eGFR_CRE_baseline           0.0759   0.1396
-n_cre_pre_1yr               0.0386   0.1485
-pre_history_days            0.2425   0.4069
-era2016-2019                0.3090   0.3090
-era2020-2023                0.3090   0.3090
+                  Means Treated Means Control Std. Mean Diff. Var. Ratio
+distance                 0.3377        0.1914          0.8536     1.5456
+Age                     65.1679       66.6006         -0.1051     1.3355
+male                     0.6250        0.5005          0.2571          .
+white                    0.9643        0.9835         -0.1035          .
+dm                       0.1464        0.1620         -0.0441          .
+htn                      0.6214        0.6904         -0.1422          .
+cad                      0.1643        0.1703         -0.0162          .
+cirrhosis                0.0036        0.0083         -0.0785          .
+ace_arb                  0.3500        0.4252         -0.1576          .
+diu                      0.2321        0.3736         -0.3350          .
+ppi                      0.3214        0.3581         -0.0785          .
+steroids                 0.7357        0.4128          0.7323          .
+smoking                  0.3893        0.4510         -0.1265          .
+statins                  0.4643        0.4892         -0.0499          .
+eGFR_CRE_baseline       83.5873       78.8833          0.2458     1.0989
+n_cre_pre_1yr            4.0964        2.8421          0.2148     1.3140
+era2016-2019             0.4929        0.8019         -0.6181          .
+era2020-2023             0.5071        0.1981          0.6181          .
+                  eCDF Mean eCDF Max
+distance             0.2495   0.3925
+Age                  0.0231   0.0676
+male                 0.1245   0.1245
+white                0.0192   0.0192
+dm                   0.0156   0.0156
+htn                  0.0690   0.0690
+cad                  0.0060   0.0060
+cirrhosis            0.0047   0.0047
+ace_arb              0.0752   0.0752
+diu                  0.1414   0.1414
+ppi                  0.0367   0.0367
+steroids             0.3229   0.3229
+smoking              0.0617   0.0617
+statins              0.0249   0.0249
+eGFR_CRE_baseline    0.0759   0.1396
+n_cre_pre_1yr        0.0386   0.1485
+era2016-2019         0.3090   0.3090
+era2020-2023         0.3090   0.3090
 
 Summary of Balance for Matched Data:
-                         Means Treated Means Control Std. Mean Diff. Var. Ratio
-distance                        0.6691        0.6153          0.2868     1.1520
-Age                            65.5070       66.5595         -0.0772     1.0103
-male                            0.5352        0.5266          0.0178          .
-RaceAsian                       0.0141        0.0000          0.1672          .
-RaceBlack                       0.0282        0.0000          0.3345          .
-RaceOther/Unknown               0.0704        0.0571          0.0919          .
-RaceWhite                       0.8873        0.9429         -0.2994          .
-Ethnic_GroupHispanic            0.0000        0.0000          0.0000          .
-Ethnic_GroupNon_hispanic        0.0000        0.0000          0.0000          .
-Ethnic_GroupOther               1.0000        1.0000          0.0000          .
-dm                              0.1268        0.1424         -0.0443          .
-htn                             0.6761        0.6408          0.0726          .
-cad                             0.1549        0.1440          0.0296          .
-cirrhosis                       0.0141        0.0141         -0.0000          .
-ace_arb                         0.3662        0.4147         -0.1017          .
-diu                             0.2817        0.3286         -0.1112          .
-ppi                             0.3099        0.3427         -0.0704          .
-steroids                        0.4789        0.5250         -0.1047          .
-smoking                         0.4789        0.4171          0.1268          .
-statins                         0.5070        0.5266         -0.0392          .
-eGFR_CRE_baseline              81.6193       78.1780          0.1798     1.1929
-n_cre_pre_1yr                   4.1268        3.8787          0.0425     0.3548
-pre_history_days             3010.0563     4066.5485         -0.3570     1.3180
-era2016-2019                    0.7606        0.7731         -0.0250          .
-era2020-2023                    0.2394        0.2269          0.0250          .
-                         eCDF Mean eCDF Max Std. Pair Dist.
-distance                    0.0630   0.1964          0.8465
-Age                         0.0310   0.0908          1.1298
-male                        0.0086   0.0086          0.8450
-RaceAsian                   0.0141   0.0141          0.1349
-RaceBlack                   0.0282   0.0282          2.5638
-RaceOther/Unknown           0.0133   0.0133          0.6278
-RaceWhite                   0.0556   0.0556          1.5921
-Ethnic_GroupHispanic        0.0000   0.0000          0.0000
-Ethnic_GroupNon_hispanic    0.0000   0.0000          0.0000
-Ethnic_GroupOther           0.0000   0.0000          0.0000
-dm                          0.0156   0.0156          0.6107
-htn                         0.0352   0.0352          1.1011
-cad                         0.0110   0.0110          0.9814
-cirrhosis                   0.0000   0.0000          0.0227
-ace_arb                     0.0485   0.0485          1.0006
-diu                         0.0469   0.0469          1.2381
-ppi                         0.0329   0.0329          1.0219
-steroids                    0.0462   0.0462          1.1597
-smoking                     0.0618   0.0618          1.1653
-statins                     0.0196   0.0196          1.1165
-eGFR_CRE_baseline           0.0465   0.1354          1.1924
-n_cre_pre_1yr               0.0371   0.1917          1.2710
-pre_history_days            0.1232   0.2527          1.2382
-era2016-2019                0.0125   0.0125          0.3637
-era2020-2023                0.0125   0.0125          0.3637
+                  Means Treated Means Control Std. Mean Diff. Var. Ratio
+distance                 0.3135        0.3077          0.0337     1.0553
+Age                     65.1417       65.5037         -0.0266     1.4012
+male                     0.5911        0.5729          0.0377          .
+white                    0.9595        0.9716         -0.0652          .
+dm                       0.1377        0.1302          0.0211          .
+htn                      0.6275        0.6019          0.0529          .
+cad                      0.1741        0.1949         -0.0563          .
+cirrhosis                0.0040        0.0122         -0.1364          .
+ace_arb                  0.3563        0.3337          0.0473          .
+diu                      0.2551        0.2646         -0.0227          .
+ppi                      0.3320        0.3172          0.0316          .
+steroids                 0.7004        0.7060         -0.0128          .
+smoking                  0.4008        0.3984          0.0049          .
+statins                  0.4656        0.4675         -0.0038          .
+eGFR_CRE_baseline       82.5497       82.2881          0.0137     1.3962
+n_cre_pre_1yr            4.0729        3.6459          0.0731     0.5220
+era2016-2019             0.5547        0.5574         -0.0054          .
+era2020-2023             0.4453        0.4426          0.0054          .
+                  eCDF Mean eCDF Max Std. Pair Dist.
+distance             0.0064   0.0324          0.2352
+Age                  0.0280   0.0758          0.8740
+male                 0.0182   0.0182          0.9302
+white                0.0121   0.0121          0.2260
+dm                   0.0075   0.0075          0.5745
+htn                  0.0257   0.0257          0.8238
+cad                  0.0208   0.0208          0.6077
+cirrhosis            0.0081   0.0081          0.2220
+ace_arb              0.0226   0.0226          1.0043
+diu                  0.0096   0.0096          0.8157
+ppi                  0.0148   0.0148          0.8177
+steroids             0.0056   0.0056          0.6508
+smoking              0.0024   0.0024          0.9010
+statins              0.0019   0.0019          0.9649
+eGFR_CRE_baseline    0.0233   0.0601          1.0398
+n_cre_pre_1yr        0.0283   0.1275          0.4927
+era2016-2019         0.0027   0.0027          0.6093
+era2020-2023         0.0027   0.0027          0.6093
 
 Sample Sizes:
               Control Treated
-All            969.       280
-Matched (ESS)   71.96      71
-Matched         88.        71
-Unmatched      881.       209
-Discarded        0.         0</code></pre>
+All               969     280
+Matched (ESS)     248     247
+Matched           453     247
+Unmatched         516      33
+Discarded           0       0</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1667,21 +1596,21 @@ Discarded        0.         0</code></pre>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Matched treated n ="</span>, <span class="fu">sum</span>(matched_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Matched treated n = 71 </code></pre>
+<pre><code>Matched treated n = 247 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Matched control n ="</span>, <span class="fu">sum</span>(matched_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Matched control n = 88 </code></pre>
+<pre><code>Matched control n = 453 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Unmatched treated n ="</span>, <span class="fu">sum</span>(combined_cc<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">-</span> <span class="fu">sum</span>(matched_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Unmatched treated n = 209 </code></pre>
+<pre><code>Unmatched treated n = 33 </code></pre>
 </div>
 </div>
 <hr>
@@ -1692,12 +1621,12 @@ Discarded        0.         0</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>post_tbl <span class="ot">&lt;-</span> matched_data <span class="sc">%&gt;%</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(treat, Age, male, Race, Ethnic_Group,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(treat, Age, male, white,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>         dm, htn, cad, cirrhosis,</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         ace_arb, diu, ppi, steroids, smoking, statins,</span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>         eGFR_CRE_baseline,</span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr, pre_history_days,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr,</span>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> treat,</span>
@@ -2172,8 +2101,8 @@ Discarded        0.         0</code></pre>
 <thead>
 <tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Variable</strong></th>
-<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>0</strong><br> N = 88<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
-<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>1</strong><br> N = 71<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="stat_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>0</strong><br> N = 453<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+<th id="stat_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>1</strong><br> N = 247<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
 <th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>Difference</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
 <th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2,3</sup></span></th>
 <th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span></th>
@@ -2182,200 +2111,127 @@ Discarded        0.         0</code></pre>
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">Age</td>
-<td class="gt_row gt_center" headers="stat_1">67 (61, 74)</td>
-<td class="gt_row gt_center" headers="stat_2">68 (58, 75)</td>
-<td class="gt_row gt_center" headers="estimate">0.70</td>
-<td class="gt_row gt_center" headers="conf.low">-3.5, 4.9</td>
-<td class="gt_row gt_center" headers="p.value">0.7</td>
+<td class="gt_row gt_center" headers="stat_1">67 (59, 74)</td>
+<td class="gt_row gt_center" headers="stat_2">67 (58, 75)</td>
+<td class="gt_row gt_center" headers="estimate">1.2</td>
+<td class="gt_row gt_center" headers="conf.low">-0.81, 3.3</td>
+<td class="gt_row gt_center" headers="p.value">0.2</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">male</td>
-<td class="gt_row gt_center" headers="stat_1">44 (50%)</td>
-<td class="gt_row gt_center" headers="stat_2">38 (54%)</td>
-<td class="gt_row gt_center" headers="estimate">-3.5%</td>
-<td class="gt_row gt_center" headers="conf.low">-20%, 13%</td>
-<td class="gt_row gt_center" headers="p.value">0.8</td>
+<td class="gt_row gt_center" headers="stat_1">244 (54%)</td>
+<td class="gt_row gt_center" headers="stat_2">146 (59%)</td>
+<td class="gt_row gt_center" headers="estimate">-5.2%</td>
+<td class="gt_row gt_center" headers="conf.low">-13%, 2.7%</td>
+<td class="gt_row gt_center" headers="p.value">0.2</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">Race</td>
-<td class="gt_row gt_center" headers="stat_1"><br>
-</td>
-<td class="gt_row gt_center" headers="stat_2"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Asian</td>
-<td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
-<td class="gt_row gt_center" headers="stat_2">1 (1.4%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Black</td>
-<td class="gt_row gt_center" headers="stat_1">0 (0%)</td>
-<td class="gt_row gt_center" headers="stat_2">2 (2.8%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Other/Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">5 (5.7%)</td>
-<td class="gt_row gt_center" headers="stat_2">5 (7.0%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;White</td>
-<td class="gt_row gt_center" headers="stat_1">83 (94%)</td>
-<td class="gt_row gt_center" headers="stat_2">63 (89%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">Ethnic_Group</td>
-<td class="gt_row gt_center" headers="stat_1"><br>
-</td>
-<td class="gt_row gt_center" headers="stat_2"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Other</td>
-<td class="gt_row gt_center" headers="stat_1">88 (100%)</td>
-<td class="gt_row gt_center" headers="stat_2">71 (100%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
+<td class="gt_row gt_left" headers="label" style="font-weight: bold">white</td>
+<td class="gt_row gt_center" headers="stat_1">444 (98%)</td>
+<td class="gt_row gt_center" headers="stat_2">237 (96%)</td>
+<td class="gt_row gt_center" headers="estimate">2.1%</td>
+<td class="gt_row gt_center" headers="conf.low">-1.0%, 5.1%</td>
+<td class="gt_row gt_center" headers="p.value">0.2</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">dm</td>
-<td class="gt_row gt_center" headers="stat_1">12 (14%)</td>
-<td class="gt_row gt_center" headers="stat_2">9 (13%)</td>
-<td class="gt_row gt_center" headers="estimate">0.96%</td>
-<td class="gt_row gt_center" headers="conf.low">-11%, 12%</td>
+<td class="gt_row gt_center" headers="stat_1">64 (14%)</td>
+<td class="gt_row gt_center" headers="stat_2">34 (14%)</td>
+<td class="gt_row gt_center" headers="estimate">0.36%</td>
+<td class="gt_row gt_center" headers="conf.low">-5.3%, 6.0%</td>
 <td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">htn</td>
-<td class="gt_row gt_center" headers="stat_1">54 (61%)</td>
-<td class="gt_row gt_center" headers="stat_2">48 (68%)</td>
-<td class="gt_row gt_center" headers="estimate">-6.2%</td>
-<td class="gt_row gt_center" headers="conf.low">-22%, 9.9%</td>
-<td class="gt_row gt_center" headers="p.value">0.5</td>
+<td class="gt_row gt_center" headers="stat_1">284 (63%)</td>
+<td class="gt_row gt_center" headers="stat_2">155 (63%)</td>
+<td class="gt_row gt_center" headers="estimate">-0.06%</td>
+<td class="gt_row gt_center" headers="conf.low">-7.6%, 7.5%</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">cad</td>
-<td class="gt_row gt_center" headers="stat_1">14 (16%)</td>
-<td class="gt_row gt_center" headers="stat_2">11 (15%)</td>
-<td class="gt_row gt_center" headers="estimate">0.42%</td>
-<td class="gt_row gt_center" headers="conf.low">-11%, 12%</td>
+<td class="gt_row gt_center" headers="stat_1">79 (17%)</td>
+<td class="gt_row gt_center" headers="stat_2">43 (17%)</td>
+<td class="gt_row gt_center" headers="estimate">0.03%</td>
+<td class="gt_row gt_center" headers="conf.low">-5.9%, 5.9%</td>
 <td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">cirrhosis</td>
-<td class="gt_row gt_center" headers="stat_1">1 (1.1%)</td>
-<td class="gt_row gt_center" headers="stat_2">1 (1.4%)</td>
-<td class="gt_row gt_center" headers="estimate">-0.27%</td>
-<td class="gt_row gt_center" headers="conf.low">-4.1%, 3.5%</td>
-<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
+<td class="gt_row gt_center" headers="stat_1">5 (1.1%)</td>
+<td class="gt_row gt_center" headers="stat_2">1 (0.4%)</td>
+<td class="gt_row gt_center" headers="estimate">0.70%</td>
+<td class="gt_row gt_center" headers="conf.low">-0.86%, 2.3%</td>
+<td class="gt_row gt_center" headers="p.value">0.6</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">ace_arb</td>
-<td class="gt_row gt_center" headers="stat_1">37 (42%)</td>
-<td class="gt_row gt_center" headers="stat_2">26 (37%)</td>
-<td class="gt_row gt_center" headers="estimate">5.4%</td>
-<td class="gt_row gt_center" headers="conf.low">-11%, 22%</td>
+<td class="gt_row gt_center" headers="stat_1">171 (38%)</td>
+<td class="gt_row gt_center" headers="stat_2">88 (36%)</td>
+<td class="gt_row gt_center" headers="estimate">2.1%</td>
+<td class="gt_row gt_center" headers="conf.low">-5.6%, 9.9%</td>
 <td class="gt_row gt_center" headers="p.value">0.6</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">diu</td>
-<td class="gt_row gt_center" headers="stat_1">29 (33%)</td>
-<td class="gt_row gt_center" headers="stat_2">20 (28%)</td>
-<td class="gt_row gt_center" headers="estimate">4.8%</td>
-<td class="gt_row gt_center" headers="conf.low">-11%, 20%</td>
-<td class="gt_row gt_center" headers="p.value">0.6</td>
+<td class="gt_row gt_center" headers="stat_1">141 (31%)</td>
+<td class="gt_row gt_center" headers="stat_2">63 (26%)</td>
+<td class="gt_row gt_center" headers="estimate">5.6%</td>
+<td class="gt_row gt_center" headers="conf.low">-1.6%, 13%</td>
+<td class="gt_row gt_center" headers="p.value">0.14</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">ppi</td>
-<td class="gt_row gt_center" headers="stat_1">30 (34%)</td>
-<td class="gt_row gt_center" headers="stat_2">22 (31%)</td>
-<td class="gt_row gt_center" headers="estimate">3.1%</td>
-<td class="gt_row gt_center" headers="conf.low">-13%, 19%</td>
-<td class="gt_row gt_center" headers="p.value">0.8</td>
+<td class="gt_row gt_center" headers="stat_1">151 (33%)</td>
+<td class="gt_row gt_center" headers="stat_2">82 (33%)</td>
+<td class="gt_row gt_center" headers="estimate">0.13%</td>
+<td class="gt_row gt_center" headers="conf.low">-7.3%, 7.6%</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">steroids</td>
-<td class="gt_row gt_center" headers="stat_1">42 (48%)</td>
-<td class="gt_row gt_center" headers="stat_2">34 (48%)</td>
-<td class="gt_row gt_center" headers="estimate">-0.16%</td>
-<td class="gt_row gt_center" headers="conf.low">-16%, 16%</td>
-<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
+<td class="gt_row gt_center" headers="stat_1">255 (56%)</td>
+<td class="gt_row gt_center" headers="stat_2">173 (70%)</td>
+<td class="gt_row gt_center" headers="estimate">-14%</td>
+<td class="gt_row gt_center" headers="conf.low">-21%, -6.1%</td>
+<td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">smoking</td>
-<td class="gt_row gt_center" headers="stat_1">40 (45%)</td>
-<td class="gt_row gt_center" headers="stat_2">34 (48%)</td>
-<td class="gt_row gt_center" headers="estimate">-2.4%</td>
-<td class="gt_row gt_center" headers="conf.low">-19%, 14%</td>
-<td class="gt_row gt_center" headers="p.value">0.9</td>
+<td class="gt_row gt_center" headers="stat_1">184 (41%)</td>
+<td class="gt_row gt_center" headers="stat_2">99 (40%)</td>
+<td class="gt_row gt_center" headers="estimate">0.54%</td>
+<td class="gt_row gt_center" headers="conf.low">-7.4%, 8.5%</td>
+<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">statins</td>
-<td class="gt_row gt_center" headers="stat_1">44 (50%)</td>
-<td class="gt_row gt_center" headers="stat_2">36 (51%)</td>
-<td class="gt_row gt_center" headers="estimate">-0.70%</td>
-<td class="gt_row gt_center" headers="conf.low">-17%, 16%</td>
+<td class="gt_row gt_center" headers="stat_1">211 (47%)</td>
+<td class="gt_row gt_center" headers="stat_2">115 (47%)</td>
+<td class="gt_row gt_center" headers="estimate">0.02%</td>
+<td class="gt_row gt_center" headers="conf.low">-7.7%, 7.8%</td>
 <td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">eGFR_CRE_baseline</td>
-<td class="gt_row gt_center" headers="stat_1">78 (69, 95)</td>
-<td class="gt_row gt_center" headers="stat_2">81 (72, 97)</td>
-<td class="gt_row gt_center" headers="estimate">-2.9</td>
-<td class="gt_row gt_center" headers="conf.low">-9.5, 3.6</td>
-<td class="gt_row gt_center" headers="p.value">0.4</td>
+<td class="gt_row gt_center" headers="stat_1">81 (68, 93)</td>
+<td class="gt_row gt_center" headers="stat_2">86 (71, 96)</td>
+<td class="gt_row gt_center" headers="estimate">-2.6</td>
+<td class="gt_row gt_center" headers="conf.low">-5.5, 0.34</td>
+<td class="gt_row gt_center" headers="p.value">0.082</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_median_HGB_90days</td>
-<td class="gt_row gt_center" headers="stat_1">13.50 (12.60, 14.40)</td>
-<td class="gt_row gt_center" headers="stat_2">13.45 (12.50, 14.35)</td>
-<td class="gt_row gt_center" headers="estimate">-0.02</td>
-<td class="gt_row gt_center" headers="conf.low">-0.57, 0.53</td>
-<td class="gt_row gt_center" headers="p.value">&gt;0.9</td>
+<td class="gt_row gt_center" headers="stat_1">13.80 (12.80, 14.90)</td>
+<td class="gt_row gt_center" headers="stat_2">13.90 (12.90, 14.70)</td>
+<td class="gt_row gt_center" headers="estimate">0.04</td>
+<td class="gt_row gt_center" headers="conf.low">-0.20, 0.28</td>
+<td class="gt_row gt_center" headers="p.value">0.8</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Missing</td>
-<td class="gt_row gt_center" headers="stat_1">25</td>
+<td class="gt_row gt_center" headers="stat_1">100</td>
 <td class="gt_row gt_center" headers="stat_2">0</td>
 <td class="gt_row gt_center" headers="estimate"><br>
 </td>
@@ -2386,16 +2242,16 @@ Discarded        0.         0</code></pre>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_median_ALB_90days</td>
-<td class="gt_row gt_center" headers="stat_1">4.40 (4.10, 4.50)</td>
-<td class="gt_row gt_center" headers="stat_2">4.25 (4.10, 4.40)</td>
-<td class="gt_row gt_center" headers="estimate">0.12</td>
-<td class="gt_row gt_center" headers="conf.low">0.01, 0.22</td>
-<td class="gt_row gt_center" headers="p.value">0.029</td>
+<td class="gt_row gt_center" headers="stat_1">4.40 (4.10, 4.60)</td>
+<td class="gt_row gt_center" headers="stat_2">4.30 (4.10, 4.50)</td>
+<td class="gt_row gt_center" headers="estimate">0.04</td>
+<td class="gt_row gt_center" headers="conf.low">-0.02, 0.10</td>
+<td class="gt_row gt_center" headers="p.value">0.2</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Missing</td>
-<td class="gt_row gt_center" headers="stat_1">19</td>
-<td class="gt_row gt_center" headers="stat_2">1</td>
+<td class="gt_row gt_center" headers="stat_1">142</td>
+<td class="gt_row gt_center" headers="stat_2">3</td>
 <td class="gt_row gt_center" headers="estimate"><br>
 </td>
 <td class="gt_row gt_center" headers="conf.low"><br>
@@ -2407,19 +2263,11 @@ Discarded        0.         0</code></pre>
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">n_cre_pre_1yr</td>
 <td class="gt_row gt_center" headers="stat_1">2.0 (1.0, 3.0)</td>
 <td class="gt_row gt_center" headers="stat_2">2.0 (1.0, 5.0)</td>
-<td class="gt_row gt_center" headers="estimate">-0.54</td>
-<td class="gt_row gt_center" headers="conf.low">-2.8, 1.7</td>
-<td class="gt_row gt_center" headers="p.value">0.6</td>
+<td class="gt_row gt_center" headers="estimate">-0.94</td>
+<td class="gt_row gt_center" headers="conf.low">-1.9, -0.01</td>
+<td class="gt_row gt_center" headers="p.value">0.048</td>
 </tr>
 <tr class="even">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_history_days</td>
-<td class="gt_row gt_center" headers="stat_1">4,110 (1,723, 6,494)</td>
-<td class="gt_row gt_center" headers="stat_2">1,403 (60, 5,170)</td>
-<td class="gt_row gt_center" headers="estimate">1,265</td>
-<td class="gt_row gt_center" headers="conf.low">269, 2,262</td>
-<td class="gt_row gt_center" headers="p.value">0.013</td>
-</tr>
-<tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">era</td>
 <td class="gt_row gt_center" headers="stat_1"><br>
 </td>
@@ -2432,10 +2280,10 @@ Discarded        0.         0</code></pre>
 <td class="gt_row gt_center" headers="p.value"><br>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2016-2019</td>
-<td class="gt_row gt_center" headers="stat_1">70 (80%)</td>
-<td class="gt_row gt_center" headers="stat_2">54 (76%)</td>
+<td class="gt_row gt_center" headers="stat_1">275 (61%)</td>
+<td class="gt_row gt_center" headers="stat_2">137 (55%)</td>
 <td class="gt_row gt_center" headers="estimate"><br>
 </td>
 <td class="gt_row gt_center" headers="conf.low"><br>
@@ -2443,10 +2291,10 @@ Discarded        0.         0</code></pre>
 <td class="gt_row gt_center" headers="p.value"><br>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;2020-2023</td>
-<td class="gt_row gt_center" headers="stat_1">18 (20%)</td>
-<td class="gt_row gt_center" headers="stat_2">17 (24%)</td>
+<td class="gt_row gt_center" headers="stat_1">178 (39%)</td>
+<td class="gt_row gt_center" headers="stat_2">110 (45%)</td>
 <td class="gt_row gt_center" headers="estimate"><br>
 </td>
 <td class="gt_row gt_center" headers="conf.low"><br>
@@ -2513,7 +2361,7 @@ Discarded        0.         0</code></pre>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ncol</span>(out_df), <span class="st">"columns.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Saved matched_cohort.xlsx with 159 rows and 31 columns.</code></pre>
+<pre><code>Saved matched_cohort.xlsx with 700 rows and 29 columns.</code></pre>
 </div>
 </div>
 <hr>

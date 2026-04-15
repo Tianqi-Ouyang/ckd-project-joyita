@@ -260,6 +260,7 @@ treated <- treated %>%
     Race = ifelse(Race == "White", "White",
            ifelse(Race == "Black", "Black",
            ifelse(Race == "Asian", "Asian", "Other/Unknown"))),
+    white = as.integer(Race == "White"),
     Ethnic_Group = case_when(
       Ethnic_Group == "HISPANIC" ~ "Hispanic",
       Ethnic_Group == "Non Hispanic" ~ "Non_hispanic",

@@ -16,14 +16,14 @@ execute:
 
 ## Rationale
 
-Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — **baseline creatinine surveillance intensity** (`n_cre_pre_1yr`). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.
+Treated (ICI, n=379) and control (non-ICI neoplasm, n=1,307) cohorts differ on demographics, calendar era, comorbidity profile, baseline kidney function, and — critically for outcome interpretation — **baseline creatinine surveillance intensity** (`n_cre_pre_1yr`). A direct comparison would confound the ICI effect with differential measurement, follow-up, and practice-era effects. Propensity-score matching is used to construct a comparable control subset while retaining all 379 treated patients.
 
 ## Method
 
 | Parameter | Value |
 |---|---|
 | Matching algorithm | Nearest-neighbor PS matching (logit PS), greedy, no replacement |
-| Ratio | Variable 1:k, `min.controls = 1`, `max.controls = 3` |
+| Ratio | Variable 1:k, `ratio = 2` (target mean), `min.controls = 1`, `max.controls = 3` |
 | Caliper | 0.2 × SD(logit PS) |
 | Exact-match stratum | `era` (2016–2019 / 2020–2023) |
 | Eligibility filter | `has_pre_cre == 1` |
@@ -31,13 +31,28 @@ Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on d
 | Software | R `MatchIt` 4.x |
 | Balance target | Standardized mean difference (SMD) < 0.1 for all PS model covariates |
 
+## How the control cohort reaches n = 1,307 (before matching)
+
+The 04092026 RPDR pull is **pre-curated** — the source `Dem.txt` already contains exactly 1,307 patients who satisfy every cohort-build inclusion criterion. The control pipeline filters re-confirm but do not drop additional rows.
+
+| Step (executed in `control_group.qmd`) | n |
+|---|---|
+| 1. Unique EMPIs in `mes98_040726114217167239_Dem.txt` | 1,307 |
+| 2. Has neoplasm Dx (ICD10 C00–D49) → defines `Index_date` | 1,307 |
+| 3. Has post-index CRE (`last_cre_days > 0`) | 1,307 |
+| 4. Has CRE within 12 months pre-index | 1,307 |
+| 5. ≥ 18 months (548 d) follow-up | 1,307 |
+| 6. ≥ 2 post-index CRE measurements | 1,307 |
+| 7. Non-missing baseline CRE (90-d window) | 1,307 |
+| 8. `eGFR_CRE_baseline ≥ 10` | **1,307** |
+
 ## Cohort restriction before matching
 
 | Step | Control n |
 |---|---|
-| After cohort build (Control Group page) | 2,315 |
-| Drop Index year ≤ 2015 (no treated counterpart) | −1,025 |
-| Drop `has_pre_cre == 0` | (computed below) |
+| Eligible cohort after `control_group.qmd` build | 1,307 |
+| Drop Index year ≤ 2015 (no treated counterpart) | −338 → 969 |
+| Drop `has_pre_cre == 0` | (computed in §3) |
 | **Eligible for matching** | see chunk `cohort-restrict` |
 
 ## Key design choices
@@ -45,13 +60,25 @@ Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on d
 | Choice | Reason |
 |---|---|
 | Drop pre-2016 controls | Treated cohort begins 2016; earlier controls have no temporal counterpart |
-| Variable 1:k (max 3) | Keeps all 379 treated even in 2020–2023 where control pool is tighter; variance-reduction gains plateau after k≈4 (Rubin 1996) |
+| Variable 1:k matching with `ratio=2`, `min.controls=1`, `max.controls=3` | Allows up to 1:3 in the early era where controls are abundant; falls back to 1:1 in the late era (2020–2023) where controls are scarce. Keeps all 379 eligible treated patients in the matched cohort. |
 | Caliper 0.2 × SD(logit PS) | Austin (2011) — empirically optimal for bias removal |
 | Exact-match on era only | Era shift is large/structural; sex balances adequately via PS alone |
-| Include `n_cre_pre_1yr` + `pre_history_days` in PS model | Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly |
+| Include `n_cre_pre_1yr` in PS model | Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly |
+| Use binary `white` (1 = White, 0 = other) instead of multi-level `Race` | ≥96% of both cohorts are White; treating Race as a 4-level factor wastes degrees of freedom on near-empty cells. The binary form captures all of the between-group variation that exists. |
+| Exclude `Ethnic_Group` from PS model | Highly collinear with `Race`/`white` after harmonisation and contributes little independent variation |
+| Exclude `pre_history_days` from PS model | Largely redundant with `n_cre_pre_1yr`; including both inflates the PS model without improving balance |
 | Exclude `Cancer_Diagnosis` / `Cancers_stage` | Control cohort lacks these fields (only treated has them) |
 | Exclude `pre_median_HGB_90days`, `pre_median_ALB_90days` from PS model | High missingness in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only |
 | Exclude post-exposure variables (`last_cre_days`, `aki`, outcomes) | Would induce collider bias if included |
+
+## Note on the 2020–2023 era
+
+Within the 2020–2023 stratum the eligible counts are roughly **1:1.4** (treated 142 vs control 192), so a fixed 1:3 match is structurally infeasible — there simply aren't 426 controls available. The variable-ratio specification handles this automatically:
+
+- 2016–2019 era: target up to 1:3 (control supply is plentiful at 777).
+- 2020–2023 era: most treated patients will receive **1:1** matches because `min.controls = 1` is the binding constraint once the closest controls are consumed.
+
+This is the right behaviour for this study — it preserves all treated patients, keeps the closest-PS controls in each era, and accepts a smaller k where the data demand it. The downstream Cox / competing-risk model uses subclass-clustered SEs (or `MatchIt` weights), so unequal cluster sizes are handled correctly.
 
 ---
 
@@ -91,20 +118,18 @@ cat("Control raw n =", nrow(control), "\n")
 
 # 2 Harmonize and combine
 
-Rename `Race1` → `Race` in control so variable names match. Keep only columns needed for matching + downstream analysis.
+Both cohorts now carry the binary `white` variable (1 if Race == "White", else 0); no rename is needed for matching.
 
 ```{r}
 #| label: harmonize
-control <- control %>% rename(Race = Race1)
-
 # Columns needed for PS model + bookkeeping + downstream time-to-event
 common_vars <- c(
-  "EMPI", "Index_date", "last_cre_days", "Age", "male", "Race", "Ethnic_Group",
+  "EMPI", "Index_date", "last_cre_days", "Age", "male", "white",
   "dm", "htn", "cad", "cirrhosis",
   "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
   "eGFR_CRE_baseline",
   "pre_median_HGB_90days", "pre_median_ALB_90days",
-  "n_cre_pre_1yr", "pre_history_days", "has_pre_cre"
+  "n_cre_pre_1yr", "has_pre_cre"
 )
 
 missing_t <- setdiff(common_vars, names(treated))
@@ -163,12 +188,12 @@ combined %>% count(treat, era) %>% knitr::kable()
 ```{r}
 #| label: pre-match-table1
 pre_tbl <- combined %>%
-  select(treat, Age, male, Race, Ethnic_Group,
+  select(treat, Age, male, white,
          dm, htn, cad, cirrhosis,
          ace_arb, diu, ppi, steroids, smoking, statins,
          eGFR_CRE_baseline,
          pre_median_HGB_90days, pre_median_ALB_90days,
-         n_cre_pre_1yr, pre_history_days,
+         n_cre_pre_1yr,
          era) %>%
   tbl_summary(
     by = treat,
@@ -189,14 +214,15 @@ Drop incomplete cases (PS model + `MatchIt` both require complete covariates).
 
 ```{r}
 #| label: complete-cases
-ps_covars <- c("Age", "male", "Race", "Ethnic_Group",
+ps_covars <- c("Age", "male", "white",
                "dm", "htn", "cad", "cirrhosis",
                "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
                "eGFR_CRE_baseline",
-               "n_cre_pre_1yr", "pre_history_days")
-# HGB / ALB excluded from PS model: high missingness in controls
-# (oncology-workup labs not routinely drawn in the control pool).
-# Kept in Table 1 for descriptive comparison only.
+               "n_cre_pre_1yr")
+# Excluded from PS model:
+# - HGB / ALB: high missingness in controls (kept in Table 1 only).
+# - Ethnic_Group: redundant with Race/white after harmonisation.
+# - pre_history_days: redundant with n_cre_pre_1yr.
 
 n_before_cc <- nrow(combined)
 combined_cc <- combined %>% drop_na(all_of(ps_covars))
@@ -277,12 +303,12 @@ cat("Unmatched treated n =", sum(combined_cc$treat == 1) - sum(matched_data$trea
 ```{r}
 #| label: post-match-table1
 post_tbl <- matched_data %>%
-  select(treat, Age, male, Race, Ethnic_Group,
+  select(treat, Age, male, white,
          dm, htn, cad, cirrhosis,
          ace_arb, diu, ppi, steroids, smoking, statins,
          eGFR_CRE_baseline,
          pre_median_HGB_90days, pre_median_ALB_90days,
-         n_cre_pre_1yr, pre_history_days,
+         n_cre_pre_1yr,
          era) %>%
   tbl_summary(
     by = treat,
