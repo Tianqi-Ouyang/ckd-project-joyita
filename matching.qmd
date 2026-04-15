@@ -315,7 +315,6 @@ post_tbl <- matched_data %>%
     statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
     missing_text = "Missing"
   ) %>%
-  add_difference() %>%
   modify_header(label ~ "**Variable**") %>%
   bold_labels()
 post_tbl
