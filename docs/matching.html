@@ -341,8 +341,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Control cohort lacks these fields (only treated has them)</td>
 </tr>
 <tr class="odd">
-<td>Exclude <code>pre_median_HGB_90days</code>, <code>pre_median_ALB_90days</code>, <code>pre_median_GHBA1C_90days</code> from PS model</td>
-<td>~77% missing in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only</td>
+<td>Exclude <code>pre_median_HGB_90days</code>, <code>pre_median_ALB_90days</code> from PS model</td>
+<td>High missingness in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only</td>
 </tr>
 <tr class="even">
 <td>Exclude post-exposure variables (<code>last_cre_days</code>, <code>aki</code>, outcomes)</td>
@@ -419,7 +419,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dm"</span>, <span class="st">"htn"</span>, <span class="st">"cad"</span>, <span class="st">"cirrhosis"</span>,</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eGFR_CRE_baseline"</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pre_median_HGB_90days"</span>, <span class="st">"pre_median_ALB_90days"</span>, <span class="st">"pre_median_GHBA1C_90days"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pre_median_HGB_90days"</span>, <span class="st">"pre_median_ALB_90days"</span>,</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"pre_history_days"</span>, <span class="st">"has_pre_cre"</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
@@ -558,7 +558,7 @@ By group x era:</code></pre>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>         dm, htn, cad, cirrhosis,</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>         ace_arb, diu, ppi, steroids, smoking, statins,</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>         eGFR_CRE_baseline,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days,</span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr, pre_history_days,</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
@@ -572,23 +572,23 @@ By group x era:</code></pre>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>pre_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="ksrdszcypc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ksrdszcypc table {
+<div id="tebwkkgasl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tebwkkgasl table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ksrdszcypc thead, #ksrdszcypc tbody, #ksrdszcypc tfoot, #ksrdszcypc tr, #ksrdszcypc td, #ksrdszcypc th {
+#tebwkkgasl thead, #tebwkkgasl tbody, #tebwkkgasl tfoot, #tebwkkgasl tr, #tebwkkgasl td, #tebwkkgasl th {
   border-style: none;
 }
 
-#ksrdszcypc p {
+#tebwkkgasl p {
   margin: 0;
   padding: 0;
 }
 
-#ksrdszcypc .gt_table {
+#tebwkkgasl .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -614,12 +614,12 @@ By group x era:</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_caption {
+#tebwkkgasl .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ksrdszcypc .gt_title {
+#tebwkkgasl .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -631,7 +631,7 @@ By group x era:</code></pre>
   border-bottom-width: 0;
 }
 
-#ksrdszcypc .gt_subtitle {
+#tebwkkgasl .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -643,7 +643,7 @@ By group x era:</code></pre>
   border-top-width: 0;
 }
 
-#ksrdszcypc .gt_heading {
+#tebwkkgasl .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -655,13 +655,13 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_bottom_border {
+#tebwkkgasl .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_col_headings {
+#tebwkkgasl .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -676,7 +676,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_col_heading {
+#tebwkkgasl .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -696,7 +696,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#ksrdszcypc .gt_column_spanner_outer {
+#tebwkkgasl .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -708,15 +708,15 @@ By group x era:</code></pre>
   padding-right: 4px;
 }
 
-#ksrdszcypc .gt_column_spanner_outer:first-child {
+#tebwkkgasl .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ksrdszcypc .gt_column_spanner_outer:last-child {
+#tebwkkgasl .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ksrdszcypc .gt_column_spanner {
+#tebwkkgasl .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -728,11 +728,11 @@ By group x era:</code></pre>
   width: 100%;
 }
 
-#ksrdszcypc .gt_spanner_row {
+#tebwkkgasl .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ksrdszcypc .gt_group_heading {
+#tebwkkgasl .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -758,7 +758,7 @@ By group x era:</code></pre>
   text-align: left;
 }
 
-#ksrdszcypc .gt_empty_group_heading {
+#tebwkkgasl .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -773,15 +773,15 @@ By group x era:</code></pre>
   vertical-align: middle;
 }
 
-#ksrdszcypc .gt_from_md > :first-child {
+#tebwkkgasl .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ksrdszcypc .gt_from_md > :last-child {
+#tebwkkgasl .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ksrdszcypc .gt_row {
+#tebwkkgasl .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -800,7 +800,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#ksrdszcypc .gt_stub {
+#tebwkkgasl .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -813,7 +813,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#ksrdszcypc .gt_stub_row_group {
+#tebwkkgasl .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -827,15 +827,15 @@ By group x era:</code></pre>
   vertical-align: top;
 }
 
-#ksrdszcypc .gt_row_group_first td {
+#tebwkkgasl .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ksrdszcypc .gt_row_group_first th {
+#tebwkkgasl .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ksrdszcypc .gt_summary_row {
+#tebwkkgasl .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -845,16 +845,16 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#ksrdszcypc .gt_first_summary_row {
+#tebwkkgasl .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_first_summary_row.thick {
+#tebwkkgasl .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ksrdszcypc .gt_last_summary_row {
+#tebwkkgasl .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -864,7 +864,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_grand_summary_row {
+#tebwkkgasl .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -874,7 +874,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#ksrdszcypc .gt_first_grand_summary_row {
+#tebwkkgasl .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -884,7 +884,7 @@ By group x era:</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_last_grand_summary_row_top {
+#tebwkkgasl .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -894,11 +894,11 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_striped {
+#tebwkkgasl .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ksrdszcypc .gt_table_body {
+#tebwkkgasl .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -907,7 +907,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_footnotes {
+#tebwkkgasl .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -921,7 +921,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_footnote {
+#tebwkkgasl .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -930,7 +930,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#ksrdszcypc .gt_sourcenotes {
+#tebwkkgasl .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -944,7 +944,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#ksrdszcypc .gt_sourcenote {
+#tebwkkgasl .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -952,72 +952,72 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#ksrdszcypc .gt_left {
+#tebwkkgasl .gt_left {
   text-align: left;
 }
 
-#ksrdszcypc .gt_center {
+#tebwkkgasl .gt_center {
   text-align: center;
 }
 
-#ksrdszcypc .gt_right {
+#tebwkkgasl .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ksrdszcypc .gt_font_normal {
+#tebwkkgasl .gt_font_normal {
   font-weight: normal;
 }
 
-#ksrdszcypc .gt_font_bold {
+#tebwkkgasl .gt_font_bold {
   font-weight: bold;
 }
 
-#ksrdszcypc .gt_font_italic {
+#tebwkkgasl .gt_font_italic {
   font-style: italic;
 }
 
-#ksrdszcypc .gt_super {
+#tebwkkgasl .gt_super {
   font-size: 65%;
 }
 
-#ksrdszcypc .gt_footnote_marks {
+#tebwkkgasl .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ksrdszcypc .gt_asterisk {
+#tebwkkgasl .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ksrdszcypc .gt_indent_1 {
+#tebwkkgasl .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ksrdszcypc .gt_indent_2 {
+#tebwkkgasl .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ksrdszcypc .gt_indent_3 {
+#tebwkkgasl .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ksrdszcypc .gt_indent_4 {
+#tebwkkgasl .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ksrdszcypc .gt_indent_5 {
+#tebwkkgasl .gt_indent_5 {
   text-indent: 25px;
 }
 
-#ksrdszcypc .katex-display {
+#tebwkkgasl .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#ksrdszcypc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#tebwkkgasl div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1288,28 +1288,6 @@ By group x era:</code></pre>
 </td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_median_GHBA1C_90days</td>
-<td class="gt_row gt_center" headers="stat_1">NA (NA, NA)</td>
-<td class="gt_row gt_center" headers="stat_2">6.30 (6.00, 7.30)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Missing</td>
-<td class="gt_row gt_center" headers="stat_1">969</td>
-<td class="gt_row gt_center" headers="stat_2">258</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">n_cre_pre_1yr</td>
 <td class="gt_row gt_center" headers="stat_1">2.00 (1.00, 3.00)</td>
 <td class="gt_row gt_center" headers="stat_2">2.00 (1.00, 5.00)</td>
@@ -1390,7 +1368,7 @@ By group x era:</code></pre>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">"eGFR_CRE_baseline"</span>,</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"pre_history_days"</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># HGB / ALB / HbA1c excluded from PS model: ~77% missing in controls</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># HGB / ALB excluded from PS model: high missingness in controls</span></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (oncology-workup labs not routinely drawn in the control pool).</span></span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Kept in Table 1 for descriptive comparison only.</span></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
@@ -1718,7 +1696,7 @@ Discarded        0.         0</code></pre>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>         dm, htn, cad, cirrhosis,</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         ace_arb, diu, ppi, steroids, smoking, statins,</span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>         eGFR_CRE_baseline,</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>         pre_median_HGB_90days, pre_median_ALB_90days,</span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>         n_cre_pre_1yr, pre_history_days,</span>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
@@ -2426,74 +2404,6 @@ Discarded        0.         0</code></pre>
 </td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_median_GHBA1C_90days</td>
-<td class="gt_row gt_center" headers="stat_1"><br>
-</td>
-<td class="gt_row gt_center" headers="stat_2"><br>
-</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;5.6</td>
-<td class="gt_row gt_center" headers="stat_1">0 (NA%)</td>
-<td class="gt_row gt_center" headers="stat_2">1 (20%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;5.9</td>
-<td class="gt_row gt_center" headers="stat_1">0 (NA%)</td>
-<td class="gt_row gt_center" headers="stat_2">1 (20%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;6</td>
-<td class="gt_row gt_center" headers="stat_1">0 (NA%)</td>
-<td class="gt_row gt_center" headers="stat_2">2 (40%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;7.3</td>
-<td class="gt_row gt_center" headers="stat_1">0 (NA%)</td>
-<td class="gt_row gt_center" headers="stat_2">1 (20%)</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Missing</td>
-<td class="gt_row gt_center" headers="stat_1">88</td>
-<td class="gt_row gt_center" headers="stat_2">66</td>
-<td class="gt_row gt_center" headers="estimate"><br>
-</td>
-<td class="gt_row gt_center" headers="conf.low"><br>
-</td>
-<td class="gt_row gt_center" headers="p.value"><br>
-</td>
-</tr>
-<tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">n_cre_pre_1yr</td>
 <td class="gt_row gt_center" headers="stat_1">2.0 (1.0, 3.0)</td>
 <td class="gt_row gt_center" headers="stat_2">2.0 (1.0, 5.0)</td>
@@ -2603,7 +2513,7 @@ Discarded        0.         0</code></pre>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ncol</span>(out_df), <span class="st">"columns.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Saved matched_cohort.xlsx with 159 rows and 32 columns.</code></pre>
+<pre><code>Saved matched_cohort.xlsx with 159 rows and 31 columns.</code></pre>
 </div>
 </div>
 <hr>
@@ -2613,7 +2523,6 @@ Discarded        0.         0</code></pre>
 <ul>
 <li><strong>Unmatched treated</strong>: any treated patient not matched is reported in §6; if &gt;5%, revisit the caliper or widen era bins.</li>
 <li><strong>Sex not exact-matched</strong>: balanced via PS model alone. Check post-match SMD for <code>male</code> in §7; if &gt;0.1, add <code>exact = ~ era + male</code>.</li>
-<li><strong>Missing HbA1c</strong>: often the largest source of complete-case drop. If &gt;30% of rows are lost, consider adding a missingness indicator (<code>ghba1c_missing</code>) and mean-imputing, rather than dropping.</li>
 <li><strong>Cancer type / stage</strong> are only captured for treated patients and so cannot enter the PS model. Residual confounding by cancer type is a study limitation — address in the Discussion.</li>
 <li><strong>Post-exposure variables</strong> (<code>last_cre_days</code>, <code>aki</code>, any <code>*_Xyear</code> outcome) are excluded from the PS model to avoid collider / post-treatment bias.</li>
 <li><strong>Use of matched cohort downstream</strong>: Cox / competing-risk models should either (a) use the matched sample with robust/cluster-adjusted SEs by <code>subclass</code>, or (b) use weights from <code>match.data()</code> in a weighted outcome model.</li>

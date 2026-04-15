@@ -655,16 +655,10 @@ pre_lab_alb <- pre_lab_median(
   master_lab, month = FALSE, time = 90,
   index_date = Index_date, Group_Id = "ALB"
 )
-pre_lab_a1c <- pre_lab_median(
-  master_lab, month = FALSE, time = 90,
-  index_date = Index_date, Group_Id = "GHBA1C"
-)
-
 control <- control %>%
   merge(pre_lab_baseline, by = "EMPI", all.x = TRUE) %>%
   merge(pre_lab_hgb, by = "EMPI", all.x = TRUE) %>%
-  merge(pre_lab_alb, by = "EMPI", all.x = TRUE) %>%
-  merge(pre_lab_a1c, by = "EMPI", all.x = TRUE)
+  merge(pre_lab_alb, by = "EMPI", all.x = TRUE)
 ```
 
 ## 5.1b CRE measurement counts (for matching)
@@ -962,7 +956,7 @@ control %>%
     ace_arb, diu, ppi, steroids, smoking, statins, dpp4i, sglt2i,
     ## Baseline Labs
     eGFR_CRE_baseline, ckd_stage_baseline,
-    pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+    pre_median_HGB_90days, pre_median_ALB_90days,
     ## Matching — CRE surveillance
     n_cre_pre_1yr, n_cre_pre_all, pre_history_days, cre_rate_pre, has_pre_cre,
     n_cre_post, cre_rate_post,
@@ -973,7 +967,6 @@ control %>%
     type = list(Age ~ "continuous", eGFR_CRE_baseline ~ "continuous",
                 pre_median_HGB_90days ~ "continuous",
                 pre_median_ALB_90days ~ "continuous",
-                pre_median_GHBA1C_90days ~ "continuous",
                 n_cre_pre_1yr ~ "continuous",
                 n_cre_pre_all ~ "continuous",
                 pre_history_days ~ "continuous",

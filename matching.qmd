@@ -50,7 +50,7 @@ Treated (ICI, n=379) and control (non-ICI neoplasm, n=2,315) cohorts differ on d
 | Exact-match on era only | Era shift is large/structural; sex balances adequately via PS alone |
 | Include `n_cre_pre_1yr` + `pre_history_days` in PS model | Surveillance intensity is a study-specific candidate confounder; must be balanced explicitly |
 | Exclude `Cancer_Diagnosis` / `Cancers_stage` | Control cohort lacks these fields (only treated has them) |
-| Exclude `pre_median_HGB_90days`, `pre_median_ALB_90days`, `pre_median_GHBA1C_90days` from PS model | ~77% missing in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only |
+| Exclude `pre_median_HGB_90days`, `pre_median_ALB_90days` from PS model | High missingness in controls (routine pre-ICI oncology workup labs are rarely drawn in the control pool); presence would leak treatment status. Shown in Table 1 for transparency only |
 | Exclude post-exposure variables (`last_cre_days`, `aki`, outcomes) | Would induce collider bias if included |
 
 ---
@@ -103,7 +103,7 @@ common_vars <- c(
   "dm", "htn", "cad", "cirrhosis",
   "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
   "eGFR_CRE_baseline",
-  "pre_median_HGB_90days", "pre_median_ALB_90days", "pre_median_GHBA1C_90days",
+  "pre_median_HGB_90days", "pre_median_ALB_90days",
   "n_cre_pre_1yr", "pre_history_days", "has_pre_cre"
 )
 
@@ -167,7 +167,7 @@ pre_tbl <- combined %>%
          dm, htn, cad, cirrhosis,
          ace_arb, diu, ppi, steroids, smoking, statins,
          eGFR_CRE_baseline,
-         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+         pre_median_HGB_90days, pre_median_ALB_90days,
          n_cre_pre_1yr, pre_history_days,
          era) %>%
   tbl_summary(
@@ -194,7 +194,7 @@ ps_covars <- c("Age", "male", "Race", "Ethnic_Group",
                "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
                "eGFR_CRE_baseline",
                "n_cre_pre_1yr", "pre_history_days")
-# HGB / ALB / HbA1c excluded from PS model: ~77% missing in controls
+# HGB / ALB excluded from PS model: high missingness in controls
 # (oncology-workup labs not routinely drawn in the control pool).
 # Kept in Table 1 for descriptive comparison only.
 
@@ -281,7 +281,7 @@ post_tbl <- matched_data %>%
          dm, htn, cad, cirrhosis,
          ace_arb, diu, ppi, steroids, smoking, statins,
          eGFR_CRE_baseline,
-         pre_median_HGB_90days, pre_median_ALB_90days, pre_median_GHBA1C_90days,
+         pre_median_HGB_90days, pre_median_ALB_90days,
          n_cre_pre_1yr, pre_history_days,
          era) %>%
   tbl_summary(
@@ -335,7 +335,6 @@ cat("Saved matched_cohort.xlsx with", nrow(out_df), "rows and",
 
 - **Unmatched treated**: any treated patient not matched is reported in §6; if >5%, revisit the caliper or widen era bins.
 - **Sex not exact-matched**: balanced via PS model alone. Check post-match SMD for `male` in §7; if >0.1, add `exact = ~ era + male`.
-- **Missing HbA1c**: often the largest source of complete-case drop. If >30% of rows are lost, consider adding a missingness indicator (`ghba1c_missing`) and mean-imputing, rather than dropping.
 - **Cancer type / stage** are only captured for treated patients and so cannot enter the PS model. Residual confounding by cancer type is a study limitation — address in the Discussion.
 - **Post-exposure variables** (`last_cre_days`, `aki`, any `*_Xyear` outcome) are excluded from the PS model to avoid collider / post-treatment bias.
 - **Use of matched cohort downstream**: Cox / competing-risk models should either (a) use the matched sample with robust/cluster-adjusted SEs by `subclass`, or (b) use weights from `match.data()` in a weighted outcome model.

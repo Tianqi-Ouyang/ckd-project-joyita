@@ -904,16 +904,10 @@ pre_lab_alb <- pre_lab_median(
   master_lab, month = FALSE, time = 90,
   index_date = Index_date, Group_Id = "ALB"
 )
-pre_lab_a1c <- pre_lab_median(
-  master_lab, month = FALSE, time = 90,
-  index_date = Index_date, Group_Id = "GHBA1C"
-)
-
 final_master <- final_master %>%
   merge(pre_lab_baseline, by = "EMPI", all.x = TRUE) %>%
   merge(pre_lab_hgb, by = "EMPI", all.x = TRUE) %>%
-  merge(pre_lab_alb, by = "EMPI", all.x = TRUE) %>%
-  merge(pre_lab_a1c, by = "EMPI", all.x = TRUE)
+  merge(pre_lab_alb, by = "EMPI", all.x = TRUE)
 ```
 
 ## 6.2 Baseline eGFR & CKD stage
