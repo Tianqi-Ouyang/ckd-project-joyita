@@ -156,28 +156,41 @@ ps_covars <- c("Age", "male", "white",
                "eGFR_CRE_baseline_decrease_10", "n_cre_pre_1yr")
 mv_rhs <- paste(c("treat", ps_covars), collapse = " + ")
 
-fit_fg <- function(o) {
+fg_uv_tbls <- lapply(outcomes, function(o) {
   d <- build_cmp(m, o$time, o$label)
-  uv <- tidycmprsk::crr(
+  tidycmprsk::crr(
     Surv(time_event, status_cmp) ~ treat, data = d,
     failcode = o$label, cencode = "Censored"
   ) %>% tbl_regression(exp = TRUE) %>% add_n()
-  mv <- tryCatch(
+})
+
+fg_mv_tbls <- lapply(outcomes, function(o) {
+  d <- build_cmp(m, o$time, o$label)
+  tryCatch(
     tidycmprsk::crr(
       as.formula(paste0("Surv(time_event, status_cmp) ~ ", mv_rhs)),
       data = d, failcode = o$label, cencode = "Censored"
     ) %>% tbl_regression(exp = TRUE) %>% add_n(),
     error = function(e) NULL
   )
-  if (is.null(mv)) return(uv)
-  tbl_merge(list(uv, mv),
-            tab_spanner = c("**Univariate**", "**Multivariate**"))
-}
+})
+```
 
-fg_tbls <- lapply(outcomes, fit_fg)
+### Univariate
 
-tbl_stack(fg_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
-  modify_caption("Fine-Gray subdistribution hazard models — all CKD/ESKD outcomes")
+```{r}
+#| label: fg-uv
+tbl_stack(fg_uv_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("Fine-Gray subdistribution HR — univariate (treat only)")
+```
+
+### Multivariate
+
+```{r}
+#| label: fg-mv
+tbl_stack(fg_mv_tbls[!sapply(fg_mv_tbls, is.null)],
+          group_header = sapply(outcomes[!sapply(fg_mv_tbls, is.null)], `[[`, "label")) %>%
+  modify_caption("Fine-Gray subdistribution HR — multivariate (adjusted)")
 ```
 
 ---
@@ -188,25 +201,39 @@ Reports cause-specific HR (95% CI) for the event of interest, treating death as 
 
 ```{r}
 #| label: cause-specific-build
-fit_cs <- function(o) {
+cs_uv_tbls <- lapply(outcomes, function(o) {
   d <- build_cmp(m, o$time, o$label) %>%
     mutate(event_only = as.integer(status_cmp == o$label))
-  uv <- coxph(Surv(time_event, event_only) ~ treat, data = d) %>%
+  coxph(Surv(time_event, event_only) ~ treat, data = d) %>%
     tbl_regression(exp = TRUE) %>% add_n()
-  mv <- tryCatch(
+})
+
+cs_mv_tbls <- lapply(outcomes, function(o) {
+  d <- build_cmp(m, o$time, o$label) %>%
+    mutate(event_only = as.integer(status_cmp == o$label))
+  tryCatch(
     coxph(as.formula(paste0("Surv(time_event, event_only) ~ ", mv_rhs)), data = d) %>%
       tbl_regression(exp = TRUE) %>% add_n(),
     error = function(e) NULL
   )
-  if (is.null(mv)) return(uv)
-  tbl_merge(list(uv, mv),
-            tab_spanner = c("**Univariate**", "**Multivariate**"))
-}
+})
+```
 
-cs_tbls <- lapply(outcomes, fit_cs)
+### Univariate
 
-tbl_stack(cs_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
-  modify_caption("Cause-specific Cox models — all CKD/ESKD outcomes")
+```{r}
+#| label: cs-uv
+tbl_stack(cs_uv_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("Cause-specific HR — univariate (treat only)")
+```
+
+### Multivariate
+
+```{r}
+#| label: cs-mv
+tbl_stack(cs_mv_tbls[!sapply(cs_mv_tbls, is.null)],
+          group_header = sapply(outcomes[!sapply(cs_mv_tbls, is.null)], `[[`, "label")) %>%
+  modify_caption("Cause-specific HR — multivariate (adjusted)")
 ```
 
 ---
@@ -215,26 +242,41 @@ tbl_stack(cs_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
 
 ```{r}
 #| label: logistic-build
-fit_lg <- function(o) {
+lg_uv_tbls <- lapply(outcomes, function(o) {
   d <- m %>%
     mutate(y5 = as.integer(as.character(.data[[o$y5]]))) %>%
     filter(!is.na(y5))
-  uv <- glm(y5 ~ treat, data = d, family = binomial) %>%
+  glm(y5 ~ treat, data = d, family = binomial) %>%
     tbl_regression(exp = TRUE) %>% add_n()
-  mv <- tryCatch(
+})
+
+lg_mv_tbls <- lapply(outcomes, function(o) {
+  d <- m %>%
+    mutate(y5 = as.integer(as.character(.data[[o$y5]]))) %>%
+    filter(!is.na(y5))
+  tryCatch(
     glm(as.formula(paste0("y5 ~ ", mv_rhs)), data = d, family = binomial) %>%
       tbl_regression(exp = TRUE) %>% add_n(),
     error = function(e) NULL
   )
-  if (is.null(mv)) return(uv)
-  tbl_merge(list(uv, mv),
-            tab_spanner = c("**Univariate**", "**Multivariate**"))
-}
+})
+```
 
-lg_tbls <- lapply(outcomes, fit_lg)
+### Univariate
 
-tbl_stack(lg_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
-  modify_caption("5-year logistic regression — all CKD/ESKD outcomes")
+```{r}
+#| label: lg-uv
+tbl_stack(lg_uv_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("5-year incidence — univariate logistic OR (treat only)")
+```
+
+### Multivariate
+
+```{r}
+#| label: lg-mv
+tbl_stack(lg_mv_tbls[!sapply(lg_mv_tbls, is.null)],
+          group_header = sapply(outcomes[!sapply(lg_mv_tbls, is.null)], `[[`, "label")) %>%
+  modify_caption("5-year incidence — multivariate logistic OR (adjusted)")
 ```
 
 ---
@@ -274,48 +316,49 @@ km_fit %>%
 
 ## 7.2 Cox proportional-hazards models
 
-```{r}
-#| label: cox-death
-uv <- coxph(Surv(time_event, death_event) ~ treat, data = d_death) %>%
-  tbl_regression(exp = TRUE) %>% add_n()
-mv <- tryCatch(
-  coxph(as.formula(paste0("Surv(time_event, death_event) ~ ", mv_rhs)),
-        data = d_death) %>%
-    tbl_regression(exp = TRUE) %>% add_n(),
-  error = function(e) NULL
-)
+### Univariate
 
-if (is.null(mv)) {
-  uv %>% modify_caption("Cox — Death (univariate)")
-} else {
-  tbl_merge(list(uv, mv),
-            tab_spanner = c("**Univariate**", "**Multivariate**")) %>%
-    modify_caption("Cox proportional-hazards — Death")
-}
+```{r}
+#| label: cox-death-uv
+coxph(Surv(time_event, death_event) ~ treat, data = d_death) %>%
+  tbl_regression(exp = TRUE) %>% add_n() %>%
+  modify_caption("Cox HR — Death (univariate)")
+```
+
+### Multivariate
+
+```{r}
+#| label: cox-death-mv
+coxph(as.formula(paste0("Surv(time_event, death_event) ~ ", mv_rhs)),
+      data = d_death) %>%
+  tbl_regression(exp = TRUE) %>% add_n() %>%
+  modify_caption("Cox HR — Death (multivariate, adjusted)")
 ```
 
 ## 7.3 5-year logistic regression — death within 5 years
 
 ```{r}
-#| label: logistic-death
+#| label: logistic-death-prep
 d5 <- d_death %>% filter(!is.na(death_5year))
+```
 
-uv <- glm(death_5year ~ treat, data = d5, family = binomial) %>%
-  tbl_regression(exp = TRUE) %>% add_n()
-mv <- tryCatch(
-  glm(as.formula(paste0("death_5year ~ ", mv_rhs)),
-      data = d5, family = binomial) %>%
-    tbl_regression(exp = TRUE) %>% add_n(),
-  error = function(e) NULL
-)
+### Univariate
 
-if (is.null(mv)) {
-  uv %>% modify_caption("Logistic — Death 5-year (univariate)")
-} else {
-  tbl_merge(list(uv, mv),
-            tab_spanner = c("**Univariate**", "**Multivariate**")) %>%
-    modify_caption("5-year logistic regression — Death")
-}
+```{r}
+#| label: lg-death-uv
+glm(death_5year ~ treat, data = d5, family = binomial) %>%
+  tbl_regression(exp = TRUE) %>% add_n() %>%
+  modify_caption("Death 5-year — univariate logistic OR")
+```
+
+### Multivariate
+
+```{r}
+#| label: lg-death-mv
+glm(as.formula(paste0("death_5year ~ ", mv_rhs)),
+    data = d5, family = binomial) %>%
+  tbl_regression(exp = TRUE) %>% add_n() %>%
+  modify_caption("Death 5-year — multivariate logistic OR (adjusted)")
 ```
 
 ---
