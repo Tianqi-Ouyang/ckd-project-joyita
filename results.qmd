@@ -146,77 +146,67 @@ for (nm in names(outcomes)) {
 
 # 4 Fine-Gray subdistribution hazard models
 
-Reports `subdistribution HR (95% CI)` for `treat` (ICI vs Control). Multivariate adjusts for the standard covariate set.
+Reports subdistribution HR (95% CI) for `treat` (ICI vs Control). Univariate (left) and multivariate (right) shown side-by-side; rows grouped by outcome. Multivariate adjusts for the standard covariate set.
 
 ```{r}
-#| label: fine-gray
-#| results: asis
+#| label: fine-gray-build
 ps_covars <- c("Age", "male", "white",
                "dm", "htn", "cad", "cirrhosis",
                "ppi", "steroids", "statins", "smoking",
                "eGFR_CRE_baseline_decrease_10", "n_cre_pre_1yr")
 mv_rhs <- paste(c("treat", ps_covars), collapse = " + ")
 
-for (nm in names(outcomes)) {
-  o <- outcomes[[nm]]
+fit_fg <- function(o) {
   d <- build_cmp(m, o$time, o$label)
-  cat("\n\n## ", o$label, "\n\n")
-
-  # Univariate
-  uv_form <- as.formula(paste0("Surv(time_event, status_cmp) ~ treat"))
-  uv_fit  <- tidycmprsk::crr(uv_form, data = d,
-                             failcode = o$label, cencode = "Censored")
-  cat("**Univariate**\n\n")
-  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-          modify_caption(paste0("Fine-Gray — ", o$label, " (univariate)")))
-
-  # Multivariate
-  mv_form <- as.formula(paste0("Surv(time_event, status_cmp) ~ ", mv_rhs))
-  mv_fit  <- tryCatch(
-    tidycmprsk::crr(mv_form, data = d,
-                    failcode = o$label, cencode = "Censored"),
-    error = function(e) { cat("Multivariate failed:", conditionMessage(e), "\n"); NULL }
+  uv <- tidycmprsk::crr(
+    Surv(time_event, status_cmp) ~ treat, data = d,
+    failcode = o$label, cencode = "Censored"
+  ) %>% tbl_regression(exp = TRUE) %>% add_n()
+  mv <- tryCatch(
+    tidycmprsk::crr(
+      as.formula(paste0("Surv(time_event, status_cmp) ~ ", mv_rhs)),
+      data = d, failcode = o$label, cencode = "Censored"
+    ) %>% tbl_regression(exp = TRUE) %>% add_n(),
+    error = function(e) NULL
   )
-  if (!is.null(mv_fit)) {
-    cat("\n\n**Multivariate**\n\n")
-    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-            modify_caption(paste0("Fine-Gray — ", o$label, " (multivariate)")))
-  }
+  if (is.null(mv)) return(uv)
+  tbl_merge(list(uv, mv),
+            tab_spanner = c("**Univariate**", "**Multivariate**"))
 }
+
+fg_tbls <- lapply(outcomes, fit_fg)
+
+tbl_stack(fg_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("Fine-Gray subdistribution hazard models — all CKD/ESKD outcomes")
 ```
 
 ---
 
 # 5 Cause-specific Cox models
 
-Reports `cause-specific HR (95% CI)` for the event of interest, treating death as a censoring event.
+Reports cause-specific HR (95% CI) for the event of interest, treating death as a censoring event.
 
 ```{r}
-#| label: cause-specific
-#| results: asis
-for (nm in names(outcomes)) {
-  o <- outcomes[[nm]]
+#| label: cause-specific-build
+fit_cs <- function(o) {
   d <- build_cmp(m, o$time, o$label) %>%
     mutate(event_only = as.integer(status_cmp == o$label))
-  cat("\n\n## ", o$label, "\n\n")
-
-  # Univariate
-  uv_form <- as.formula("Surv(time_event, event_only) ~ treat")
-  uv_fit  <- coxph(uv_form, data = d)
-  cat("**Univariate**\n\n")
-  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-          modify_caption(paste0("Cause-specific Cox — ", o$label, " (univariate)")))
-
-  # Multivariate
-  mv_form <- as.formula(paste0("Surv(time_event, event_only) ~ ", mv_rhs))
-  mv_fit  <- tryCatch(coxph(mv_form, data = d),
-                      error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
-  if (!is.null(mv_fit)) {
-    cat("\n\n**Multivariate**\n\n")
-    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-            modify_caption(paste0("Cause-specific Cox — ", o$label, " (multivariate)")))
-  }
+  uv <- coxph(Surv(time_event, event_only) ~ treat, data = d) %>%
+    tbl_regression(exp = TRUE) %>% add_n()
+  mv <- tryCatch(
+    coxph(as.formula(paste0("Surv(time_event, event_only) ~ ", mv_rhs)), data = d) %>%
+      tbl_regression(exp = TRUE) %>% add_n(),
+    error = function(e) NULL
+  )
+  if (is.null(mv)) return(uv)
+  tbl_merge(list(uv, mv),
+            tab_spanner = c("**Univariate**", "**Multivariate**"))
 }
+
+cs_tbls <- lapply(outcomes, fit_cs)
+
+tbl_stack(cs_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("Cause-specific Cox models — all CKD/ESKD outcomes")
 ```
 
 ---
@@ -224,31 +214,27 @@ for (nm in names(outcomes)) {
 # 6 5-year logistic regression
 
 ```{r}
-#| label: logistic
-#| results: asis
-for (nm in names(outcomes)) {
-  o <- outcomes[[nm]]
-  cat("\n\n## ", o$label, " — 5-year incidence\n\n")
+#| label: logistic-build
+fit_lg <- function(o) {
   d <- m %>%
-    mutate(y5 = as.integer(as.character(.data[[o$y5]])) ) %>%
+    mutate(y5 = as.integer(as.character(.data[[o$y5]]))) %>%
     filter(!is.na(y5))
-
-  # Univariate
-  uv_fit <- glm(y5 ~ treat, data = d, family = binomial)
-  cat("**Univariate**\n\n")
-  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-          modify_caption(paste0("Logistic — ", o$label, " 5-year (univariate)")))
-
-  # Multivariate
-  mv_form <- as.formula(paste0("y5 ~ ", mv_rhs))
-  mv_fit  <- tryCatch(glm(mv_form, data = d, family = binomial),
-                      error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
-  if (!is.null(mv_fit)) {
-    cat("\n\n**Multivariate**\n\n")
-    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-            modify_caption(paste0("Logistic — ", o$label, " 5-year (multivariate)")))
-  }
+  uv <- glm(y5 ~ treat, data = d, family = binomial) %>%
+    tbl_regression(exp = TRUE) %>% add_n()
+  mv <- tryCatch(
+    glm(as.formula(paste0("y5 ~ ", mv_rhs)), data = d, family = binomial) %>%
+      tbl_regression(exp = TRUE) %>% add_n(),
+    error = function(e) NULL
+  )
+  if (is.null(mv)) return(uv)
+  tbl_merge(list(uv, mv),
+            tab_spanner = c("**Univariate**", "**Multivariate**"))
 }
+
+lg_tbls <- lapply(outcomes, fit_lg)
+
+tbl_stack(lg_tbls, group_header = sapply(outcomes, `[[`, "label")) %>%
+  modify_caption("5-year logistic regression — all CKD/ESKD outcomes")
 ```
 
 ---
@@ -290,21 +276,21 @@ km_fit %>%
 
 ```{r}
 #| label: cox-death
-#| results: asis
-# Univariate
-uv_fit <- coxph(Surv(time_event, death_event) ~ treat, data = d_death)
-cat("**Univariate**\n\n")
-print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-        modify_caption("Cox — Death (univariate)"))
+uv <- coxph(Surv(time_event, death_event) ~ treat, data = d_death) %>%
+  tbl_regression(exp = TRUE) %>% add_n()
+mv <- tryCatch(
+  coxph(as.formula(paste0("Surv(time_event, death_event) ~ ", mv_rhs)),
+        data = d_death) %>%
+    tbl_regression(exp = TRUE) %>% add_n(),
+  error = function(e) NULL
+)
 
-# Multivariate
-mv_form <- as.formula(paste0("Surv(time_event, death_event) ~ ", mv_rhs))
-mv_fit  <- tryCatch(coxph(mv_form, data = d_death),
-                    error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
-if (!is.null(mv_fit)) {
-  cat("\n\n**Multivariate**\n\n")
-  print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-          modify_caption("Cox — Death (multivariate)"))
+if (is.null(mv)) {
+  uv %>% modify_caption("Cox — Death (univariate)")
+} else {
+  tbl_merge(list(uv, mv),
+            tab_spanner = c("**Univariate**", "**Multivariate**")) %>%
+    modify_caption("Cox proportional-hazards — Death")
 }
 ```
 
@@ -312,21 +298,23 @@ if (!is.null(mv_fit)) {
 
 ```{r}
 #| label: logistic-death
-#| results: asis
 d5 <- d_death %>% filter(!is.na(death_5year))
 
-uv_fit <- glm(death_5year ~ treat, data = d5, family = binomial)
-cat("**Univariate**\n\n")
-print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-        modify_caption("Logistic — Death 5-year (univariate)"))
+uv <- glm(death_5year ~ treat, data = d5, family = binomial) %>%
+  tbl_regression(exp = TRUE) %>% add_n()
+mv <- tryCatch(
+  glm(as.formula(paste0("death_5year ~ ", mv_rhs)),
+      data = d5, family = binomial) %>%
+    tbl_regression(exp = TRUE) %>% add_n(),
+  error = function(e) NULL
+)
 
-mv_form <- as.formula(paste0("death_5year ~ ", mv_rhs))
-mv_fit  <- tryCatch(glm(mv_form, data = d5, family = binomial),
-                    error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
-if (!is.null(mv_fit)) {
-  cat("\n\n**Multivariate**\n\n")
-  print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
-          modify_caption("Logistic — Death 5-year (multivariate)"))
+if (is.null(mv)) {
+  uv %>% modify_caption("Logistic — Death 5-year (univariate)")
+} else {
+  tbl_merge(list(uv, mv),
+            tab_spanner = c("**Univariate**", "**Multivariate**")) %>%
+    modify_caption("5-year logistic regression — Death")
 }
 ```
 
