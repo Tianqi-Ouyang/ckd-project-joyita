@@ -24,6 +24,7 @@ Outcome analyses run on the **matched cohort** built in [Matching](matching.qmd)
 | `ckd_incidence` | >25% eGFR drop AND eGFR <60, sustained ≥90 days, baseline ≥60 |
 | `ckd_progression` | >30% eGFR drop, sustained ≥90 days, baseline <60 |
 | `eskd_composite` | ESKD by eGFR <10 sustained ≥90 days OR ESRD/KT after index |
+| `death` | All-cause mortality (`time_to_death`, `death`) — no competing risk; KM + standard Cox |
 
 ## Models per outcome
 
@@ -252,7 +253,86 @@ for (nm in names(outcomes)) {
 
 ---
 
-# 7 Notes
+# 7 Death (all-cause mortality)
+
+Death is analyzed as its own primary endpoint (no competing risk).
+
+## 7.1 Kaplan-Meier survival by `treat`
+
+```{r}
+#| label: km-death
+#| fig-height: 5
+#| fig-width: 7
+d_death <- m %>%
+  mutate(
+    death_event   = as.integer(death == 1),
+    time_event    = pmin(time_to_death, last_cre_days, na.rm = TRUE),
+    time_event_yr = time_event / 365.25,
+    death_5year   = as.integer(time_event <= 5 * 365.25 & death_event == 1)
+  )
+
+km_fit <- survfit2(Surv(time_event_yr, death_event) ~ treat, data = d_death)
+
+km_fit %>%
+  ggsurvfit() +
+  add_confidence_interval() +
+  add_risktable() +
+  scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
+  labs(
+    title = "Kaplan-Meier — All-cause mortality by group",
+    x = "Years since Index_date",
+    y = "Survival probability"
+  ) +
+  theme_minimal()
+```
+
+## 7.2 Cox proportional-hazards models
+
+```{r}
+#| label: cox-death
+#| results: asis
+# Univariate
+uv_fit <- coxph(Surv(time_event, death_event) ~ treat, data = d_death)
+cat("**Univariate**\n\n")
+print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+        modify_caption("Cox — Death (univariate)"))
+
+# Multivariate
+mv_form <- as.formula(paste0("Surv(time_event, death_event) ~ ", mv_rhs))
+mv_fit  <- tryCatch(coxph(mv_form, data = d_death),
+                    error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
+if (!is.null(mv_fit)) {
+  cat("\n\n**Multivariate**\n\n")
+  print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+          modify_caption("Cox — Death (multivariate)"))
+}
+```
+
+## 7.3 5-year logistic regression — death within 5 years
+
+```{r}
+#| label: logistic-death
+#| results: asis
+d5 <- d_death %>% filter(!is.na(death_5year))
+
+uv_fit <- glm(death_5year ~ treat, data = d5, family = binomial)
+cat("**Univariate**\n\n")
+print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+        modify_caption("Logistic — Death 5-year (univariate)"))
+
+mv_form <- as.formula(paste0("death_5year ~ ", mv_rhs))
+mv_fit  <- tryCatch(glm(mv_form, data = d5, family = binomial),
+                    error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
+if (!is.null(mv_fit)) {
+  cat("\n\n**Multivariate**\n\n")
+  print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+          modify_caption("Logistic — Death 5-year (multivariate)"))
+}
+```
+
+---
+
+# 8 Notes
 
 - All models adjust for the propensity-score matched cohort on top of the explicit covariates, providing **doubly-robust** estimates.
 - Standard errors do **not** account for matched-pair clustering; for inference critical to publication, refit with `cluster(subclass)` or use the `MatchIt` weights with `survival::coxph(weights = ...)`.
