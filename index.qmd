@@ -14,6 +14,7 @@ This website contains three components:
 - [**Treated Group**](treated_group.qmd) — ICI-treated cohort data build + Table 1
 - [**Control Group**](control_group.qmd) — Non-ICI cancer control cohort data build + Table 1
 - [**Matching**](matching.qmd) — Propensity-score matching of treated vs control with balance diagnostics
+- [**Results**](results.qmd) — Outcome analyses on matched cohort: CIF, Fine-Gray, cause-specific Cox, 5-yr logistic for all CKD/ESKD outcomes
 
 ---
 

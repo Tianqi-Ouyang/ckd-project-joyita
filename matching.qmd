@@ -127,9 +127,20 @@ common_vars <- c(
   "EMPI", "Index_date", "last_cre_days", "Age", "male", "white",
   "dm", "htn", "cad", "cirrhosis",
   "ace_arb", "diu", "ppi", "steroids", "smoking", "statins",
-  "eGFR_CRE_baseline",
+  "eGFR_CRE_baseline", "eGFR_CRE_baseline_decrease_10",
   "pre_median_HGB_90days", "pre_median_ALB_90days",
-  "n_cre_pre_1yr", "has_pre_cre"
+  "n_cre_pre_1yr", "has_pre_cre",
+  # outcomes + time-to-event for downstream Cox / Fine-Gray
+  "death", "death_days", "time_to_death", "Date_Of_Death",
+  "ckd_incidence", "time_to_ckd_incidence",
+  "ckd_progression", "time_to_ckd_progression",
+  "eskd_composite", "time_to_eskd_composite",
+  "ckd_composite", "time_to_ckd_composite",
+  "time_to_ckd_cmp", "status_ckd_cmp",
+  # 5-year outcome flags for logistic regression
+  "ckd_incidence_5year", "ckd_progression_5year",
+  "eskd_composite_5year", "ckd_composite_5year",
+  "aki", "aki_before_ckd"
 )
 
 missing_t <- setdiff(common_vars, names(treated))

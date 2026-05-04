@@ -485,22 +485,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EMPI"</span>, <span class="st">"Index_date"</span>, <span class="st">"last_cre_days"</span>, <span class="st">"Age"</span>, <span class="st">"male"</span>, <span class="st">"white"</span>,</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"dm"</span>, <span class="st">"htn"</span>, <span class="st">"cad"</span>, <span class="st">"cirrhosis"</span>,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ace_arb"</span>, <span class="st">"diu"</span>, <span class="st">"ppi"</span>, <span class="st">"steroids"</span>, <span class="st">"smoking"</span>, <span class="st">"statins"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eGFR_CRE_baseline"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eGFR_CRE_baseline"</span>, <span class="st">"eGFR_CRE_baseline_decrease_10"</span>,</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pre_median_HGB_90days"</span>, <span class="st">"pre_median_ALB_90days"</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"has_pre_cre"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>missing_t <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(treated))</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>missing_c <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(control))</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_t) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Treated missing columns: "</span>, <span class="fu">paste</span>(missing_t, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_c) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Control missing columns: "</span>, <span class="fu">paste</span>(missing_c, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  treated <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">1</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>))),</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  control <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">0</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>)))</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Combined n ="</span>, <span class="fu">nrow</span>(combined), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"n_cre_pre_1yr"</span>, <span class="st">"has_pre_cre"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># outcomes + time-to-event for downstream Cox / Fine-Gray</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"death"</span>, <span class="st">"death_days"</span>, <span class="st">"time_to_death"</span>, <span class="st">"Date_Of_Death"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ckd_incidence"</span>, <span class="st">"time_to_ckd_incidence"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ckd_progression"</span>, <span class="st">"time_to_ckd_progression"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eskd_composite"</span>, <span class="st">"time_to_eskd_composite"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ckd_composite"</span>, <span class="st">"time_to_ckd_composite"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"time_to_ckd_cmp"</span>, <span class="st">"status_ckd_cmp"</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 5-year outcome flags for logistic regression</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ckd_incidence_5year"</span>, <span class="st">"ckd_progression_5year"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eskd_composite_5year"</span>, <span class="st">"ckd_composite_5year"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"aki"</span>, <span class="st">"aki_before_ckd"</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>missing_t <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(treated))</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>missing_c <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(common_vars, <span class="fu">names</span>(control))</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_t) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Treated missing columns: "</span>, <span class="fu">paste</span>(missing_t, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing_c) <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="fu">stop</span>(<span class="st">"Control missing columns: "</span>, <span class="fu">paste</span>(missing_c, <span class="at">collapse =</span> <span class="st">", "</span>))</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  treated <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">1</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>))),</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  control <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">treat =</span> <span class="dv">0</span>L) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(common_vars, <span class="st">"treat"</span>)))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Combined n ="</span>, <span class="fu">nrow</span>(combined), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Combined n = 1686 </code></pre>
@@ -639,23 +650,23 @@ By group x era:</code></pre>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>pre_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="doymrszhmh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#doymrszhmh table {
+<div id="hxapdeyquv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hxapdeyquv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#doymrszhmh thead, #doymrszhmh tbody, #doymrszhmh tfoot, #doymrszhmh tr, #doymrszhmh td, #doymrszhmh th {
+#hxapdeyquv thead, #hxapdeyquv tbody, #hxapdeyquv tfoot, #hxapdeyquv tr, #hxapdeyquv td, #hxapdeyquv th {
   border-style: none;
 }
 
-#doymrszhmh p {
+#hxapdeyquv p {
   margin: 0;
   padding: 0;
 }
 
-#doymrszhmh .gt_table {
+#hxapdeyquv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -681,12 +692,12 @@ By group x era:</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_caption {
+#hxapdeyquv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#doymrszhmh .gt_title {
+#hxapdeyquv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -698,7 +709,7 @@ By group x era:</code></pre>
   border-bottom-width: 0;
 }
 
-#doymrszhmh .gt_subtitle {
+#hxapdeyquv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -710,7 +721,7 @@ By group x era:</code></pre>
   border-top-width: 0;
 }
 
-#doymrszhmh .gt_heading {
+#hxapdeyquv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -722,13 +733,13 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_bottom_border {
+#hxapdeyquv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_col_headings {
+#hxapdeyquv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -743,7 +754,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_col_heading {
+#hxapdeyquv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -763,7 +774,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#doymrszhmh .gt_column_spanner_outer {
+#hxapdeyquv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -775,15 +786,15 @@ By group x era:</code></pre>
   padding-right: 4px;
 }
 
-#doymrszhmh .gt_column_spanner_outer:first-child {
+#hxapdeyquv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#doymrszhmh .gt_column_spanner_outer:last-child {
+#hxapdeyquv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#doymrszhmh .gt_column_spanner {
+#hxapdeyquv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -795,11 +806,11 @@ By group x era:</code></pre>
   width: 100%;
 }
 
-#doymrszhmh .gt_spanner_row {
+#hxapdeyquv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#doymrszhmh .gt_group_heading {
+#hxapdeyquv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -825,7 +836,7 @@ By group x era:</code></pre>
   text-align: left;
 }
 
-#doymrszhmh .gt_empty_group_heading {
+#hxapdeyquv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -840,15 +851,15 @@ By group x era:</code></pre>
   vertical-align: middle;
 }
 
-#doymrszhmh .gt_from_md > :first-child {
+#hxapdeyquv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#doymrszhmh .gt_from_md > :last-child {
+#hxapdeyquv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#doymrszhmh .gt_row {
+#hxapdeyquv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -867,7 +878,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#doymrszhmh .gt_stub {
+#hxapdeyquv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -880,7 +891,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#doymrszhmh .gt_stub_row_group {
+#hxapdeyquv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -894,15 +905,15 @@ By group x era:</code></pre>
   vertical-align: top;
 }
 
-#doymrszhmh .gt_row_group_first td {
+#hxapdeyquv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#doymrszhmh .gt_row_group_first th {
+#hxapdeyquv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#doymrszhmh .gt_summary_row {
+#hxapdeyquv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -912,16 +923,16 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#doymrszhmh .gt_first_summary_row {
+#hxapdeyquv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_first_summary_row.thick {
+#hxapdeyquv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#doymrszhmh .gt_last_summary_row {
+#hxapdeyquv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -931,7 +942,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_grand_summary_row {
+#hxapdeyquv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -941,7 +952,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#doymrszhmh .gt_first_grand_summary_row {
+#hxapdeyquv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -951,7 +962,7 @@ By group x era:</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_last_grand_summary_row_top {
+#hxapdeyquv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -961,11 +972,11 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_striped {
+#hxapdeyquv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#doymrszhmh .gt_table_body {
+#hxapdeyquv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -974,7 +985,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_footnotes {
+#hxapdeyquv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -988,7 +999,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_footnote {
+#hxapdeyquv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -997,7 +1008,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#doymrszhmh .gt_sourcenotes {
+#hxapdeyquv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1011,7 +1022,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#doymrszhmh .gt_sourcenote {
+#hxapdeyquv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1019,72 +1030,72 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#doymrszhmh .gt_left {
+#hxapdeyquv .gt_left {
   text-align: left;
 }
 
-#doymrszhmh .gt_center {
+#hxapdeyquv .gt_center {
   text-align: center;
 }
 
-#doymrszhmh .gt_right {
+#hxapdeyquv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#doymrszhmh .gt_font_normal {
+#hxapdeyquv .gt_font_normal {
   font-weight: normal;
 }
 
-#doymrszhmh .gt_font_bold {
+#hxapdeyquv .gt_font_bold {
   font-weight: bold;
 }
 
-#doymrszhmh .gt_font_italic {
+#hxapdeyquv .gt_font_italic {
   font-style: italic;
 }
 
-#doymrszhmh .gt_super {
+#hxapdeyquv .gt_super {
   font-size: 65%;
 }
 
-#doymrszhmh .gt_footnote_marks {
+#hxapdeyquv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#doymrszhmh .gt_asterisk {
+#hxapdeyquv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#doymrszhmh .gt_indent_1 {
+#hxapdeyquv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#doymrszhmh .gt_indent_2 {
+#hxapdeyquv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#doymrszhmh .gt_indent_3 {
+#hxapdeyquv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#doymrszhmh .gt_indent_4 {
+#hxapdeyquv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#doymrszhmh .gt_indent_5 {
+#hxapdeyquv .gt_indent_5 {
   text-indent: 25px;
 }
 
-#doymrszhmh .katex-display {
+#hxapdeyquv .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#doymrszhmh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#hxapdeyquv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2267,7 +2278,7 @@ Discarded           0       0</code></pre>
 <span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ncol</span>(out_df), <span class="st">"columns.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Saved matched_cohort.xlsx with 700 rows and 29 columns.</code></pre>
+<pre><code>Saved matched_cohort.xlsx with 700 rows and 50 columns.</code></pre>
 </div>
 </div>
 <hr>

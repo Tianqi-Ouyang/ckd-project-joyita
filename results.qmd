@@ -1,0 +1,261 @@
+---
+title: "Results — Outcome Analyses on Matched Cohort"
+author: "Tianqi Ouyang"
+date: "2026-04-15"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+execute:
+  warning: false
+  message: false
+---
+
+# Summary
+
+Outcome analyses run on the **matched cohort** built in [Matching](matching.qmd) (`matched_cohort.xlsx`).  Pipeline mirrors Kavita's master analysis (Fine-Gray subdistribution + cause-specific Cox + 5-year logistic regression + CIF plots), but uses the propensity-score-matched treated vs control cohort instead of the full ICI-treated cohort.
+
+## Outcomes analyzed
+
+| Outcome | Definition |
+|---|---|
+| `ckd_composite` | Any of CKD incidence, CKD progression, ESKD composite |
+| `ckd_incidence` | >25% eGFR drop AND eGFR <60, sustained ≥90 days, baseline ≥60 |
+| `ckd_progression` | >30% eGFR drop, sustained ≥90 days, baseline <60 |
+| `eskd_composite` | ESKD by eGFR <10 sustained ≥90 days OR ESRD/KT after index |
+
+## Models per outcome
+
+1. **Cumulative incidence function (CIF) plot** — by `treat` group, competing risk = death.
+2. **Univariate Fine-Gray** — `treat` only.
+3. **Multivariate Fine-Gray** — `treat` + Age, sex, white, comorbidities, baseline eGFR, surveillance.
+4. **Univariate cause-specific Cox** — `treat` only.
+5. **Multivariate cause-specific Cox** — same covariates as Fine-Gray multivariate.
+6. **5-year logistic regression** — same covariates.
+
+## Primary covariate set
+
+`treat` (1 = ICI-treated, 0 = matched control), `Age`, `male`, `white`, `dm`, `htn`, `cad`, `cirrhosis`, `ppi`, `steroids`, `statins`, `smoking`, `eGFR_CRE_baseline_decrease_10`, `n_cre_pre_1yr`.
+
+Variables excluded relative to Kavita's models: `ICI_Class`, `cancer_group`, individual chemotherapeutic agents, `nephrotoxic_chemo` — these are treated-only and cannot be balanced across groups.
+
+---
+
+# 1 Setup
+
+```{r}
+#| label: setup
+suppressPackageStartupMessages({
+  library(readxl)
+  library(dplyr)
+  library(tidyr)
+  library(survival)
+  library(tidycmprsk)
+  library(ggsurvfit)
+  library(gtsummary)
+  library(ggplot2)
+  library(broom)
+})
+```
+
+```{r}
+#| label: load
+m <- read_excel("matched_cohort.xlsx") %>%
+  mutate(
+    treat = factor(treat, levels = c(0, 1), labels = c("Control", "ICI Treated")),
+    male  = as.integer(male),
+    white = as.integer(white),
+    across(c(dm, htn, cad, cirrhosis, ppi, steroids, statins, smoking,
+             ace_arb, diu),
+           ~ as.integer(.)),
+    # Convert time variables to years for plotting
+    time_to_ckd_cmp_yr = time_to_ckd_cmp / 365.25
+  )
+
+cat("Matched cohort: n =", nrow(m), "\n")
+cat("By treat:\n"); print(m %>% count(treat))
+```
+
+---
+
+# 2 Helper: build outcome-specific competing-risk status
+
+```{r}
+#| label: build-status
+build_cmp <- function(data, time_var, event_label) {
+  # time_var:    e.g. "time_to_ckd_incidence", "time_to_ckd_composite"
+  # event_label: matches outcomes[[nm]]$label, e.g. "CKD Composite"
+  data %>%
+    mutate(
+      time_event = pmin(.data[[time_var]], last_cre_days, death_days, na.rm = TRUE),
+      status_cmp = case_when(
+        !is.na(death_days) & time_event == death_days ~ 2,
+        !is.na(.data[[time_var]]) & time_event == .data[[time_var]] ~ 1,
+        TRUE ~ 0
+      ),
+      status_cmp = factor(status_cmp, levels = c(0, 1, 2),
+                          labels = c("Censored", event_label, "Death")),
+      time_event_yr = time_event / 365.25
+    )
+}
+
+outcomes <- list(
+  ckd_composite   = list(time = "time_to_ckd_composite",   y5 = "ckd_composite_5year",   label = "CKD Composite"),
+  ckd_incidence   = list(time = "time_to_ckd_incidence",   y5 = "ckd_incidence_5year",   label = "CKD Incidence"),
+  ckd_progression = list(time = "time_to_ckd_progression", y5 = "ckd_progression_5year", label = "CKD Progression"),
+  eskd_composite  = list(time = "time_to_eskd_composite",  y5 = "eskd_composite_5year",  label = "ESKD Composite")
+)
+```
+
+---
+
+# 3 Cumulative incidence functions
+
+```{r}
+#| label: cif-plots
+#| fig-height: 5
+#| fig-width: 7
+ps_covars_cif <- c("Age", "male", "white", "dm", "htn", "cad", "cirrhosis",
+                   "ppi", "steroids", "statins", "smoking",
+                   "eGFR_CRE_baseline_decrease_10", "n_cre_pre_1yr")
+
+for (nm in names(outcomes)) {
+  o   <- outcomes[[nm]]
+  d   <- build_cmp(m, o$time, o$label)
+  cif <- cuminc(Surv(time_event_yr, status_cmp) ~ treat, data = d)
+
+  p <- cif %>%
+    ggcuminc(outcome = o$label) +
+    add_confidence_interval() +
+    add_risktable() +
+    scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
+    labs(
+      title = paste0("CIF — ", o$label, " by group"),
+      x = "Years since Index_date",
+      y = paste0("Cumulative incidence of ", o$label)
+    ) +
+    theme_minimal()
+
+  print(p)
+}
+```
+
+---
+
+# 4 Fine-Gray subdistribution hazard models
+
+Reports `subdistribution HR (95% CI)` for `treat` (ICI vs Control). Multivariate adjusts for the standard covariate set.
+
+```{r}
+#| label: fine-gray
+#| results: asis
+ps_covars <- c("Age", "male", "white",
+               "dm", "htn", "cad", "cirrhosis",
+               "ppi", "steroids", "statins", "smoking",
+               "eGFR_CRE_baseline_decrease_10", "n_cre_pre_1yr")
+mv_rhs <- paste(c("treat", ps_covars), collapse = " + ")
+
+for (nm in names(outcomes)) {
+  o <- outcomes[[nm]]
+  d <- build_cmp(m, o$time, o$label)
+  cat("\n\n## ", o$label, "\n\n")
+
+  # Univariate
+  uv_form <- as.formula(paste0("Surv(time_event, status_cmp) ~ treat"))
+  uv_fit  <- tidycmprsk::crr(uv_form, data = d,
+                             failcode = o$label, cencode = "Censored")
+  cat("**Univariate**\n\n")
+  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+          modify_caption(paste0("Fine-Gray — ", o$label, " (univariate)")))
+
+  # Multivariate
+  mv_form <- as.formula(paste0("Surv(time_event, status_cmp) ~ ", mv_rhs))
+  mv_fit  <- tryCatch(
+    tidycmprsk::crr(mv_form, data = d,
+                    failcode = o$label, cencode = "Censored"),
+    error = function(e) { cat("Multivariate failed:", conditionMessage(e), "\n"); NULL }
+  )
+  if (!is.null(mv_fit)) {
+    cat("\n\n**Multivariate**\n\n")
+    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+            modify_caption(paste0("Fine-Gray — ", o$label, " (multivariate)")))
+  }
+}
+```
+
+---
+
+# 5 Cause-specific Cox models
+
+Reports `cause-specific HR (95% CI)` for the event of interest, treating death as a censoring event.
+
+```{r}
+#| label: cause-specific
+#| results: asis
+for (nm in names(outcomes)) {
+  o <- outcomes[[nm]]
+  d <- build_cmp(m, o$time, o$label) %>%
+    mutate(event_only = as.integer(status_cmp == o$label))
+  cat("\n\n## ", o$label, "\n\n")
+
+  # Univariate
+  uv_form <- as.formula("Surv(time_event, event_only) ~ treat")
+  uv_fit  <- coxph(uv_form, data = d)
+  cat("**Univariate**\n\n")
+  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+          modify_caption(paste0("Cause-specific Cox — ", o$label, " (univariate)")))
+
+  # Multivariate
+  mv_form <- as.formula(paste0("Surv(time_event, event_only) ~ ", mv_rhs))
+  mv_fit  <- tryCatch(coxph(mv_form, data = d),
+                      error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
+  if (!is.null(mv_fit)) {
+    cat("\n\n**Multivariate**\n\n")
+    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+            modify_caption(paste0("Cause-specific Cox — ", o$label, " (multivariate)")))
+  }
+}
+```
+
+---
+
+# 6 5-year logistic regression
+
+```{r}
+#| label: logistic
+#| results: asis
+for (nm in names(outcomes)) {
+  o <- outcomes[[nm]]
+  cat("\n\n## ", o$label, " — 5-year incidence\n\n")
+  d <- m %>%
+    mutate(y5 = as.integer(as.character(.data[[o$y5]])) ) %>%
+    filter(!is.na(y5))
+
+  # Univariate
+  uv_fit <- glm(y5 ~ treat, data = d, family = binomial)
+  cat("**Univariate**\n\n")
+  print(uv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+          modify_caption(paste0("Logistic — ", o$label, " 5-year (univariate)")))
+
+  # Multivariate
+  mv_form <- as.formula(paste0("y5 ~ ", mv_rhs))
+  mv_fit  <- tryCatch(glm(mv_form, data = d, family = binomial),
+                      error = function(e) { cat("Failed:", conditionMessage(e), "\n"); NULL })
+  if (!is.null(mv_fit)) {
+    cat("\n\n**Multivariate**\n\n")
+    print(mv_fit %>% tbl_regression(exp = TRUE) %>% add_n() %>%
+            modify_caption(paste0("Logistic — ", o$label, " 5-year (multivariate)")))
+  }
+}
+```
+
+---
+
+# 7 Notes
+
+- All models adjust for the propensity-score matched cohort on top of the explicit covariates, providing **doubly-robust** estimates.
+- Standard errors do **not** account for matched-pair clustering; for inference critical to publication, refit with `cluster(subclass)` or use the `MatchIt` weights with `survival::coxph(weights = ...)`.
+- Treated-only variables (cancer type/stage, ICI class, individual chemotherapy agents, `nephrotoxic_chemo`) cannot be included because they have no analogue in the control group; residual confounding by cancer-type is a study limitation.
+- Death is treated as a competing risk in CIF and Fine-Gray models, and as a censoring event in the cause-specific Cox.
+- 5-year logistic regression complements the time-to-event models with a fixed-horizon interpretation; patients censored before 5y with no event are dropped.

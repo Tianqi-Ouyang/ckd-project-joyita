@@ -16,6 +16,8 @@ website:
         text: Control Group
       - href: matching.qmd
         text: Matching
+      - href: results.qmd
+        text: Results
 
 format:
   html:
