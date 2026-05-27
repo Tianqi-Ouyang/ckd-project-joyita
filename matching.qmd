@@ -208,7 +208,10 @@ pre_tbl <- combined %>%
          era) %>%
   tbl_summary(
     by = treat,
-    statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+    statistic = list(
+      all_continuous() ~ "{median} ({p25}, {p75})",
+      eGFR_CRE_baseline ~ "{mean} ({sd})"
+    ),
     missing_text = "Missing"
   ) %>%
   add_difference() %>%
@@ -323,7 +326,10 @@ post_tbl <- matched_data %>%
          era) %>%
   tbl_summary(
     by = treat,
-    statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+    statistic = list(
+      all_continuous() ~ "{median} ({p25}, {p75})",
+      eGFR_CRE_baseline ~ "{mean} ({sd})"
+    ),
     missing_text = "Missing"
   ) %>%
   modify_header(label ~ "**Variable**") %>%

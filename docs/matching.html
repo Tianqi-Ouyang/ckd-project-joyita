@@ -148,6 +148,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./matching.html" aria-current="page"> 
 <span class="menu-text">Matching</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./results.html"> 
+<span class="menu-text">Results</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -641,32 +645,35 @@ By group x era:</code></pre>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> treat,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(<span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"{median} ({p25}, {p75})"</span>),</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_text =</span> <span class="st">"Missing"</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_difference</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">modify_header</span>(label <span class="sc">~</span> <span class="st">"**Variable**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bold_labels</span>()</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>pre_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"{median} ({p25}, {p75})"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      eGFR_CRE_baseline <span class="sc">~</span> <span class="st">"{mean} ({sd})"</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_text =</span> <span class="st">"Missing"</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_difference</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">modify_header</span>(label <span class="sc">~</span> <span class="st">"**Variable**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bold_labels</span>()</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>pre_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="hxapdeyquv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#hxapdeyquv table {
+<div id="svzramjknb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#svzramjknb table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#hxapdeyquv thead, #hxapdeyquv tbody, #hxapdeyquv tfoot, #hxapdeyquv tr, #hxapdeyquv td, #hxapdeyquv th {
+#svzramjknb thead, #svzramjknb tbody, #svzramjknb tfoot, #svzramjknb tr, #svzramjknb td, #svzramjknb th {
   border-style: none;
 }
 
-#hxapdeyquv p {
+#svzramjknb p {
   margin: 0;
   padding: 0;
 }
 
-#hxapdeyquv .gt_table {
+#svzramjknb .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -692,12 +699,12 @@ By group x era:</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_caption {
+#svzramjknb .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#hxapdeyquv .gt_title {
+#svzramjknb .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -709,7 +716,7 @@ By group x era:</code></pre>
   border-bottom-width: 0;
 }
 
-#hxapdeyquv .gt_subtitle {
+#svzramjknb .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -721,7 +728,7 @@ By group x era:</code></pre>
   border-top-width: 0;
 }
 
-#hxapdeyquv .gt_heading {
+#svzramjknb .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -733,13 +740,13 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_bottom_border {
+#svzramjknb .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_col_headings {
+#svzramjknb .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -754,7 +761,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_col_heading {
+#svzramjknb .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -774,7 +781,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#hxapdeyquv .gt_column_spanner_outer {
+#svzramjknb .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -786,15 +793,15 @@ By group x era:</code></pre>
   padding-right: 4px;
 }
 
-#hxapdeyquv .gt_column_spanner_outer:first-child {
+#svzramjknb .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#hxapdeyquv .gt_column_spanner_outer:last-child {
+#svzramjknb .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#hxapdeyquv .gt_column_spanner {
+#svzramjknb .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -806,11 +813,11 @@ By group x era:</code></pre>
   width: 100%;
 }
 
-#hxapdeyquv .gt_spanner_row {
+#svzramjknb .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#hxapdeyquv .gt_group_heading {
+#svzramjknb .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -836,7 +843,7 @@ By group x era:</code></pre>
   text-align: left;
 }
 
-#hxapdeyquv .gt_empty_group_heading {
+#svzramjknb .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -851,15 +858,15 @@ By group x era:</code></pre>
   vertical-align: middle;
 }
 
-#hxapdeyquv .gt_from_md > :first-child {
+#svzramjknb .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#hxapdeyquv .gt_from_md > :last-child {
+#svzramjknb .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#hxapdeyquv .gt_row {
+#svzramjknb .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -878,7 +885,7 @@ By group x era:</code></pre>
   overflow-x: hidden;
 }
 
-#hxapdeyquv .gt_stub {
+#svzramjknb .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -891,7 +898,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#hxapdeyquv .gt_stub_row_group {
+#svzramjknb .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -905,15 +912,15 @@ By group x era:</code></pre>
   vertical-align: top;
 }
 
-#hxapdeyquv .gt_row_group_first td {
+#svzramjknb .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#hxapdeyquv .gt_row_group_first th {
+#svzramjknb .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#hxapdeyquv .gt_summary_row {
+#svzramjknb .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -923,16 +930,16 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#hxapdeyquv .gt_first_summary_row {
+#svzramjknb .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_first_summary_row.thick {
+#svzramjknb .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#hxapdeyquv .gt_last_summary_row {
+#svzramjknb .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -942,7 +949,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_grand_summary_row {
+#svzramjknb .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -952,7 +959,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#hxapdeyquv .gt_first_grand_summary_row {
+#svzramjknb .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -962,7 +969,7 @@ By group x era:</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_last_grand_summary_row_top {
+#svzramjknb .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -972,11 +979,11 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_striped {
+#svzramjknb .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#hxapdeyquv .gt_table_body {
+#svzramjknb .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -985,7 +992,7 @@ By group x era:</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_footnotes {
+#svzramjknb .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -999,7 +1006,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_footnote {
+#svzramjknb .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1008,7 +1015,7 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#hxapdeyquv .gt_sourcenotes {
+#svzramjknb .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1022,7 +1029,7 @@ By group x era:</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#hxapdeyquv .gt_sourcenote {
+#svzramjknb .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1030,72 +1037,72 @@ By group x era:</code></pre>
   padding-right: 5px;
 }
 
-#hxapdeyquv .gt_left {
+#svzramjknb .gt_left {
   text-align: left;
 }
 
-#hxapdeyquv .gt_center {
+#svzramjknb .gt_center {
   text-align: center;
 }
 
-#hxapdeyquv .gt_right {
+#svzramjknb .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#hxapdeyquv .gt_font_normal {
+#svzramjknb .gt_font_normal {
   font-weight: normal;
 }
 
-#hxapdeyquv .gt_font_bold {
+#svzramjknb .gt_font_bold {
   font-weight: bold;
 }
 
-#hxapdeyquv .gt_font_italic {
+#svzramjknb .gt_font_italic {
   font-style: italic;
 }
 
-#hxapdeyquv .gt_super {
+#svzramjknb .gt_super {
   font-size: 65%;
 }
 
-#hxapdeyquv .gt_footnote_marks {
+#svzramjknb .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#hxapdeyquv .gt_asterisk {
+#svzramjknb .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#hxapdeyquv .gt_indent_1 {
+#svzramjknb .gt_indent_1 {
   text-indent: 5px;
 }
 
-#hxapdeyquv .gt_indent_2 {
+#svzramjknb .gt_indent_2 {
   text-indent: 10px;
 }
 
-#hxapdeyquv .gt_indent_3 {
+#svzramjknb .gt_indent_3 {
   text-indent: 15px;
 }
 
-#hxapdeyquv .gt_indent_4 {
+#svzramjknb .gt_indent_4 {
   text-indent: 20px;
 }
 
-#hxapdeyquv .gt_indent_5 {
+#svzramjknb .gt_indent_5 {
   text-indent: 25px;
 }
 
-#hxapdeyquv .katex-display {
+#svzramjknb .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#hxapdeyquv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#svzramjknb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1226,8 +1233,8 @@ By group x era:</code></pre>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">eGFR_CRE_baseline</td>
-<td class="gt_row gt_center" headers="stat_1">80 (67, 93)</td>
-<td class="gt_row gt_center" headers="stat_2">88 (72, 97)</td>
+<td class="gt_row gt_center" headers="stat_1">79 (18)</td>
+<td class="gt_row gt_center" headers="stat_2">84 (19)</td>
 <td class="gt_row gt_center" headers="estimate">-4.7</td>
 <td class="gt_row gt_center" headers="conf.low">-7.2, -2.2</td>
 <td class="gt_row gt_center" headers="p.value">&lt;0.001</td>
@@ -1315,7 +1322,7 @@ By group x era:</code></pre>
 </tr>
 </tbody><tfoot class="gt_footnotes">
 <tr class="odd">
-<td colspan="6" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Median (Q1, Q3); n (%)</td>
+<td colspan="6" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Median (Q1, Q3); n (%); Mean (SD)</td>
 </tr>
 <tr class="even">
 <td colspan="6" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>2</sup></span> Welch Two Sample t-test; 2-sample test for equality of proportions with continuity correction</td>
@@ -1641,12 +1648,15 @@ Discarded           0       0</code></pre>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>         era) <span class="sc">%&gt;%</span></span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(</span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> treat,</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(<span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"{median} ({p25}, {p75})"</span>),</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_text =</span> <span class="st">"Missing"</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">modify_header</span>(label <span class="sc">~</span> <span class="st">"**Variable**"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bold_labels</span>()</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>post_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="fu">list</span>(</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">all_continuous</span>() <span class="sc">~</span> <span class="st">"{median} ({p25}, {p75})"</span>,</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>      eGFR_CRE_baseline <span class="sc">~</span> <span class="st">"{mean} ({sd})"</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_text =</span> <span class="st">"Missing"</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">modify_header</span>(label <span class="sc">~</span> <span class="st">"**Variable**"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bold_labels</span>()</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>post_tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="qeayjdrzqo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -2180,8 +2190,8 @@ Discarded           0       0</code></pre>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">eGFR_CRE_baseline</td>
-<td class="gt_row gt_center" headers="stat_1">81 (68, 93)</td>
-<td class="gt_row gt_center" headers="stat_2">86 (71, 96)</td>
+<td class="gt_row gt_center" headers="stat_1">80 (18)</td>
+<td class="gt_row gt_center" headers="stat_2">83 (20)</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label" style="font-weight: bold">pre_median_HGB_90days</td>
@@ -2227,7 +2237,7 @@ Discarded           0       0</code></pre>
 </tr>
 </tbody><tfoot class="gt_footnotes">
 <tr class="odd">
-<td colspan="3" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Median (Q1, Q3); n (%)</td>
+<td colspan="3" class="gt_footnote"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> Median (Q1, Q3); n (%); Mean (SD)</td>
 </tr>
 </tfoot>
 
