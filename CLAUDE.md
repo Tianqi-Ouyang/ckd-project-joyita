@@ -54,3 +54,15 @@ Use these substitutions everywhere inside gtsummary calls (and prefer them in al
 | `μ` | `u` (e.g. `umol/L`) |
 
 Plain markdown body text (headings, paragraphs, bullets) outside gtsummary calls can use Unicode — Quarto/HTML renders it correctly. The rule only matters for strings passed into gtsummary.
+
+### Also avoid `space - space` inside ggplot `title` / `subtitle`
+
+R's default PNG font renderer (Cairo / Quartz on macOS) interprets a freestanding hyphen (` - `) between words inside a plot title as a typographic em-dash (U+2014), and falls back to printing the literal `<U+2014>` glyph if the font lacks it. Use a colon or rephrase instead:
+
+| Avoid | Use |
+|---|---|
+| `"CIF - CKD Composite by group"` | `"CIF: CKD Composite by group"` |
+| `"Kaplan-Meier - All-cause mortality"` | `"Kaplan-Meier: All-cause mortality"` |
+| `"Model-predicted eGFR - 3 years"` | `"Model-predicted eGFR over 3 years"` |
+
+Hyphenated compounds with no surrounding spaces (e.g. `Model-predicted`, `Kaplan-Meier`, `long-term`) are fine — only the freestanding ` - ` separator is replaced.

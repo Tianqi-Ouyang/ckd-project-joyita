@@ -174,7 +174,7 @@ for (nm in names(outcomes)) {
     add_risktable() +
     scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
     labs(
-      title = paste0("CIF - ", o$label, " by group"),
+      title = paste0("CIF: ", o$label, " by group"),
       x = "Years since Index_date",
       y = paste0("Cumulative incidence of ", o$label)
     ) +
@@ -349,7 +349,7 @@ km_fit %>%
   add_risktable() +
   scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
   labs(
-    title = "Kaplan-Meier - All-cause mortality by group",
+    title = "Kaplan-Meier: All-cause mortality by group",
     x = "Years since Index_date",
     y = "Survival probability"
   ) +
@@ -593,7 +593,7 @@ ggplot(pred_yr1, aes(x = year_since_index, y = fit, color = treat, fill = treat)
   scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1),
                      labels = c("0", "3 mo", "6 mo", "9 mo", "1 yr")) +
   labs(
-    title = "Model-predicted mean eGFR - first year (lmer)",
+    title = "Model-predicted mean eGFR over first year (lmer)",
     subtitle = "Fixed-effects marginal prediction with 95% CI",
     x = "Time since Index_date",
     y = "Predicted eGFR (mL/min/1.73 m2)",
@@ -640,7 +640,7 @@ ggplot(pred_yr3, aes(x = year_since_index, y = fit, color = treat, fill = treat)
   scale_fill_manual( values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
   scale_x_continuous(breaks = c(0, 0.5, 1, 1.5, 2, 2.5, 3)) +
   labs(
-    title = "Model-predicted mean eGFR - 3 years (lmer)",
+    title = "Model-predicted mean eGFR over 3 years (lmer)",
     subtitle = "Fixed-effects marginal prediction with 95% CI",
     x = "Years since Index_date",
     y = "Predicted eGFR (mL/min/1.73 m2)",
