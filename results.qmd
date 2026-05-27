@@ -363,7 +363,225 @@ glm(as.formula(paste0("death_5year ~ ", mv_rhs)),
 
 ---
 
-# 8 Notes
+# 8 eGFR slope analysis
+
+Annual eGFR decline (mL/min/year) compared between ICI-treated and matched-control patients, using per-lab CRE observations from the RPDR Lab files (not yearly aggregates). Two models are fit:
+
+| Model | Time window | Random effects |
+|---|---|---|
+| **8.2** Long-term slope | All post-index CRE labs | Intercept + slope per patient |
+| **8.3** First-year slope | Days 1–365 post-index only | Intercept per patient (random slope not estimable for ~55% of controls with only one first-year obs) |
+
+Fixed effects: `eGFR_CRE ~ year * treat`. The `year:treatICI Treated` interaction term **is** the difference in annual GFR decline between groups.
+
+## 8.1 Build per-lab eGFR dataframe
+
+```{r}
+#| label: build-lab-egfr
+suppressPackageStartupMessages({
+  library(lme4)
+  library(lmerTest)
+})
+
+# CKD-EPI 2021 creatinine-only (race-free)
+ckd_epi_gfr <- function(creat, male, age) {
+  k <- ifelse(male == 1, 0.9, 0.7)
+  a <- ifelse(male == 1, -0.302, -0.241)
+  m <- ifelse(male == 1, 1, 1.012)
+  142 * pmin(creat / k, 1)^a * pmax(creat / k, 1)^-1.2 * 0.9938^age * m
+}
+
+# Treated RPDR Lab
+t_lab <- read.table(
+  "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/mes98_093025104659807332_Lab.txt",
+  sep = "|", fill = TRUE, quote = "", header = TRUE, stringsAsFactors = FALSE
+) %>%
+  select(EMPI, Seq_Date_Time, Result, Group_Id) %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  mutate(
+    Seq_Date_Time = as.Date(Seq_Date_Time, "%m/%d/%Y"),
+    Result        = as.numeric(Result)
+  )
+
+# Control RPDR Lab (04092026 pull)
+c_lab <- read.table(
+  "/Users/to909/Partners HealthCare Dropbox/Tianqi Ouyang/CKD after ICI/RPDR/RPDR Joyita/04092026/mes98_040726114217167239_Lab.txt",
+  sep = "|", fill = TRUE, quote = "", header = TRUE, stringsAsFactors = FALSE
+) %>%
+  select(EMPI, Seq_Date_Time, Result, Group_Id) %>%
+  filter(Group_Id == "CRE", grepl("^\\d+\\.\\d+$", Result)) %>%
+  mutate(
+    Seq_Date_Time = as.Date(Seq_Date_Time, "%m/%d/%Y"),
+    Result        = as.numeric(Result)
+  )
+
+# Per-patient anchor (Age, male, Index_date, treat) — one row per EMPI
+anchor <- m %>%
+  distinct(EMPI, .keep_all = TRUE) %>%
+  mutate(Index_date = as.Date(Index_date)) %>%
+  select(EMPI, treat, male, Age, Index_date, last_cre_days)
+
+# Join labs to anchor based on treat
+labs <- bind_rows(
+  t_lab %>% inner_join(anchor %>% filter(treat == "ICI Treated"), by = "EMPI"),
+  c_lab %>% inner_join(anchor %>% filter(treat == "Control"),     by = "EMPI")
+) %>%
+  filter(Seq_Date_Time > Index_date) %>%
+  mutate(
+    days_since_index = as.numeric(Seq_Date_Time - Index_date),
+    year_since_index = days_since_index / 365.25,
+    eGFR_CRE         = ckd_epi_gfr(Result, male, Age + year_since_index)
+  ) %>%
+  filter(eGFR_CRE >= 0, eGFR_CRE <= 200)
+
+cat("Per-lab eGFR observations:\n")
+print(labs %>% count(treat))
+cat("\nObs per patient (median, IQR):\n")
+print(labs %>% group_by(treat, EMPI) %>% summarise(n = n(), .groups = "drop") %>%
+        group_by(treat) %>% summarise(
+          median_n = median(n), p25 = quantile(n, .25), p75 = quantile(n, .75),
+          .groups = "drop"
+        ))
+```
+
+## 8.2 Long-term slope — all post-index data
+
+```{r}
+#| label: lmm-all
+fit_all <- lmer(
+  eGFR_CRE ~ year_since_index * treat + (year_since_index | EMPI),
+  data = labs,
+  REML = TRUE,
+  control = lmerControl(optimizer = "bobyqa")
+)
+
+fit_all %>%
+  tbl_regression(
+    intercept = TRUE,
+    label = list(
+      year_since_index ~ "Time (yr) — control slope",
+      `year_since_index:treat` ~ "Year × ICI Treated (diff in slope)"
+    )
+  ) %>%
+  add_n() %>%
+  modify_caption("Linear mixed-effects model — eGFR (mL/min/1.73 m²) over all post-index follow-up")
+```
+
+```{r}
+#| label: slope-plot-all
+#| fig-height: 5
+#| fig-width: 8
+# Per-patient empirical slopes via OLS on each patient's data
+per_patient_slopes <- labs %>%
+  group_by(treat, EMPI) %>%
+  filter(n() >= 2) %>%
+  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+
+ggplot(per_patient_slopes, aes(x = treat, y = slope, fill = treat)) +
+  geom_violin(alpha = .4, trim = TRUE) +
+  geom_boxplot(width = .15, outlier.size = .6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  coord_cartesian(ylim = c(-30, 30)) +
+  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
+  labs(
+    title = "Per-patient annual eGFR slope (long-term)",
+    subtitle = "Violin + box plot; dashed line = 0 (no change)",
+    y = "Annual eGFR change (mL/min/1.73 m² / yr)",
+    x = NULL
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| label: traj-plot-all
+#| fig-height: 5
+#| fig-width: 8
+ggplot(labs, aes(x = year_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
+  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .5) +
+  scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
+  scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  labs(
+    title = "Mean eGFR trajectory by group (LOESS-smoothed)",
+    x = "Years since Index_date",
+    y = "eGFR (mL/min/1.73 m²)",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal()
+```
+
+## 8.3 First-year slope (days 1–365)
+
+```{r}
+#| label: lmm-1yr
+labs_yr1 <- labs %>% filter(days_since_index <= 365)
+
+fit_yr1 <- lmer(
+  eGFR_CRE ~ year_since_index * treat + (1 | EMPI),
+  data = labs_yr1,
+  REML = TRUE,
+  control = lmerControl(optimizer = "bobyqa")
+)
+
+fit_yr1 %>%
+  tbl_regression(
+    intercept = TRUE,
+    label = list(
+      year_since_index ~ "Time (yr) — control slope",
+      `year_since_index:treat` ~ "Year × ICI Treated (diff in slope)"
+    )
+  ) %>%
+  add_n() %>%
+  modify_caption("Linear mixed-effects model — first-year (≤365 d) eGFR decline")
+```
+
+```{r}
+#| label: slope-plot-yr1
+#| fig-height: 5
+#| fig-width: 8
+per_patient_slopes_yr1 <- labs_yr1 %>%
+  group_by(treat, EMPI) %>%
+  filter(n() >= 2) %>%
+  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+
+ggplot(per_patient_slopes_yr1, aes(x = treat, y = slope, fill = treat)) +
+  geom_violin(alpha = .4, trim = TRUE) +
+  geom_boxplot(width = .15, outlier.size = .6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  coord_cartesian(ylim = c(-100, 100)) +
+  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
+  labs(
+    title = "Per-patient first-year annual eGFR slope",
+    subtitle = paste0("Restricted to patients with ≥2 labs in first 365 days (treated n=",
+                      sum(per_patient_slopes_yr1$treat == "ICI Treated"),
+                      ", control n=", sum(per_patient_slopes_yr1$treat == "Control"), ")"),
+    y = "First-year eGFR change (mL/min/1.73 m² / yr)",
+    x = NULL
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| label: traj-plot-yr1
+#| fig-height: 5
+#| fig-width: 8
+ggplot(labs_yr1, aes(x = days_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
+  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .6) +
+  scale_x_continuous(breaks = c(0, 90, 180, 270, 365)) +
+  scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  labs(
+    title = "First-year eGFR trajectory by group (LOESS-smoothed)",
+    x = "Days since Index_date",
+    y = "eGFR (mL/min/1.73 m²)",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal()
+```
+
+---
+
+# 9 Notes
 
 - All models adjust for the propensity-score matched cohort on top of the explicit covariates, providing **doubly-robust** estimates.
 - Standard errors do **not** account for matched-pair clustering; for inference critical to publication, refit with `cluster(subclass)` or use the `MatchIt` weights with `survival::coxph(weights = ...)`.
