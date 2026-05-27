@@ -37,3 +37,20 @@ quarto render treated_group.qmd --to html       # treated group descriptive
 - ESKD definition 1: eGFR <10, sustained >=90 days.
 - Competing risk: `time_to_ckd_cmp = pmin(time_to_ckd_composite, last_cre_days, death_days)`; priority: death(2) > CKD(1) > censored(0).
 - Exclusions: missing baseline CRE, prior ESRD/KT (main cohort only), eGFR < 10.
+
+## Coding Style — ASCII only in gtsummary strings
+
+`gtsummary` (and its underlying `gt` HTML renderer in Quarto) escapes some non-ASCII characters to literal `<U+xxxx>` codes inside rendered tables. **Always use ASCII** in any string that ends up inside a gtsummary call — especially `modify_caption()`, the `label = list(...)` argument to `tbl_regression()`/`tbl_summary()`, and the `type = list(...)` labels.
+
+Use these substitutions everywhere inside gtsummary calls (and prefer them in all code/markdown for consistency):
+
+| Avoid | Use instead |
+|---|---|
+| `—` (em dash) / `–` (en dash) | `-` |
+| `×` (multiplication) | `x` |
+| `²` (superscript 2) | `2` (e.g. `m2` not `m²`) |
+| `≥` / `≤` | `>=` / `<=` |
+| `±` | `+/-` |
+| `μ` | `u` (e.g. `umol/L`) |
+
+Plain markdown body text (headings, paragraphs, bullets) outside gtsummary calls can use Unicode — Quarto/HTML renders it correctly. The rule only matters for strings passed into gtsummary.
