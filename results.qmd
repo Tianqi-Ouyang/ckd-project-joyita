@@ -43,6 +43,48 @@ Variables excluded relative to Kavita's models: `ICI_Class`, `cancer_group`, ind
 
 ---
 
+# Statistical Methods (manuscript-ready)
+
+## Study population
+
+Adult patients who received immune-checkpoint-inhibitor (ICI) therapy at Mass General Brigham between 2016 and 2023 (n = 379) were compared with a contemporaneous non-ICI control cohort of patients with a primary neoplasm diagnosis (ICD-10 C00–D49) identified from the Research Patient Data Registry (RPDR). The index date was defined as the first ICI dose for the treated group and the first qualifying neoplasm-diagnosis date for the control group. Cohort inclusion criteria for both groups required (i) a baseline serum creatinine within 12 months prior to the index date, (ii) at least two post-index creatinine measurements, (iii) ≥ 18 months of follow-up, and (iv) a baseline estimated glomerular filtration rate (eGFR) ≥ 10 mL/min/1.73 m². Controls with an index date before 2016 (n = 338) were excluded a priori because they had no temporal counterpart in the treated cohort. After all inclusion and exclusion criteria, 379 treated and 969 control patients were eligible for matching.
+
+## Propensity-score matching
+
+Treatment-effect estimation used a propensity-score (PS) matched cohort to mitigate baseline imbalance. The PS for receiving ICI therapy was estimated using multivariable logistic regression with the following pre-index covariates: age, male sex, white race (binary), diabetes, hypertension, coronary artery disease, cirrhosis, baseline use of proton-pump inhibitors, systemic corticosteroids, statins, and active smoking; the baseline CKD-EPI 2021 eGFR (creatinine-only, race-free); and the number of pre-index creatinine measurements within 365 days (`n_cre_pre_1yr`) as an explicit adjustment for differential ascertainment intensity. Variable-ratio 1:k nearest-neighbor matching was performed with `MatchIt` (R) using the logit of the propensity score, no replacement, a caliper of 0.2 × SD(logit PS) (Austin 2011), exact matching on calendar era (2016–2019 vs 2020–2023), and `ratio = 2`, `min.controls = 1`, `max.controls = 3` to maintain feasibility in the 2020–2023 stratum where the control pool was structurally limited. Balance was assessed by standardized mean differences (SMDs), with a target of |SMD| < 0.1 for all matching variables.
+
+## Outcomes
+
+Five outcomes were analyzed: (1) CKD composite (CKD incidence, CKD progression, or ESKD composite); (2) CKD incidence (>25% relative eGFR drop **and** eGFR < 60 mL/min/1.73 m² sustained ≥ 90 days, in patients with baseline eGFR ≥ 60); (3) CKD progression (>30% relative eGFR drop sustained ≥ 90 days in patients with baseline eGFR < 60); (4) ESKD composite (eGFR < 10 sustained ≥ 90 days **or** documented end-stage renal disease / kidney transplant after the index date); and (5) all-cause mortality. Time-to-event was measured in days from the index date, with administrative censoring at the last available creatinine date (`last_cre_days`). All eGFR values were computed with the 2021 CKD-EPI creatinine-only equation (Inker et al. 2021), which is race-free.
+
+## Time-to-event modelling of CKD/ESKD outcomes
+
+For each CKD/ESKD endpoint, death was treated as a competing risk. Cumulative incidence functions (CIFs) were estimated non-parametrically using the Aalen–Johansen estimator (`tidycmprsk::cuminc`) and plotted with 95% point-wise confidence intervals. Subdistribution hazard ratios were estimated with Fine–Gray models (`tidycmprsk::crr`) in unadjusted and adjusted forms. The adjusted model included treatment group plus age, male sex, white race, diabetes, hypertension, coronary artery disease, cirrhosis, baseline PPI / steroid / statin use, smoking, baseline eGFR (expressed per 10-mL decrement: `eGFR_CRE_baseline_decrease_10`), and `n_cre_pre_1yr`. Cause-specific hazard ratios were estimated with Cox proportional-hazards models (`survival::coxph`), censoring death; the same covariate set was used. The proportional-hazards assumption was inspected by Schoenfeld residuals.
+
+## All-cause mortality
+
+Survival was summarised by Kaplan–Meier estimation (`survfit2`). Hazard ratios for mortality were estimated with Cox proportional-hazards models, treating death as the primary event without competing risk.
+
+## Fixed-horizon (5-year) analyses
+
+In parallel with the time-to-event models, 5-year event probabilities were modelled by logistic regression for each outcome (univariate and multivariate using the same covariate set). Patients censored before 5 years without the event were excluded from the 5-year denominator.
+
+## Longitudinal eGFR slope
+
+To quantify annual eGFR decline between groups, every post-index serum-creatinine measurement was extracted from the RPDR Lab files and converted to an eGFR with CKD-EPI 2021, advancing chronologic age to the lab date (treated: 9,455 observations; control: 11,148 observations). Three linear mixed-effects models (`lme4::lmer`, REML, `bobyqa` optimizer; Satterthwaite degrees of freedom via `lmerTest`) were fit:
+
+- **Long-term**: all post-index observations, `eGFR ~ time × treat + (time | EMPI)` — random intercept and slope per patient.
+- **First-year**: observations within 365 days of index, `eGFR ~ time × treat + (1 | EMPI)` — random intercept only (slope not identifiable because 55 % of controls had only one first-year measurement).
+- **Three-year**: observations within 1095 days, `eGFR ~ time × treat + (time | EMPI)` — random intercept and slope.
+
+In each model the `time × treat` interaction term is the between-group difference in annual eGFR decline (mL/min/1.73 m² per year). LOESS-smoothed group-mean trajectories and per-patient OLS slopes (for patients with ≥ 2 observations in the window) are reported as descriptive visualisations.
+
+## Software and inference
+
+All analyses were performed in R using `MatchIt`, `survival`, `tidycmprsk`, `lme4`, `lmerTest`, `ggsurvfit`, `gtsummary`, `cobalt`, and `tidyverse`. Two-sided p-values < 0.05 were considered statistically significant. Standard errors in the matched-cohort outcome models do **not** explicitly account for the matched-pair clustering induced by 1:k matching; sensitivity analyses with subclass-clustered robust standard errors (`coxph(... , cluster = subclass)`) or `MatchIt` matching weights are planned for the final manuscript. Treated-only covariates (cancer type and stage, ICI class, individual chemotherapeutic agents, nephrotoxic chemotherapy flag) have no analogue in the control group and were therefore excluded from the PS model and outcome adjustment; this is acknowledged as a source of residual confounding by indication.
+
+---
+
 # 1 Setup
 
 ```{r}
@@ -573,6 +615,75 @@ ggplot(labs_yr1, aes(x = days_since_index, y = eGFR_CRE, color = treat, fill = t
   labs(
     title = "First-year eGFR trajectory by group (LOESS-smoothed)",
     x = "Days since Index_date",
+    y = "eGFR (mL/min/1.73 m²)",
+    color = NULL, fill = NULL
+  ) +
+  theme_minimal()
+```
+
+## 8.4 Three-year slope (days 1–1095)
+
+```{r}
+#| label: lmm-3yr
+labs_yr3 <- labs %>% filter(days_since_index <= 1095)
+
+fit_yr3 <- lmer(
+  eGFR_CRE ~ year_since_index * treat + (year_since_index | EMPI),
+  data = labs_yr3,
+  REML = TRUE,
+  control = lmerControl(optimizer = "bobyqa")
+)
+
+fit_yr3 %>%
+  tbl_regression(
+    intercept = TRUE,
+    label = list(
+      year_since_index ~ "Time (yr) — control slope",
+      `year_since_index:treat` ~ "Year × ICI Treated (diff in slope)"
+    )
+  ) %>%
+  add_n() %>%
+  modify_caption("Linear mixed-effects model — first 3 years (≤1095 d) eGFR decline")
+```
+
+```{r}
+#| label: slope-plot-yr3
+#| fig-height: 5
+#| fig-width: 8
+per_patient_slopes_yr3 <- labs_yr3 %>%
+  group_by(treat, EMPI) %>%
+  filter(n() >= 2) %>%
+  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+
+ggplot(per_patient_slopes_yr3, aes(x = treat, y = slope, fill = treat)) +
+  geom_violin(alpha = .4, trim = TRUE) +
+  geom_boxplot(width = .15, outlier.size = .6) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  coord_cartesian(ylim = c(-50, 50)) +
+  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
+  labs(
+    title = "Per-patient 3-year annual eGFR slope",
+    subtitle = paste0("Restricted to patients with ≥2 labs within 3 years (treated n=",
+                      sum(per_patient_slopes_yr3$treat == "ICI Treated"),
+                      ", control n=", sum(per_patient_slopes_yr3$treat == "Control"), ")"),
+    y = "3-year annual eGFR change (mL/min/1.73 m² / yr)",
+    x = NULL
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| label: traj-plot-yr3
+#| fig-height: 5
+#| fig-width: 8
+ggplot(labs_yr3, aes(x = year_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
+  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .5) +
+  scale_x_continuous(breaks = c(0, 0.5, 1, 1.5, 2, 2.5, 3)) +
+  scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  labs(
+    title = "3-year eGFR trajectory by group (LOESS-smoothed)",
+    x = "Years since Index_date",
     y = "eGFR (mL/min/1.73 m²)",
     color = NULL, fill = NULL
   ) +
