@@ -77,7 +77,7 @@ To quantify annual eGFR decline between groups, every post-index serum-creatinin
 - **First-year**: observations within 365 days of index, `eGFR ~ time × treat + (1 | EMPI)` — random intercept only (slope not identifiable because 55 % of controls had only one first-year measurement).
 - **Three-year**: observations within 1095 days, `eGFR ~ time × treat + (time | EMPI)` — random intercept and slope.
 
-In each model the `time × treat` interaction term is the between-group difference in annual eGFR decline (mL/min/1.73 m² per year). LOESS-smoothed group-mean trajectories and per-patient OLS slopes (for patients with ≥ 2 observations in the window) are reported as descriptive visualisations.
+In each model the `time × treat` interaction term is the between-group difference in annual eGFR decline (mL/min/1.73 m² per year). Each model's group-mean trajectory is visualised with the fixed-effects marginal prediction (and 95% CI ribbon) from the fitted `lmer` — no LOESS smoother, no per-patient slope plot.
 
 ## Software and inference
 
@@ -486,6 +486,29 @@ print(labs %>% group_by(treat, EMPI) %>% summarise(n = n(), .groups = "drop") %>
         ))
 ```
 
+```{r}
+#| label: helper-lmer-pred
+# Marginal (fixed-effects-only) prediction with 95% CI from an lmer fit.
+# Returns a data.frame: year_since_index, treat, fit, lo, hi.
+lmer_marginal_pred <- function(fit, year_grid) {
+  grid <- expand.grid(
+    year_since_index = year_grid,
+    treat            = c("Control", "ICI Treated"),
+    stringsAsFactors = FALSE
+  )
+  grid$treat <- factor(grid$treat, levels = c("Control", "ICI Treated"))
+
+  mm <- model.matrix(~ year_since_index * treat, data = grid)
+  fe <- lme4::fixef(fit)
+  grid$fit <- as.numeric(mm %*% fe)
+  v  <- mm %*% as.matrix(vcov(fit)) %*% t(mm)
+  grid$se <- sqrt(diag(v))
+  grid$lo <- grid$fit - 1.96 * grid$se
+  grid$hi <- grid$fit + 1.96 * grid$se
+  grid
+}
+```
+
 ## 8.2 Long-term slope — all post-index data
 
 ```{r}
@@ -510,43 +533,22 @@ fit_all %>%
 ```
 
 ```{r}
-#| label: slope-plot-all
+#| label: lmer-plot-all
 #| fig-height: 5
 #| fig-width: 8
-# Per-patient empirical slopes via OLS on each patient's data
-per_patient_slopes <- labs %>%
-  group_by(treat, EMPI) %>%
-  filter(n() >= 2) %>%
-  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+pred_all <- lmer_marginal_pred(fit_all, year_grid = seq(0, max(labs$year_since_index, na.rm = TRUE), length.out = 200))
 
-ggplot(per_patient_slopes, aes(x = treat, y = slope, fill = treat)) +
-  geom_violin(alpha = .4, trim = TRUE) +
-  geom_boxplot(width = .15, outlier.size = .6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
-  coord_cartesian(ylim = c(-30, 30)) +
-  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
-  labs(
-    title = "Per-patient annual eGFR slope (long-term)",
-    subtitle = "Violin + box plot; dashed line = 0 (no change)",
-    y = "Annual eGFR change (mL/min/1.73 m² / yr)",
-    x = NULL
-  ) +
-  theme_minimal()
-```
-
-```{r}
-#| label: traj-plot-all
-#| fig-height: 5
-#| fig-width: 8
-ggplot(labs, aes(x = year_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
-  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .5) +
-  scale_x_continuous(breaks = 0:10, limits = c(0, 10)) +
+ggplot(pred_all, aes(x = year_since_index, y = fit, color = treat, fill = treat)) +
+  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = .2, color = NA) +
+  geom_line(linewidth = 1) +
   scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
-  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual( values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_x_continuous(breaks = 0:10) +
   labs(
-    title = "Mean eGFR trajectory by group (LOESS-smoothed)",
+    title = "Model-predicted mean eGFR over time by group (long-term lmer)",
+    subtitle = "Fixed-effects marginal prediction with 95% CI",
     x = "Years since Index_date",
-    y = "eGFR (mL/min/1.73 m²)",
+    y = "Predicted eGFR (mL/min/1.73 m²)",
     color = NULL, fill = NULL
   ) +
   theme_minimal()
@@ -578,44 +580,23 @@ fit_yr1 %>%
 ```
 
 ```{r}
-#| label: slope-plot-yr1
+#| label: lmer-plot-yr1
 #| fig-height: 5
 #| fig-width: 8
-per_patient_slopes_yr1 <- labs_yr1 %>%
-  group_by(treat, EMPI) %>%
-  filter(n() >= 2) %>%
-  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+pred_yr1 <- lmer_marginal_pred(fit_yr1, year_grid = seq(0, 1, length.out = 200))
 
-ggplot(per_patient_slopes_yr1, aes(x = treat, y = slope, fill = treat)) +
-  geom_violin(alpha = .4, trim = TRUE) +
-  geom_boxplot(width = .15, outlier.size = .6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
-  coord_cartesian(ylim = c(-100, 100)) +
-  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
-  labs(
-    title = "Per-patient first-year annual eGFR slope",
-    subtitle = paste0("Restricted to patients with ≥2 labs in first 365 days (treated n=",
-                      sum(per_patient_slopes_yr1$treat == "ICI Treated"),
-                      ", control n=", sum(per_patient_slopes_yr1$treat == "Control"), ")"),
-    y = "First-year eGFR change (mL/min/1.73 m² / yr)",
-    x = NULL
-  ) +
-  theme_minimal()
-```
-
-```{r}
-#| label: traj-plot-yr1
-#| fig-height: 5
-#| fig-width: 8
-ggplot(labs_yr1, aes(x = days_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
-  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .6) +
-  scale_x_continuous(breaks = c(0, 90, 180, 270, 365)) +
+ggplot(pred_yr1, aes(x = year_since_index, y = fit, color = treat, fill = treat)) +
+  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = .2, color = NA) +
+  geom_line(linewidth = 1) +
   scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
-  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual( values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1),
+                     labels = c("0", "3 mo", "6 mo", "9 mo", "1 yr")) +
   labs(
-    title = "First-year eGFR trajectory by group (LOESS-smoothed)",
-    x = "Days since Index_date",
-    y = "eGFR (mL/min/1.73 m²)",
+    title = "Model-predicted mean eGFR — first year (lmer)",
+    subtitle = "Fixed-effects marginal prediction with 95% CI",
+    x = "Time since Index_date",
+    y = "Predicted eGFR (mL/min/1.73 m²)",
     color = NULL, fill = NULL
   ) +
   theme_minimal()
@@ -647,44 +628,22 @@ fit_yr3 %>%
 ```
 
 ```{r}
-#| label: slope-plot-yr3
+#| label: lmer-plot-yr3
 #| fig-height: 5
 #| fig-width: 8
-per_patient_slopes_yr3 <- labs_yr3 %>%
-  group_by(treat, EMPI) %>%
-  filter(n() >= 2) %>%
-  summarise(slope = coef(lm(eGFR_CRE ~ year_since_index))[2], .groups = "drop")
+pred_yr3 <- lmer_marginal_pred(fit_yr3, year_grid = seq(0, 3, length.out = 200))
 
-ggplot(per_patient_slopes_yr3, aes(x = treat, y = slope, fill = treat)) +
-  geom_violin(alpha = .4, trim = TRUE) +
-  geom_boxplot(width = .15, outlier.size = .6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
-  coord_cartesian(ylim = c(-50, 50)) +
-  scale_fill_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick"), guide = "none") +
-  labs(
-    title = "Per-patient 3-year annual eGFR slope",
-    subtitle = paste0("Restricted to patients with ≥2 labs within 3 years (treated n=",
-                      sum(per_patient_slopes_yr3$treat == "ICI Treated"),
-                      ", control n=", sum(per_patient_slopes_yr3$treat == "Control"), ")"),
-    y = "3-year annual eGFR change (mL/min/1.73 m² / yr)",
-    x = NULL
-  ) +
-  theme_minimal()
-```
-
-```{r}
-#| label: traj-plot-yr3
-#| fig-height: 5
-#| fig-width: 8
-ggplot(labs_yr3, aes(x = year_since_index, y = eGFR_CRE, color = treat, fill = treat)) +
-  geom_smooth(method = "loess", se = TRUE, alpha = .2, span = .5) +
-  scale_x_continuous(breaks = c(0, 0.5, 1, 1.5, 2, 2.5, 3)) +
+ggplot(pred_yr3, aes(x = year_since_index, y = fit, color = treat, fill = treat)) +
+  geom_ribbon(aes(ymin = lo, ymax = hi), alpha = .2, color = NA) +
+  geom_line(linewidth = 1) +
   scale_color_manual(values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
-  scale_fill_manual(values  = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_fill_manual( values = c("Control" = "steelblue", "ICI Treated" = "firebrick")) +
+  scale_x_continuous(breaks = c(0, 0.5, 1, 1.5, 2, 2.5, 3)) +
   labs(
-    title = "3-year eGFR trajectory by group (LOESS-smoothed)",
+    title = "Model-predicted mean eGFR — 3 years (lmer)",
+    subtitle = "Fixed-effects marginal prediction with 95% CI",
     x = "Years since Index_date",
-    y = "eGFR (mL/min/1.73 m²)",
+    y = "Predicted eGFR (mL/min/1.73 m²)",
     color = NULL, fill = NULL
   ) +
   theme_minimal()
